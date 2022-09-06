@@ -1,5 +1,5 @@
 {
-    "name": "woody-wordpress-pro/woody-lib-attachments",
+    "name": "woody-wordpress/woody-lib-attachments",
     "type": "wordpress-vendor",
     "version": "1.0.0",
     "description": "This plugin adds all the features to manage attachments in Woody",
