@@ -1,0 +1,21 @@
+{
+    "name": "woody-wordpress-pro/woody-addon-boilerplate",
+    "type": "wordpress-vendor",
+    "version": "1.0.0",
+    "description": "This plugin adds all the features to manage boilerplate in Woody",
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "Léo POIROUX",
+            "email": "leo@raccourci.fr"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Woody\\Addon\\Boilerplate\\": ""
+        }
+    },
+    "require": {
+        "php": "^7.3|^8.0"
+    }
+}
