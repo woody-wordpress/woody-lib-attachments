@@ -5,8 +5,8 @@
  * @copyright Raccourci Agency 2022
  */
 
-namespace Woody\Addon\Boilerplate\Services;
+namespace Woody\Addon\Attachments\Services;
 
-class BoilerplateManager
+class AttachmentsManager
 {
 }

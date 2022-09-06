@@ -5,7 +5,7 @@
  * @copyright Raccourci Agency 2022
  */
 
-namespace Woody\Addon\Boilerplate\Configurations;
+namespace Woody\Addon\Attachments\Configurations;
 
 class Services
 {
@@ -14,8 +14,8 @@ class Services
     private static function definitions()
     {
         return [
-            'boilerplate.manager' => [
-                'class'     => \Woody\Addon\Boilerplate\Services\BoilerplateManager::class,
+            'attachments.manager' => [
+                'class'     => \Woody\Addon\Attachments\Services\AttachmentsManager::class,
                 'arguments' => []
             ]
         ];

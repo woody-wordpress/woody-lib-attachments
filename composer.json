@@ -1,18 +1,22 @@
 {
-    "name": "woody-wordpress-pro/woody-addon-boilerplate",
+    "name": "woody-wordpress-pro/woody-addon-attachments",
     "type": "wordpress-vendor",
     "version": "1.0.0",
-    "description": "This plugin adds all the features to manage boilerplate in Woody",
+    "description": "This plugin adds all the features to manage attachments in Woody",
     "license": "GPL-2.0",
     "authors": [
         {
             "name": "Léo POIROUX",
             "email": "leo@raccourci.fr"
+        },
+        {
+            "name": "Benoit BOUCHAUD",
+            "email": "benoit@raccourci.fr"
         }
     ],
     "autoload": {
         "psr-4": {
-            "Woody\\Addon\\Boilerplate\\": ""
+            "Woody\\Addon\\Attachments\\": ""
         }
     },
     "require": {
