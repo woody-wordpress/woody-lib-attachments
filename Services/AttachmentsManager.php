@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @author Léo POIROUX
+ * @author Benoit BOUCHAUD
  * @copyright Raccourci Agency 2022
  */
 

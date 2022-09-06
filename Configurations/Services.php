@@ -17,6 +17,10 @@ class Services
             'attachments.manager' => [
                 'class'     => \Woody\Lib\Attachments\Services\AttachmentsManager::class,
                 'arguments' => []
+            ],
+            'attachments.api' => [
+                'class'     => \Woody\Lib\Attachments\Services\AttachmentsApi::class,
+                'arguments' => []
             ]
         ];
     }

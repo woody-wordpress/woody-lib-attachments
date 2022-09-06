@@ -27,6 +27,8 @@ final class Attachments extends Module
 
         parent::initialize($parameterManager, $container);
         $this->attachmentsManager = $this->container->get('attachments.manager');
+        $this->attachmentsApi = $this->container->get('attachments.api');
+
         $this->addImageSizes();
     }
 
@@ -37,6 +39,10 @@ final class Attachments extends Module
 
     public function subscribeHooks()
     {
+        // Scripts and styles
+        add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
+
+        add_action('woody_theme_update', [$this, 'woodyInsertTerms']);
         add_action('add_attachment', [$this->attachmentsManager, 'addAttachment'], 50);
         add_action('save_attachment', [$this->attachmentsManager, 'saveAttachment'], 50);
 
@@ -47,6 +53,25 @@ final class Attachments extends Module
         }
 
         add_filter('attachment_fields_to_save', [$this->attachmentsManager, 'attachmentFieldsToSave'], 12, 2); // Priority 12 ater polylang
+
+        // Ajax actions
+        add_action('rest_api_init', function () {
+            register_rest_route('woody', 'attachments/terms', array(
+                'methods' => 'GET',
+                'callback' => [$this->attachmentsApi, 'getAttachmentTerms'],
+            ));
+        });
+        add_action('wp_ajax_set_attachments_terms', [$this->attachmentsApi, 'setAttachmentsTerms']);
+    }
+
+    public function enqueueAdminAssets()
+    {
+        // Enqueue the main Scripts
+        $current_screen = get_current_screen();
+        if ($current_screen->id == 'upload' and $current_screen->post_type == 'attachment') {
+            wp_enqueue_style('admin-attachments-stylesheet', $this->addonAssetPath('woody-lib-attachments', 'scss/attachments-admin.css'), '', WOODY_LIB_ATTACHMENTS_VERSION);
+            wp_enqueue_script('admin-attachments-javascripts', $this->addonAssetPath('woody-lib-attachments', 'js/attachments-admin.js'), ['admin-javascripts'], WOODY_LIB_ATTACHMENTS_VERSION, true);
+        }
     }
 
     public function addImageSizes()
@@ -112,5 +137,10 @@ final class Attachments extends Module
         add_image_size('ratio_free_medium', 640);
         add_image_size('ratio_free_large', 1200);
         add_image_size('ratio_free', 1920);
+    }
+
+    public function woodyInsertTerms()
+    {
+        wp_insert_term('Vidéo externe', 'attachment_types', array('slug' => 'media_linked_video'));
     }
 }
