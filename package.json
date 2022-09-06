@@ -1,7 +1,7 @@
 {
     "private": true,
-    "name": "woody-addon-attachments",
-    "title": "Woody Addon Attachments by Raccourci Agency",
+    "name": "woody-lib-attachments",
+    "title": "Woody Lib Attachments by Raccourci Agency",
     "author": "Raccourci Agency",
     "scripts": {
         "watch": "gulp watch",

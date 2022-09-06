@@ -5,7 +5,7 @@
  * @copyright Raccourci Agency 2022
  */
 
-namespace Woody\Addon\Attachments\Configurations;
+namespace Woody\Lib\Attachments\Configurations;
 
 class Services
 {
@@ -15,7 +15,7 @@ class Services
     {
         return [
             'attachments.manager' => [
-                'class'     => \Woody\Addon\Attachments\Services\AttachmentsManager::class,
+                'class'     => \Woody\Lib\Attachments\Services\AttachmentsManager::class,
                 'arguments' => []
             ]
         ];

@@ -5,7 +5,7 @@
  * @copyright Raccourci Agency 2022
  */
 
-namespace Woody\Addon\Attachments\Services;
+namespace Woody\Lib\Attachments\Services;
 
 class AttachmentsManager
 {
