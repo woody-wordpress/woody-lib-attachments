@@ -56,12 +56,15 @@ final class Attachments extends Module
 
         // Ajax actions
         add_action('rest_api_init', function () {
-            register_rest_route('woody', 'attachments/terms', array(
+            register_rest_route('woody', 'attachments/terms/get', array(
                 'methods' => 'GET',
                 'callback' => [$this->attachmentsApi, 'getAttachmentTerms'],
             ));
+            register_rest_route('woody', 'attachments/terms/set', array(
+                'methods' => 'GET',
+                'callback' => [$this->attachmentsApi, 'setAttachmentsTerms'],
+            ));
         });
-        add_action('wp_ajax_set_attachments_terms', [$this->attachmentsApi, 'setAttachmentsTerms']);
     }
 
     public function enqueueAdminAssets()

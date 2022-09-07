@@ -64,21 +64,15 @@ if(!! document.getElementById('wp-media-grid')){
             termsForm.innerHTML = '<div class="choices"><ul class="themes"><p>Thématiques</p></ul><ul class="places"><p>Lieux</p></ul><ul class="seasons"><p>Saisons</p></ul></div><div class="actions"><button class="button button-primary apply">Valider</button><button class=" button close">Annuler</button></div>';
 
             getAttachmentsTerms(termsForm);
-
-            document.getElementById('wpbody-content').append(termsForm);
-
-            bindTermsFormActions(termsForm);
-
         } else {
             exitstingForm.classList.remove('hidden');
         }
     }
 
     function getAttachmentsTerms(termsForm){
-        fetch('/wp-json/woody/attachments/terms')
+        fetch('/wp-json/woody/attachments/terms/get')
             .then(response => response.json())
             .then(taxs => {
-                console.log(taxs);
                 if(!!taxs){
                     Object.entries(taxs).forEach(
                         ([taxName, tax]) => tax.forEach( term => {
@@ -94,22 +88,59 @@ if(!! document.getElementById('wp-media-grid')){
                         })
                     );
 
+                    document.getElementById('wpbody-content').append(termsForm);
+                    let checkboxes = termsForm.querySelectorAll('input[type="checkbox"]');
+                    bindTermsFormActions(termsForm, checkboxes);
                 }
             })
             .catch(error => {
                 console.error('Attachments terms fetch: ' + error);
-
             });
     }
 
-    function addTaxTerms(element, index, array){
-
-    }
-
-    function bindTermsFormActions(termsForm) {
+    function bindTermsFormActions(termsForm, checkboxes) {
         termsForm.querySelector('.button.close').addEventListener('click', () => {
             termsForm.classList.add('hidden');
+            checkboxes.forEach(element => {
+                element.checked = false;
+            });
         });
+
+        termsForm.querySelector('.button.apply').addEventListener('click', () => {
+            setPostTerms(termsForm, checkboxes);
+        });
+    }
+
+    function setPostTerms(termsForm, checkboxes) {
+        let attach_ids = [];
+        let terms_ids = [];
+        let selectedAttachments = document.querySelectorAll('.attachments-browser .attachments .attachment.selected');
+
+        if(selectedAttachments.length > 0){
+            selectedAttachments.forEach(element => {
+                attach_ids.push(element.dataset.id);
+            });
+        }
+
+        if(checkboxes.length > 0){
+            checkboxes.forEach(element => {
+                if(element.checked){
+                    terms_ids.push(element.value)
+                }
+            });
+        }
+
+        attach_ids.join(',');
+        terms_ids.join(',');
+
+        fetch('/wp-json/woody/attachments/terms/set?attach_ids='+ attach_ids +'&terms_ids='+ terms_ids)
+        .then(response => response.json())
+        .then(json => {
+            if(json == true){
+                location.reload();
+            }
+        });
+
     }
 
     function bindLoadMoreButton(){

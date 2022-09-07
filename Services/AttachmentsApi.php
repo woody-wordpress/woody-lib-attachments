@@ -34,8 +34,8 @@ class AttachmentsApi
 
     public function setAttachmentsTerms()
     {
-        $attach_ids = filter_input(INPUT_POST, 'attach_ids', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-        $term_ids = filter_input(INPUT_POST, 'term_ids', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+        $attach_ids = explode(',', filter_input(INPUT_GET, 'attach_ids'));
+        $term_ids = explode(',', filter_input(INPUT_GET, 'terms_ids'));
 
         if (!empty($attach_ids) && !empty($term_ids)) {
             foreach ($attach_ids as $attach_id) {
