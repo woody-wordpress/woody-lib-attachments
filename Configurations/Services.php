@@ -21,6 +21,14 @@ class Services
             'attachments.api' => [
                 'class'     => \Woody\Lib\Attachments\Services\AttachmentsApi::class,
                 'arguments' => []
+            ],
+            'attachments.wp.settings' => [
+                'class'     => \Woody\Lib\Attachments\Services\AttachmentsWpSettings::class,
+                'arguments' => []
+            ],
+            'images.metadata' => [
+                'class'     => \Woody\Lib\Attachments\Services\ImagesMetadata::class,
+                'arguments' => []
             ]
         ];
     }

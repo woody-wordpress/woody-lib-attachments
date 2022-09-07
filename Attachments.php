@@ -28,6 +28,8 @@ final class Attachments extends Module
         parent::initialize($parameterManager, $container);
         $this->attachmentsManager = $this->container->get('attachments.manager');
         $this->attachmentsApi = $this->container->get('attachments.api');
+        $this->attachmentsWpSettings = $this->container->get('attachments.wp.settings');
+        $this->imagesMetadata = $this->container->get('images.metadata');
 
         $this->addImageSizes();
     }
@@ -52,9 +54,24 @@ final class Attachments extends Module
             add_action('delete_attachment', [$this->attachmentsManager, 'deleteAttachment'], 1);
         }
 
+        // Woody filters
+        add_filter('timber_render', [$this->attachmentsManager, 'timberRender'], 1);
         add_filter('attachment_fields_to_save', [$this->attachmentsManager, 'attachmentFieldsToSave'], 12, 2); // Priority 12 ater polylang
 
-        // Ajax actions
+        // Images metadata reading/setting
+        add_filter('wp_read_image_metadata', [$this->imagesMetadata, 'readImageMetadata'], 10, 4);
+        add_filter('wp_generate_attachment_metadata', [$this->imagesMetadata, 'generateAttachmentMetadata'], 10, 2);
+
+        // WP Native settings
+        add_filter('wp_image_editors', [$this->attachmentsWpSettings, 'wpImageEditors']);
+        add_filter('intermediate_image_sizes_advanced', [$this->attachmentsWpSettings, 'removeAutoThumbs'], 10, 2);
+        add_filter('image_size_names_choose', [$this->attachmentsWpSettings, 'imageSizeNamesChoose'], 10, 1);
+        add_filter('wp_handle_upload_prefilter', [$this->attachmentsWpSettings, 'maxUploadSize']);
+        add_filter('upload_mimes', [$this->attachmentsWpSettings, 'uploadMimes'], 10, 1);
+        add_filter('big_image_size_threshold', '__return_false'); // Désactive la duplication  de photo (filename-scaled.jpg) depuis WP 5.3
+        add_filter('wp_handle_upload_overrides', [$this->attachmentsWpSettings, 'handleOverridesForGeoJSON'], 10, 2);
+
+        // API
         add_action('rest_api_init', function () {
             register_rest_route('woody', 'attachments/terms/get', array(
                 'methods' => 'GET',

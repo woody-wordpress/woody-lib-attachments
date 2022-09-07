@@ -148,4 +148,9 @@ class AttachmentsManager
 
         return $post;
     }
+
+    public function timberRender($render)
+    {
+        return preg_replace('/http(s?):\/\/([a-zA-Z0-9-_.]*)\/app\/uploads\/([^\/]*)\/([0-9]*)\/([0-9]*)\/..\/..\/..\/..\/..\/wp-json\/woody\/crop\/([0-9]*)\/ratio_([a-z0-9-_]*)/', 'http$1://$2/wp-json/woody/crop/$6/ratio_$7', $render);
+    }
 }
