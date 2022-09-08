@@ -139,6 +139,7 @@ class AttachmentsTableManager
                         if (is_array($section_content_values)) {
                             $attachments_ids = array_merge($section_content_values, $attachments_ids);
                         }
+
                         if ($layout['acf_fc_layout'] == 'tabs_group') {
                             foreach ($layout['tabs'] as $tab_key => $tab) {
                                 $tabs_values = $this->getFieldsValues($args['field_names'], $post_id, 'section_' . $section_key . '_section_content_' . $layout_key . '_tabs_' . $tab_key);
@@ -155,11 +156,19 @@ class AttachmentsTableManager
                                 }
                             }
                         }
+
+                        if ($layout['acf_fc_layout'] == 'interactive_gallery') {
+                            foreach ($layout['interactive_gallery_items'] as $gallery_key => $gallery) {
+                                $gallery_values = $this->getFieldsValues($args['field_names'], $post_id, 'section_' . $section_key . '_section_content_' . $layout_key . '_interactive_gallery_items_' . $gallery_key);
+                                if (is_array($gallery_values)) {
+                                    $attachments_ids = array_merge($gallery_values, $attachments_ids);
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-        output_log($attachments_ids);
 
         if (!empty($attachments_ids)) {
             output_success('Found ' . count($attachments_ids) . ' attachments used in post ' . $post_id);
