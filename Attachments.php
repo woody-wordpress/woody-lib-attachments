@@ -30,8 +30,16 @@ final class Attachments extends Module
         $this->attachmentsApi = $this->container->get('attachments.api');
         $this->attachmentsWpSettings = $this->container->get('attachments.wp.settings');
         $this->imagesMetadata = $this->container->get('images.metadata');
+        $this->attachmentsPagesList = $this->container->get('attachments.pageslist');
+        $this->attachmentsTableManager = $this->container->get('attachments.table.manager');
+        $this->attachmentsCommands = $this->container->get('attachments.commands');
 
         $this->addImageSizes();
+    }
+
+    public function registerCommands()
+    {
+        \WP_CLI::add_command('woody:attachments', $this->attachmentsCommands);
     }
 
     public static function dependencyServiceDefinitions()
@@ -41,6 +49,10 @@ final class Attachments extends Module
 
     public function subscribeHooks()
     {
+        // DB actions
+        add_action('woody_theme_update', [$this->attachmentsTableManager, 'upgrade'], 10);
+
+
         // Scripts and styles
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
 
@@ -82,6 +94,13 @@ final class Attachments extends Module
                 'callback' => [$this->attachmentsApi, 'setAttachmentsTerms'],
             ));
         });
+
+        //Woody Actions
+        add_action('get_attachments_by_post', [$this->attachmentsTableManager, 'getAttachmentsByPost']);
+
+        // List pages linked to an image
+        add_action('admin_menu', [$this->attachmentsPagesList, 'generatePagesList']);
+        add_filter('media_row_actions', [$this->attachmentsPagesList, 'addPageListLinks'], 10, 3);
     }
 
     public function enqueueAdminAssets()
