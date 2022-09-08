@@ -81,8 +81,13 @@ class AttachmentsTableManager
 
     public function getPosts($posts_per_page = 1000, $offset = 0)
     {
+        $posts_types = get_post_types(['public' => true, '_builtin' => false]);
+        unset($posts_types['touristic_sheet']);
+        unset($posts_types['short_link']);
+        $posts_types['page'] = 'page';
+
         $args = [
-            'post_type' => ['page', 'touristic_sheet'],
+            'post_type' => $posts_types,
             'tax_query' => [
                 array(
                     'taxonomy' => 'page_type',

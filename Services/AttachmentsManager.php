@@ -156,6 +156,8 @@ class AttachmentsManager
 
     public function savePost($post_id, $post, $update)
     {
+        $exclude = ['attachment', 'touristic_sheet', 'short_link'];
+
         if (!empty('post') && $post->post_type != 'attachment') {
             do_action('woody_async_add', 'get_attachments_by_post', ['post_id' => $post_id]);
         }

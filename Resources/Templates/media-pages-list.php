@@ -32,6 +32,7 @@ if (!empty($results)) {
     echo '<th>Type de contenu</th>';
     echo '<th>Langue</th>';
     echo '<th>Post ID</th>';
+    echo '<th>Position</th>';
     echo '<th>Editer la page</td>';
     echo '<th>Voir la page</td>';
     echo '</tr>';
@@ -42,7 +43,8 @@ if (!empty($results)) {
         echo '<td>' . $result->post_title . '</td>';
         echo '<td>' . $result->post_type . '</td>';
         echo '<td>' . pll_get_post_language($result->ID) . '</td>';
-        echo '<td>' . $result->post_id . '</td>';
+        echo '<td>' . $result->ID . '</td>';
+        echo '<td>' . $result->position . '</td>';
         echo '<td><a href="'. get_edit_post_link($result->ID) . '" target="_blank">Editer</a></td>';
         echo '<td><a href="' . woody_get_permalink($result->ID) . '" target="_blank">Voir la page</a></td>';
         echo '</tr>';

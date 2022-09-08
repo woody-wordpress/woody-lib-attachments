@@ -52,7 +52,6 @@ final class Attachments extends Module
         // DB actions
         add_action('woody_theme_update', [$this->attachmentsTableManager, 'upgrade'], 10);
 
-
         // Scripts and styles
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
 
