@@ -153,4 +153,11 @@ class AttachmentsManager
     {
         return preg_replace('/http(s?):\/\/([a-zA-Z0-9-_.]*)\/app\/uploads\/([^\/]*)\/([0-9]*)\/([0-9]*)\/..\/..\/..\/..\/..\/wp-json\/woody\/crop\/([0-9]*)\/ratio_([a-z0-9-_]*)/', 'http$1://$2/wp-json/woody/crop/$6/ratio_$7', $render);
     }
+
+    public function savePost($post_id, $post, $update)
+    {
+        if (!empty('post') && $post->post_type != 'attachment') {
+            do_action('woody_async_add', 'get_attachments_by_post', ['post_id' => $post_id]);
+        }
+    }
 }

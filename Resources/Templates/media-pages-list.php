@@ -24,34 +24,34 @@ if (! defined('ABSPATH')) {
     </section>
     <section class="woody-mediapageslist-table">
         <?php
-            if (!empty($results)) {
-                echo '<table>';
-                echo '<thead>';
-                echo '<tr>';
-                echo '<th>Titre de la page</th>';
-                echo '<th>Type de contenu</th>';
-                echo '<th>Langue</th>';
-                echo '<th>Post ID</th>';
-                echo '<th>Editer la page</td>';
-                echo '<th>Voir la page</td>';
-                echo '</tr>';
-                echo '</thead>';
-                echo '<tbody>';
-                foreach ($results as $result) {
-                    echo '<tr>';
-                    echo '<td>' . $result->post_title . '</td>';
-                    echo '<td>' . $result->post_type . '</td>';
-                    echo '<td>' . pll_get_post_language($result->post_id) . '</td>';
-                    echo '<td>' . $result->post_id . '</td>';
-                    echo '<td><a href="'. get_edit_post_link($result->post_id) . '" target="_blank">Editer</a></td>';
-                    echo '<td><a href="' . woody_get_permalink($result->post_id) . '" target="_blank">Voir la page</a></td>';
-                    echo '</tr>';
-                }
-                echo '</tbody>';
-                echo '</table>';
-            } else {
-                echo '<h3>Cette image n\'est utilisée dans aucune page</h3>';
-            }
+if (!empty($results)) {
+    echo '<table>';
+    echo '<thead>';
+    echo '<tr>';
+    echo '<th>Titre de la page</th>';
+    echo '<th>Type de contenu</th>';
+    echo '<th>Langue</th>';
+    echo '<th>Post ID</th>';
+    echo '<th>Editer la page</td>';
+    echo '<th>Voir la page</td>';
+    echo '</tr>';
+    echo '</thead>';
+    echo '<tbody>';
+    foreach ($results as $result) {
+        echo '<tr>';
+        echo '<td>' . $result->post_title . '</td>';
+        echo '<td>' . $result->post_type . '</td>';
+        echo '<td>' . pll_get_post_language($result->ID) . '</td>';
+        echo '<td>' . $result->post_id . '</td>';
+        echo '<td><a href="'. get_edit_post_link($result->ID) . '" target="_blank">Editer</a></td>';
+        echo '<td><a href="' . woody_get_permalink($result->ID) . '" target="_blank">Voir la page</a></td>';
+        echo '</tr>';
+    }
+    echo '</tbody>';
+    echo '</table>';
+} else {
+    echo '<h3>Cette image n\'est utilisée dans aucune page</h3>';
+}
 ?>
     </section>
 </div>

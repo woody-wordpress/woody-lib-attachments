@@ -32,27 +32,14 @@ class AttachmentsPageslist
 
     public function ListPagesUsingMedia()
     {
-        // global $wpdb;
-        // $field_names = dropzone_get('woody_images_fields_names');
-        // if (empty($field_names)) {
-        //     $field_names = $this->getImagesFieldNames();
-        //     dropzone_set('woody_images_fields_names', $field_names);
-        // }
-        // $att_id = filter_input(INPUT_GET, 'attachment_id', FILTER_SANITIZE_STRING);
-        // $att_metadata = wp_get_attachment_metadata($att_id);
+        global $wpdb;
 
-        // if (!empty($field_names)) {
-        //     foreach ($field_names as $field_name) {
-        //         $req_results = $wpdb->get_results($wpdb->prepare("SELECT p.post_type, p.post_title, pm.post_id, pm.meta_value FROM {$wpdb->prefix}postmeta as pm LEFT JOIN {$wpdb->prefix}posts as p ON pm.post_id = p.ID WHERE pm.meta_key LIKE '%$field_name' AND pm.meta_value != '' AND p.post_type != 'revision'"));
-        //         if (!empty($req_results)) {
-        //             foreach ($req_results as $req_result) {
-        //                 if (strpos($req_result->meta_value, $att_id) !== false) {
-        //                     $results[$req_result->post_id] = $req_result;
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        $att_id = filter_input(INPUT_GET, 'attachment_id', FILTER_SANITIZE_STRING);
+        $att_metadata = wp_get_attachment_metadata($att_id);
+        $req_str = "SELECT p.post_type, p.post_title, p.ID FROM {$wpdb->prefix}woody_attachments as wa LEFT JOIN {$wpdb->prefix}posts as p ON wa.post_id = p.ID WHERE wa.attachment_id = '$att_id' AND p.post_type != 'revision'";
+        console_log($req_str);
+        $results = $wpdb->get_results($wpdb->prepare($req_str));
+
 
         require_once(WOODY_LIB_ATTACHMENTS_DIR_RESOURCES . '/Templates/media-pages-list.php');
     }
