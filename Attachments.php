@@ -108,9 +108,16 @@ final class Attachments extends Module
     {
         // Enqueue the main Scripts
         $current_screen = get_current_screen();
+        console_log($current_screen);
         if ($current_screen->id == 'upload' and $current_screen->post_type == 'attachment') {
             wp_enqueue_style('admin-attachments-stylesheet', $this->addonAssetPath('woody-lib-attachments', 'scss/attachments-admin.css'), '', WOODY_LIB_ATTACHMENTS_VERSION);
             wp_enqueue_script('admin-attachments-javascripts', $this->addonAssetPath('woody-lib-attachments', 'js/attachments-admin.js'), ['admin-javascripts'], WOODY_LIB_ATTACHMENTS_VERSION, true);
+        }
+
+        if ($current_screen->id == 'admin_page_woody-pages-using-media') {
+            wp_enqueue_media();
+            wp_enqueue_style('replace-attachments-stylesheet', $this->addonAssetPath('woody-lib-attachments', 'scss/replace-attachment.css'), '', WOODY_LIB_ATTACHMENTS_VERSION);
+            wp_enqueue_script('replace-attachment-javascripts', $this->addonAssetPath('woody-lib-attachments', 'js/replace-attachment.js'), ['admin-javascripts'], WOODY_LIB_ATTACHMENTS_VERSION, true);
         }
     }
 

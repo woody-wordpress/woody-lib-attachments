@@ -88,14 +88,7 @@ class AttachmentsTableManager
 
         $args = [
             'post_type' => $posts_types,
-            'tax_query' => [
-                array(
-                    'taxonomy' => 'page_type',
-                    'field' => 'slug',
-                    'terms' => ['mirror_page'],
-                    'operator' => 'NOT IN'
-                )
-            ],
+            'post_status' => ['publish', 'draft'],
             'orderby' => 'menu_order',
             'order'   => 'DESC',
             'posts_per_page' => $posts_per_page,

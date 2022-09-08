@@ -29,7 +29,7 @@ class CommandsManager
             $query = $this->attachmentsTableManager->getPosts($posts_to_get, 1);
             if (!empty($query)) {
                 while ($count_posts < $query->found_posts) {
-                    $count_posts = $count_post + $query->post_count;
+                    $count_posts = $count_posts + $query->post_count;
                     $posts_ids = array_merge($posts_ids, $query->posts);
                     $offset = $offset + $posts_to_get;
                     $query = $this->attachmentsTableManager->getPosts($posts_to_get, $offset);
@@ -38,6 +38,8 @@ class CommandsManager
         } else {
             $posts_ids = explode(',', $assoc_args['posts']);
         }
+
+        output_log($posts_ids);
 
         if (!empty($posts_ids)) {
             $field_names = $this->attachmentsTableManager->getAttachmentsFieldNames();

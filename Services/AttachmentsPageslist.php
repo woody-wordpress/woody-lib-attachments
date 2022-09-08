@@ -23,29 +23,43 @@ class AttachmentsPageslist
 
     public function addPageListLinks($actions, $post, $detached)
     {
-        $mimetype = get_post_mime_type($post->ID);
-        if (strpos($mimetype, 'image') !== false) {
-            $actions['linked_pages_list'] = sprintf('<a href="/wp/wp-admin/admin.php?page=woody-pages-using-media&attachment_id=%s">Voir les pages utilisant l\'image</a>', $post->ID);
-        }
+        $actions['linked_pages_list'] = sprintf('<a href="/wp/wp-admin/admin.php?page=woody-pages-using-media&attachment_id=%s">Utilisation et remplacement</a>', $post->ID);
         return $actions;
     }
 
     public function ListPagesUsingMedia()
     {
+        $attachment_id = filter_input(INPUT_GET, 'attachment_id', FILTER_SANITIZE_STRING);
+        $att_metadata = wp_get_attachment_metadata($attachment_id);
+
+        $results = $this->getResults($attachment_id);
+
+        require_once(WOODY_LIB_ATTACHMENTS_DIR_RESOURCES . '/Templates/media-pages-list.php');
+    }
+
+    private function getResults($attachment_id)
+    {
         global $wpdb;
 
-        $att_id = filter_input(INPUT_GET, 'attachment_id', FILTER_SANITIZE_STRING);
-        $att_metadata = wp_get_attachment_metadata($att_id);
-        $req_str = "SELECT p.post_type, p.post_title, p.ID, wa.meta_key FROM {$wpdb->prefix}woody_attachments as wa LEFT JOIN {$wpdb->prefix}posts as p ON wa.post_id = p.ID WHERE wa.attachment_id = '$att_id' AND p.post_type != 'revision'";
+        $req_str = "SELECT p.post_type, p.post_title, p.ID, wa.meta_key FROM {$wpdb->prefix}woody_attachments as wa LEFT JOIN {$wpdb->prefix}posts as p ON wa.post_id = p.ID WHERE wa.attachment_id = '$attachment_id' AND p.post_type != 'revision'";
         $results = $wpdb->get_results($wpdb->prepare($req_str));
 
         if (!empty($results)) {
             foreach ($results as $results_key => $result) {
                 $results[$results_key]->position = $this->metaKeyToPosition($result->meta_key);
+                $results[$results_key]->post_type = $this->postTypeLabel($result->post_type);
             }
         }
 
-        require_once(WOODY_LIB_ATTACHMENTS_DIR_RESOURCES . '/Templates/media-pages-list.php');
+        return $results;
+    }
+
+    private function postTypeLabel($post_type)
+    {
+        $post_type_obj = get_post_type_object($post_type);
+        $return = (empty($post_type_obj->labels->singular_name)) ? $post_type : $post_type_obj->labels->singular_name;
+
+        return $return;
     }
 
     private function metaKeyToPosition($meta_key)

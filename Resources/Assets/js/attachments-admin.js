@@ -163,3 +163,4 @@ if(!! document.getElementById('wp-media-grid')){
     getGridsAttachments();
     bindLoadMoreButton();
 }
+

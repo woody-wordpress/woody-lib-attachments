@@ -13,17 +13,36 @@ if (! defined('ABSPATH')) {
 
 <header class="woody-mediapageslist-header woody-sitemap">
     <h1>
-        Liste des pages utilisant l'image "<?php echo (empty($att_metadata['image_meta']['title'])) ? get_the_title($att_id) : $att_metadata['image_meta']['title'] ?>"
+        Liste des pages utilisant l'image "<?php echo (empty($att_metadata['image_meta']['title'])) ? get_the_title($attachment_id) : $att_metadata['image_meta']['title'] ?>"
         <span>Made with ♥ by Raccourci Agency</span>
     </h1>
 </header>
 <div class="woody-mediapageslist-container">
     <section class="woody-mediapageslist-file">
-        <img src="<?php echo wp_get_attachment_image_url($att_id, 'ratio_square_small') ?>"
-            width="200" height="200" />
+        <div id="currentMediaFrame" class="media-wrapper">
+            <img src="<?php echo wp_get_attachment_image_url($attachment_id, 'ratio_square_small') ?>"
+                width="200" height="200" />
+            <button role="button" id="replaceAttachment" class="button button-primary button-large">
+                Remplacer par un autre média
+            </button>
+            <input type="text" value="" id="newAttachmentId" name="newAttachmentId" />
+        </div>
+
+        <div id="newMediaFrame" class="media-wrapper">
+            <span class="dashicons dashicons-arrow-down-alt"></span>
+            <img src="#" width="200" height="200" id="newMediaImg" />
+            <button role="button" id="submitNewAttachment" class="button button-primary button-large">
+                Valider
+            </button>
+            <button role="button" id="cancelNewAttachment" class="button button-secondary button-large">
+                Annuler
+            </button>
+        </div>
+
     </section>
     <section class="woody-mediapageslist-table">
         <?php
+
 if (!empty($results)) {
     echo '<table>';
     echo '<thead>';
