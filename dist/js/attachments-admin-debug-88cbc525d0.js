@@ -70,33 +70,40 @@ if(!! document.getElementById('wp-media-grid')){
     }
 
     function getAttachmentsTerms(termsForm){
-        fetch('/wp-json/woody/attachments/terms/get')
-            .then(response => response.json())
-            .then(taxs => {
-                if(!!taxs){
-                    Object.entries(taxs).forEach(
-                        ([taxName, tax]) => tax.forEach( term => {
-                            let taxList = termsForm.querySelector('.' + taxName);
-                            let listItem = document.createElement('li');
-                            listItem.innerHTML = term.name;
 
-                            let listBox = document.createElement('input');
-                            listBox.setAttribute('type', 'checkbox');
-                            listBox.setAttribute('value', term.id);
-                            listItem.prepend(listBox);
-                            taxList.append(listItem);
-                        })
-                    );
+        var customHeaders = new Headers();
+        customHeaders.append('X-WP-Nonce', wpApiSettings.nonce);
 
-                    document.getElementById('wpbody-content').append(termsForm);
-                    let checkboxes = termsForm.querySelectorAll('input[type="checkbox"]');
-                    bindTermsFormActions(termsForm, checkboxes);
-                }
-            })
-            .catch(error => {
-                console.error('Attachments terms fetch: ' + error);
-            });
+        fetch('/wp-json/woody/attachments/terms/get', {
+            headers : customHeaders
+        })
+        .then(response => response.json())
+        .then(taxs => {
+            if(!!taxs){
+                Object.entries(taxs).forEach(
+                    ([taxName, tax]) => tax.forEach( term => {
+                        let taxList = termsForm.querySelector('.' + taxName);
+                        let listItem = document.createElement('li');
+                        listItem.innerHTML = term.name;
+
+                        let listBox = document.createElement('input');
+                        listBox.setAttribute('type', 'checkbox');
+                        listBox.setAttribute('value', term.id);
+                        listItem.prepend(listBox);
+                        taxList.append(listItem);
+                    })
+                );
+
+                document.getElementById('wpbody-content').append(termsForm);
+                let checkboxes = termsForm.querySelectorAll('input[type="checkbox"]');
+                bindTermsFormActions(termsForm, checkboxes);
+            }
+        })
+        .catch(error => {
+            console.error('Attachments terms fetch: ' + error);
+        });
     }
+
 
     function bindTermsFormActions(termsForm, checkboxes) {
         termsForm.querySelector('.button.close').addEventListener('click', () => {
@@ -133,7 +140,12 @@ if(!! document.getElementById('wp-media-grid')){
         attach_ids.join(',');
         terms_ids.join(',');
 
-        fetch('/wp-json/woody/attachments/terms/set?attach_ids='+ attach_ids +'&terms_ids='+ terms_ids)
+        var customHeaders = new Headers();
+        customHeaders.append('X-WP-Nonce', wpApiSettings.nonce);
+
+        fetch('/wp-json/woody/attachments/terms/set?attach_ids='+ attach_ids +'&terms_ids='+ terms_ids, {
+            headers : customHeaders
+        })
         .then(response => response.json())
         .then(json => {
             if(json == true){

@@ -20,7 +20,9 @@ class Services
             ],
             'attachments.api' => [
                 'class'     => \Woody\Lib\Attachments\Services\AttachmentsApi::class,
-                'arguments' => []
+                'arguments' => [
+                    ['service' => 'attachments.table.manager']
+                ]
             ],
             'attachments.wp.settings' => [
                 'class'     => \Woody\Lib\Attachments\Services\AttachmentsWpSettings::class,

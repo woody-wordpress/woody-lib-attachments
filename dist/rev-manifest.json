@@ -1,8 +1,8 @@
 {
-  "js/attachments-admin-debug.js": "js/attachments-admin-debug-3b0b36fd4d.js",
-  "js/attachments-admin.js": "js/attachments-admin-d36bd3104d.js",
-  "js/replace-attachment-debug.js": "js/replace-attachment-debug-160d043e70.js",
-  "js/replace-attachment.js": "js/replace-attachment-ce310ac687.js",
+  "js/attachments-admin-debug.js": "js/attachments-admin-debug-88cbc525d0.js",
+  "js/attachments-admin.js": "js/attachments-admin-0b73044a16.js",
+  "js/replace-attachment-debug.js": "js/replace-attachment-debug-a9a1c2bab1.js",
+  "js/replace-attachment.js": "js/replace-attachment-845edbaf27.js",
   "scss/attachments-admin.css": "scss/attachments-admin-c7a7761101.css",
   "scss/replace-attachment.css": "scss/replace-attachment-c7c4fd38c0.css"
 }

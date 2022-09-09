@@ -51,7 +51,7 @@ class AttachmentsPageslist
             }
         }
 
-        return $results;
+        return array_reverse($results);
     }
 
     private function postTypeLabel($post_type)

@@ -7,8 +7,17 @@
 
 namespace Woody\Lib\Attachments\Services;
 
+use Woody\Lib\Attachments\Services\AttachmentsTableManager;
+
 class AttachmentsApi
 {
+    private \Woody\Lib\Attachments\Services\AttachmentsTableManager $attachmentsTableManager;
+
+    public function __construct(AttachmentsTableManager $attachmentsTableManager)
+    {
+        $this->attachmentsTableManager = $attachmentsTableManager;
+    }
+
     public function getAttachmentTerms()
     {
         $return = [];
@@ -51,5 +60,57 @@ class AttachmentsApi
         } else {
             wp_send_json(false);
         }
+    }
+
+    public function replacePostsMeta()
+    {
+        global $wpdb;
+
+        $search = filter_input(INPUT_GET, 'search');
+        $replace = filter_input(INPUT_GET, 'replace');
+
+        // On réucpère toutes les clés/post_id de toutes les meta contenant l'id du média à remplacer
+        $req_str = "SELECT post_id, meta_key FROM {$wpdb->prefix}woody_attachments WHERE attachment_id = '$search'";
+        $results = $wpdb->get_results($wpdb->prepare($req_str));
+
+        $updates = [];
+
+        if (!empty($results)) {
+            // $post_ids servira à lancer l'action get_attachments_by_post
+            $posts_ids = [];
+            foreach ($results as $result_key => $result) {
+                $posts_ids[$result->post_id] = $result->post_id;
+                $postmeta = get_post_meta($result->post_id, $result->meta_key, true);
+
+                if (is_array($postmeta)) {
+                    // Les tableaux contenant ID sont des attachment acf, sinon cde sont des listes d'identifiants
+                    if (empty($postmeta['ID'])) {
+                        foreach ($postmeta as $key => $id) {
+                            if ($id == $search) {
+                                $postmeta[$key] = $replace;
+                            }
+                        }
+                    } else {
+                        $postmeta = acf_get_attachment(get_post($attach_id));
+                    }
+                } else {
+                    // Les autres metas sont des str contenant l'id
+                    $postmeta = str_replace($search, $replace, $postmeta);
+                }
+
+                $updates[$result->post_id . '-' . $result->meta_key] = update_post_meta($result->post_id, $result->meta_key, $postmeta);
+            }
+
+
+            // Pour chaque post modifié, on met à jour la table woody_attachments
+            if (!empty($posts_ids)) {
+                $field_names = $this->attachmentsTableManager->getAttachmentsFieldNames();
+                foreach ($posts_ids as $post_id) {
+                    $this->attachmentsTableManager->getAttachmentsByPost(['post_id' => $post_id, 'field_names' => $field_names]);
+                }
+            }
+        }
+
+        wp_send_json($updates);
     }
 }

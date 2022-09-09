@@ -22,13 +22,14 @@ if (! defined('ABSPATH')) {
         <div id="currentMediaFrame" class="media-wrapper">
             <img src="<?php echo wp_get_attachment_image_url($attachment_id, 'ratio_square_small') ?>"
                 width="200" height="200" />
+            <?php if (!empty($results)) { ?>
             <button role="button" id="replaceAttachment" class="button button-primary button-large">
-                Remplacer par un autre média
+                Remplacer
             </button>
-            <input type="text" value="" id="newAttachmentId" name="newAttachmentId" />
+            <?php } ?>
         </div>
 
-        <div id="newMediaFrame" class="media-wrapper">
+        <div id="newMediaFrame" class="media-wrapper hidden">
             <span class="dashicons dashicons-arrow-down-alt"></span>
             <img src="#" width="200" height="200" id="newMediaImg" />
             <button role="button" id="submitNewAttachment" class="button button-primary button-large">
@@ -40,7 +41,7 @@ if (! defined('ABSPATH')) {
         </div>
 
     </section>
-    <section class="woody-mediapageslist-table">
+    <section class="woody-mediapageslist-table" id="woodyMediapageslistTable">
         <?php
 
 if (!empty($results)) {
