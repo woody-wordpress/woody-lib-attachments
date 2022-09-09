@@ -23,16 +23,38 @@ class AttachmentsPageslist
 
     public function addPageListLinks($actions, $post, $detached)
     {
-        $actions['linked_pages_list'] = sprintf('<a href="/wp/wp-admin/admin.php?page=woody-pages-using-media&attachment_id=%s">Utilisation et remplacement</a>', $post->ID);
+        $mime_type = str_replace('/', '_', get_post_mime_type($post->ID));
+        $actions['linked_pages_list'] = sprintf('<a href="/wp/wp-admin/admin.php?page=woody-pages-using-media&attachment_id=%s&mime_type=%s">Utilisation et remplacement</a>', $post->ID, $mime_type);
         return $actions;
     }
 
     public function ListPagesUsingMedia()
     {
         $attachment_id = filter_input(INPUT_GET, 'attachment_id', FILTER_SANITIZE_STRING);
-        $att_metadata = wp_get_attachment_metadata($attachment_id);
-
         $results = $this->getResults($attachment_id);
+
+        $mimetype_arr = explode('/', get_post_mime_type($attachment_id));
+        $type = (empty($mimetype_arr)) ? 'Unknown' : $mimetype_arr[0];
+        switch($type) {
+            case 'audio':
+                $icon = 'media-audio';
+                break;
+            case 'video':
+                $icon = 'media-video';
+                break;
+            case 'text':
+                $icon = 'media-text';
+                break;
+            case 'font':
+                $icon = 'media-archive';
+                break;
+            case 'application':
+                $icon = 'media-spreadsheet';
+                break;
+            default:
+                $icon = 'media-default';
+                break;
+        }
 
         require_once(WOODY_LIB_ATTACHMENTS_DIR_RESOURCES . '/Templates/media-pages-list.php');
     }
@@ -43,7 +65,6 @@ class AttachmentsPageslist
 
         $req_str = "SELECT p.post_type, p.post_title, p.ID, wa.meta_key FROM {$wpdb->prefix}woody_attachments as wa LEFT JOIN {$wpdb->prefix}posts as p ON wa.post_id = p.ID WHERE wa.attachment_id = '$attachment_id' AND p.post_type != 'revision'";
         $results = $wpdb->get_results($wpdb->prepare($req_str));
-
         if (!empty($results)) {
             foreach ($results as $results_key => $result) {
                 $results[$results_key]->position = $this->metaKeyToPosition($result->meta_key);

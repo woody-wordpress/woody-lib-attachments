@@ -13,15 +13,24 @@ if (! defined('ABSPATH')) {
 
 <header class="woody-mediapageslist-header woody-sitemap">
     <h1>
-        Liste des pages utilisant l'image "<?php echo (empty($att_metadata['image_meta']['title'])) ? get_the_title($attachment_id) : $att_metadata['image_meta']['title'] ?>"
+        Liste des pages utilisant l'image "<?php echo get_the_title($attachment_id) ?>"
         <span>Made with ♥ by Raccourci Agency</span>
     </h1>
 </header>
 <div class="woody-mediapageslist-container">
     <section class="woody-mediapageslist-file">
         <div id="currentMediaFrame" class="media-wrapper">
+            <?php if ($type == 'image') { ?>
             <img src="<?php echo wp_get_attachment_image_url($attachment_id, 'ratio_square_small') ?>"
                 width="200" height="200" />
+            <?php } else { ?>
+            <span
+                class="file-thumb dashicons dashicons-<?php echo $icon ?>"></span>
+            <p>
+                <?php echo get_the_title($attachment_id) ?>
+            </p>
+            <?php } ?>
+
             <?php if (!empty($results)) { ?>
             <button style="width:200px;" role="button" id="replaceAttachment"
                 class="button button-primary button-large">
@@ -29,10 +38,17 @@ if (! defined('ABSPATH')) {
             </button>
             <?php } ?>
         </div>
-
+        <span id="fromToIcon" class="hidden dashicons dashicons-arrow-down-alt"></span>
         <div id="newMediaFrame" class="media-wrapper hidden">
-            <span class="dashicons dashicons-arrow-down-alt"></span>
+            <?php if ($type == 'image') { ?>
             <img src="#" width="200" height="200" id="newMediaImg" />
+            <?php } else { ?>
+            <span
+                class="file-thumb dashicons dashicons-<?php echo $icon ?>"></span>
+            <p id="newFileTitle">
+                <?php echo get_the_title($attachment_id) ?>
+            </p>
+            <?php } ?>
             <button role="button" id="submitNewAttachment" class="button button-primary button-large">
                 Valider
             </button>
@@ -73,7 +89,7 @@ if (!empty($results)) {
     echo '</tbody>';
     echo '</table>';
 } else {
-    echo '<h3>Cette image n\'est utilisée dans aucune page</h3>';
+    echo '<h3>Ce média n\'est utilisé dans aucune page</h3>';
 }
 ?>
     </section>

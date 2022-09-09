@@ -6,19 +6,24 @@
             margin-bottom: 10px;
         }
     }
+
+    .file-thumb {
+        width: 160px;
+        height: 120px;
+        font-size: 120px;
+        padding: 20px;
+    }
 }
 
-#newMediaFrame {
-    .dashicons {
-        width: 36px;
-        font-size: 36px;
-        color: darkgrey;
-        height: 36px;
-        padding: 20px;
+#fromToIcon {
+    width: 36px;
+    font-size: 36px;
+    color: darkgrey;
+    height: 36px;
+    padding: 20px;
 
-        &.spin {
-            animation: spin 2s ease-in forwards;
-        }
+    &.spin {
+        animation: spin 2s ease-in forwards;
     }
 }
 

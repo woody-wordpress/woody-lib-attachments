@@ -121,9 +121,38 @@ class AttachmentsTableManager
 
         $attachments_ids = [];
         $root_values = $this->getFieldsValues($field_names, $post_id, '', true);
+
+        // Check page hero movies files
+        $hero_movie_mp4 = get_post_meta($post_id, 'page_heading_movie_mp4_movie_file', true);
+        if (!empty($hero_movie_mp4)) {
+            $root_values[] = [
+                'id' => $hero_movie_mp4,
+                'meta_key' => 'page_heading_movie_mp4_movie_file'
+            ];
+        }
+
+        // Check page hero movies files
+        $hero_movie_ogg = get_post_meta($post_id, 'page_heading_movie_movie_ogg_file', true);
+        if (!empty($hero_movie_ogg)) {
+            $root_values[] = [
+                'id' => $hero_movie_ogg,
+                'meta_key' => 'page_heading_movie_movie_ogg_file'
+            ];
+        }
+
+        // Check page hero movies files
+        $hero_movie_webm = get_post_meta($post_id, 'page_heading_movie_movie_webm_file', true);
+        if (!empty($hero_movie_webm)) {
+            $root_values[] = [
+                'id' => $hero_movie_webm,
+                'meta_key' => 'page_heading_movie_movie_webm_file'
+            ];
+        }
+
         if (!empty($root_values)) {
             $attachments_ids = array_merge($root_values, $attachments_ids);
         }
+
 
         $sections = get_field('section', $post_id);
 
