@@ -23,7 +23,8 @@ if (! defined('ABSPATH')) {
             <img src="<?php echo wp_get_attachment_image_url($attachment_id, 'ratio_square_small') ?>"
                 width="200" height="200" />
             <?php if (!empty($results)) { ?>
-            <button role="button" id="replaceAttachment" class="button button-primary button-large">
+            <button style="width:200px;" role="button" id="replaceAttachment"
+                class="button button-primary button-large">
                 Remplacer
             </button>
             <?php } ?>

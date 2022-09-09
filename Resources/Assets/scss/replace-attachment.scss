@@ -6,13 +6,6 @@
             margin-bottom: 10px;
         }
     }
-
-
-}
-
-#newAttachmentId {
-    display: block;
-    margin-top: 5px;
 }
 
 #newMediaFrame {
@@ -22,5 +15,19 @@
         color: darkgrey;
         height: 36px;
         padding: 20px;
+
+        &.spin {
+            animation: spin 2s ease-in forwards;
+        }
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0);
+    }
+
+    100% {
+        transform: rotate(360deg);
     }
 }
