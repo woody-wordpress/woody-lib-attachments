@@ -53,6 +53,7 @@ class ImagesMetadata
                 $meta['longitude'] = $this->dmsToDecimal($lng_deg, $lng_min, $lng_sec, $exif['GPSLongitudeRef']);
             }
         }
+
         if (!empty($info['APP13'])) {
             $iptc = iptcparse($info['APP13']);
 
@@ -164,15 +165,18 @@ class ImagesMetadata
             } else {
                 $new_title = $metadata['image_meta']['title'];
             }
+
             if (empty($post->post_excerpt)) {
                 $new_description = $new_title;
                 $my_image_meta['post_excerpt'] = $new_description;
             } else {
                 $new_description = $post->post_excerpt;
             }
+
             if (empty($post->post_content)) {
                 $my_image_meta['post_content'] = $new_description;
             }
+
             // Set the image Alt-Text
             update_post_meta($attachment_id, '_wp_attachment_image_alt', $new_description);
             // Set the image meta (e.g. Title, Excerpt, Content)
@@ -181,12 +185,15 @@ class ImagesMetadata
             if (!empty($metadata['image_meta']['credit'])) {
                 update_field('media_author', $metadata['image_meta']['credit'], $attachment_id);
             }
+
             if (!empty($metadata['image_meta']['latitude'])) {
                 update_field('media_lat', $metadata['image_meta']['latitude'], $attachment_id);
             }
+
             if (!empty($metadata['image_meta']['longitude'])) {
                 update_field('media_lng', $metadata['image_meta']['longitude'], $attachment_id);
             }
+
             // Import tags
             if (!empty($metadata['image_meta']['city']) || !empty($metadata['image_meta']['state']) || !empty($metadata['image_meta']['country']) || !empty($metadata['image_meta']['keywords'])) {
                 $terms_places = get_terms('places', ['hide_empty' => false]);
@@ -206,6 +213,7 @@ class ImagesMetadata
                     }
                 }
             }
+
             if (!empty($metadata['image_meta']['keywords'])) {
                 $terms_attachment_categories = get_terms('attachment_categories', ['hide_empty' => false]);
                 if (!empty($terms_attachment_categories)) {
@@ -240,6 +248,7 @@ class ImagesMetadata
                     }
                 }
             }
+
             // Crop API
             global $_wp_additional_image_sizes;
             // Added default sizes
@@ -258,6 +267,7 @@ class ImagesMetadata
                     ];
                 }
             }
+
             // Added full size
             $filename = explode('/', $metadata['file']);
             $filename = end($filename);
