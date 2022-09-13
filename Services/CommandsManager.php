@@ -39,8 +39,6 @@ class CommandsManager
             $posts_ids = explode(',', $assoc_args['posts']);
         }
 
-        output_log($posts_ids);
-
         if (!empty($posts_ids)) {
             $field_names = $this->attachmentsTableManager->getAttachmentsFieldNames();
             foreach ($posts_ids as $post_id) {
