@@ -13,9 +13,12 @@ if (! defined('ABSPATH')) {
 
 <header class="woody-mediapageslist-header woody-sitemap">
     <h1>
-        Liste des pages utilisant l'image "<?php echo get_the_title($attachment_id) ?>"
+        Utilisation et remplacement des média
         <span>Made with ♥ by Raccourci Agency</span>
     </h1>
+    <h3><?php echo get_the_title($attachment_id) ?>
+    </h3>
+    <strong>NB : Pour les médias de type image, le remplacement sera effectif pour les traductions du média</strong>
 </header>
 <div class="woody-mediapageslist-container">
     <section class="woody-mediapageslist-file">

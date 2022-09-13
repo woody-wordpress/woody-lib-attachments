@@ -62,6 +62,7 @@ if(!!replaceAttachment){
             .then(response => {
                 document.getElementById('woodyMediapageslistTable').innerHTML = '<h3>Remplacement en cours - Cette opération peut prendre quelques minutes.<br/>Rafraichissez la page pour afficher une liste à jour</h3>';
                 newMediaFrame.classList.add('hidden');
+                fromToIcon.classList.add('hidden');
             })
             .catch(error => {
                 console.error('Replace fetch: ' + error);
