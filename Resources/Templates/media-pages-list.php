@@ -18,7 +18,11 @@ if (! defined('ABSPATH')) {
     </h1>
     <h3><?php echo get_the_title($attachment_id) ?>
     </h3>
-    <strong>NB : Pour les médias de type image, le remplacement sera effectif pour les traductions du média</strong>
+    <strong style="color:red;">NB : Lors du remplacement d'un média, toutes les occurences de ce média et de ses
+        traductions seront remplacées par le nouveau média (ou ses traductions)
+        <br />
+        (Option non compatible avec les médias ajoutés directement dans les blocs de textes)
+    </strong>
 </header>
 <div class="woody-mediapageslist-container">
     <section class="woody-mediapageslist-file">

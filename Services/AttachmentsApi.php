@@ -66,12 +66,36 @@ class AttachmentsApi
     {
         global $wpdb;
 
-        $search = filter_input(INPUT_GET, 'search');
-        $replace = filter_input(INPUT_GET, 'replace');
+        $results = [];
+        $original_search = filter_input(INPUT_GET, 'search');
+        $original_replace = filter_input(INPUT_GET, 'replace');
+        $langs = pll_languages_list();
 
-        // On réucpère toutes les clés/post_id de toutes les meta contenant l'id du média à remplacer
-        $req_str = "SELECT post_id, meta_key FROM {$wpdb->prefix}woody_attachments WHERE attachment_id = '$search'";
-        $results = $wpdb->get_results($wpdb->prepare($req_str));
+        // Lors du remplacement de fichier, on effectue le remplacement pour toutes les traductions
+        if (!empty($langs)) {
+            foreach ($langs as $lang) {
+                $searches[$lang] = [
+                    'search' => pll_get_post($original_search, $lang),
+                    'replace' => pll_get_post($original_replace, $lang)
+                ];
+            }
+        }
+
+        if (!empty($searches)) {
+            foreach ($searches as $search) {
+                if (!empty($search['search'])) {
+                    $search_id = $search['search'];
+
+                    // On récupère toutes les clés/post_id de toutes les meta contenant l'id du média à remplacer
+                    $req_str = "SELECT post_id, meta_key FROM {$wpdb->prefix}woody_attachments WHERE attachment_id = '$search_id'";
+                    $search_results = $wpdb->get_results($wpdb->prepare($req_str));
+
+                    if (!empty($search_results) && is_array($search_results)) {
+                        $results = array_merge($search_results, $results);
+                    }
+                }
+            }
+        }
 
         $updates = [];
 
