@@ -85,10 +85,8 @@ class AttachmentsApi
         if (!empty($searches)) {
             foreach ($searches as $search) {
                 if (!empty($search['search'])) {
-                    $search_id = $search['search'];
-
                     // On récupère toutes les clés/post_id de toutes les meta contenant l'id du média à remplacer
-                    $req_str = "SELECT post_id, meta_key FROM {$wpdb->prefix}woody_attachments WHERE attachment_id = '{$search_id}'";
+                    $req_str = "SELECT post_id, meta_key FROM {$wpdb->prefix}woody_attachments WHERE attachment_id = '{$search['search']}'";
                     $search_results = $wpdb->get_results($wpdb->prepare($req_str));
 
                     if (!empty($search_results) && is_array($search_results)) {
@@ -96,42 +94,48 @@ class AttachmentsApi
                     }
                 }
             }
-        }
 
-        $updates = [];
+            $updates = [];
 
-        if (!empty($results)) {
-            // $post_ids servira à lancer l'action get_attachments_by_post
-            $posts_ids = [];
-            foreach ($results as $result) {
-                $posts_ids[$result->post_id] = $result->post_id;
-                $postmeta = get_post_meta($result->post_id, $result->meta_key, true);
+            if (!empty($results)) {
+                // $post_ids servira à lancer l'action get_attachments_by_post
+                $posts_ids = [];
 
-                if (is_array($postmeta)) {
-                    // Les tableaux contenant ID sont des attachment acf, sinon cde sont des listes d'identifiants
-                    if (empty($postmeta['ID'])) {
-                        foreach ($postmeta as $key => $id) {
-                            if ($id == $search) {
-                                $postmeta[$key] = $replace;
+                foreach ($results as $result) {
+                    $posts_ids[$result->post_id] = $result->post_id;
+
+                    $postmeta = get_post_meta($result->post_id, $result->meta_key, true);
+
+                    if (is_array($postmeta)) {
+                        // Les tableaux contenant ID sont des attachment acf, sinon cde sont des listes d'identifiants
+                        if (empty($postmeta['ID'])) {
+                            foreach ($postmeta as $key => $id) {
+                                foreach ($searches as $search) {
+                                    if ($id == $search['search']) {
+                                        $postmeta[$key] = $search['replace'];
+                                    }
+                                }
                             }
+                        } else {
+                            $postmeta = acf_get_attachment(get_post($postmeta['ID']));
                         }
                     } else {
-                        $postmeta = acf_get_attachment(get_post($attach_id));
+                        foreach ($searches as $search) {
+                            // Les autres metas sont des str contenant l'id
+                            $postmeta = str_replace($search['search'], $search['replace'], $postmeta);
+                        }
                     }
-                } else {
-                    // Les autres metas sont des str contenant l'id
-                    $postmeta = str_replace($search, $replace, $postmeta);
+
+                    $updates[$result->post_id . '-' . $result->meta_key] = update_post_meta($result->post_id, $result->meta_key, $postmeta);
                 }
 
-                $updates[$result->post_id . '-' . $result->meta_key] = update_post_meta($result->post_id, $result->meta_key, $postmeta);
-            }
 
-
-            // Pour chaque post modifié, on met à jour la table woody_attachments
-            if (!empty($posts_ids)) {
-                $field_names = $this->attachmentsTableManager->getAttachmentsFieldNames();
-                foreach ($posts_ids as $post_id) {
-                    $this->attachmentsTableManager->getAttachmentsByPost(['post_id' => $post_id, 'field_names' => $field_names]);
+                // Pour chaque post modifié, on met à jour la table woody_attachments
+                if (!empty($posts_ids)) {
+                    $field_names = $this->attachmentsTableManager->getAttachmentsFieldNames();
+                    foreach ($posts_ids as $post_id) {
+                        $this->attachmentsTableManager->getAttachmentsByPost(['post_id' => $post_id, 'field_names' => $field_names]);
+                    }
                 }
             }
         }
