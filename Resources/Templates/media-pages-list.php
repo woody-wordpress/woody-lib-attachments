@@ -8,7 +8,8 @@
 
 if (! defined('ABSPATH')) {
     exit;
-} // Exit if accessed directly
+}
+ // Exit if accessed directly
 ?>
 
 <header class="woody-mediapageslist-header woody-sitemap">
@@ -36,14 +37,16 @@ if (! defined('ABSPATH')) {
             <p>
                 <?php echo get_the_title($attachment_id) ?>
             </p>
-            <?php } ?>
+            <?php }
+ ?>
 
             <?php if (!empty($results)) { ?>
             <button style="width:200px;" role="button" id="replaceAttachment"
                 class="button button-primary button-large">
                 Remplacer
             </button>
-            <?php } ?>
+            <?php }
+ ?>
         </div>
         <span id="fromToIcon" class="hidden dashicons dashicons-arrow-down-alt"></span>
         <div id="newMediaFrame" class="media-wrapper hidden">
@@ -55,7 +58,8 @@ if (! defined('ABSPATH')) {
             <p id="newFileTitle">
                 <?php echo get_the_title($attachment_id) ?>
             </p>
-            <?php } ?>
+            <?php }
+ ?>
             <button role="button" id="submitNewAttachment" class="button button-primary button-large">
                 Valider
             </button>
@@ -93,10 +97,11 @@ if (!empty($results)) {
         echo '<td><a href="' . woody_get_permalink($result->ID) . '" target="_blank">Voir la page</a></td>';
         echo '</tr>';
     }
+
     echo '</tbody>';
     echo '</table>';
 } else {
-    echo '<h3>Ce média n\'est utilisé dans aucune page</h3>';
+    echo "<h3>Ce média n'est utilisé dans aucune page</h3>";
 }
 ?>
     </section>

@@ -102,6 +102,7 @@ class AttachmentsManager
                     if ($selector == 'media_linked_page') {
                         continue;
                     }
+
                     update_field($selector, $value, $t_attachment_id);
                 }
             }
@@ -127,10 +128,8 @@ class AttachmentsManager
             }
 
             // Synchro Terms
-            if (!empty($tags)) {
-                foreach ($tags as $taxonomy => $keywords) {
-                    wp_set_post_terms($t_attachment_id, $keywords, $taxonomy, false);
-                }
+            foreach ($tags as $taxonomy => $keywords) {
+                wp_set_post_terms($t_attachment_id, $keywords, $taxonomy, false);
             }
 
             // Si on lance une traduction en masse de la médiathèque, il faut lancer ce hook qui va synchroniser les taxonomies themes et places
@@ -151,7 +150,7 @@ class AttachmentsManager
 
     public function timberRender($render)
     {
-        return preg_replace('/http(s?):\/\/([a-zA-Z0-9-_.]*)\/app\/uploads\/([^\/]*)\/(\d*)\/(\d*)\/..\/..\/..\/..\/..\/wp-json\/woody\/crop\/(\d*)\/ratio_([a-z0-9-_]*)/', 'http$1://$2/wp-json/woody/crop/$6/ratio_$7', $render);
+        return preg_replace('#http(s?):\/\/([a-zA-Z0-9-_.]*)\/app\/uploads\/([^\/]*)\/(\d*)\/(\d*)\/..\/..\/..\/..\/..\/wp-json\/woody\/crop\/(\d*)\/ratio_([a-z0-9-_]*)#', 'http$1://$2/wp-json/woody/crop/$6/ratio_$7', $render);
     }
 
     public function savePost($post_id, $post, $update)

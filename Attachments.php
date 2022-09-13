@@ -15,11 +15,17 @@ use Symfony\Component\Finder\Finder;
 final class Attachments extends Module
 {
     public $attachmentsApi;
+
     public $attachmentsWpSettings;
+
     public $imagesMetadata;
+
     public $attachmentsPagesList;
+
     public $attachmentsTableManager;
+
     public $attachmentsCommands;
+
     protected $attachmentsManager;
 
     protected static $key = 'woody_lib_attachments';

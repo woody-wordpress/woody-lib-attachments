@@ -47,8 +47,9 @@ class CommandsManager
             $i = 0;
             foreach ($posts_ids as $post_id) {
                 do_action('woody_async_add', 'get_attachments_by_post', ['post_id' => $post_id, 'field_names' => $field_names]);
-                $i++;
+                ++$i;
             }
+
             output_h1($i . ' async created');
         }
     }

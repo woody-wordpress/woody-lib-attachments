@@ -50,7 +50,8 @@ class AttachmentsWpSettings
         }
 
         $size = $file['size'];
-        $size = $size / 1024;
+        $size /= 1024;
+
         $type = $file['type'];
         $is_image = strpos($type, 'image') !== false;
         if ($is_image && $size > $limit) {

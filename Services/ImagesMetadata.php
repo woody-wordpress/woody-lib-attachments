@@ -23,15 +23,15 @@ class ImagesMetadata
             $xmp_data       = substr($content, $xmp_data_start, $xmp_length + 12);
             $xmp_arr        = $this->getXMPArray($xmp_data);
 
-            $meta['title']          = !empty($xmp_arr['Title']) ? $xmp_arr['Title'][0] : '';
-            $meta['city']           = !empty($xmp_arr['City']) ? $xmp_arr['City'][0] : '';
-            $meta['credit']         = !empty($xmp_arr['Creator']) ? $xmp_arr['Creator'][0] : '';
-            $meta['copyright']      = !empty($xmp_arr['Rights']) ? $xmp_arr['Rights'][0] : '';
-            $meta['description']    = !empty($xmp_arr['Description']) ? $xmp_arr['Description'][0] : '';
+            $meta['title']          = empty($xmp_arr['Title']) ? '' : $xmp_arr['Title'][0];
+            $meta['city']           = empty($xmp_arr['City']) ? '' : $xmp_arr['City'][0];
+            $meta['credit']         = empty($xmp_arr['Creator']) ? '' : $xmp_arr['Creator'][0];
+            $meta['copyright']      = empty($xmp_arr['Rights']) ? '' : $xmp_arr['Rights'][0];
+            $meta['description']    = empty($xmp_arr['Description']) ? '' : $xmp_arr['Description'][0];
             $meta['caption']        = $meta['description'];
-            $meta['country']        = !empty($xmp_arr['Country']) ? $xmp_arr['Country'][0] : '';
-            $meta['state']          = !empty($xmp_arr['State']) ? $xmp_arr['State'][0] : '';
-            $meta['keywords']       = !empty($xmp_arr['Keywords']) ? $xmp_arr['Keywords'][0] : '';
+            $meta['country']        = empty($xmp_arr['Country']) ? '' : $xmp_arr['Country'][0];
+            $meta['state']          = empty($xmp_arr['State']) ? '' : $xmp_arr['State'][0];
+            $meta['keywords']       = empty($xmp_arr['Keywords']) ? '' : $xmp_arr['Keywords'][0];
         }
 
         // EXIF
@@ -52,9 +52,6 @@ class ImagesMetadata
                 $meta['longitude'] = $this->dmsToDecimal($lng_deg, $lng_min, $lng_sec, $exif['GPSLongitudeRef']);
             }
         }
-
-        // IPTC
-        $size = getimagesize($file, $info);
         if (!empty($info['APP13'])) {
             $iptc = iptcparse($info['APP13']);
 
@@ -111,16 +108,17 @@ class ImagesMetadata
                 'Hierarchical Keywords' => '<lr:hierarchicalSubject>\s*<rdf:Bag>\s*(.*?)\s*<\/rdf:Bag>\s*<\/lr:hierarchicalSubject>'
         ) as $key => $regex) {
             // get a single text string
-            $xmp_arr[$key] = preg_match("/$regex/is", $xmp_data, $match) ? $match[1] : '';
+            $xmp_arr[$key] = preg_match("/{$regex}/is", $xmp_data, $match) ? $match[1] : '';
 
             // if string contains a list, then re-assign the variable as an array with the list elements
-            $xmp_arr[$key] = preg_match_all("/<rdf:li[^>]*>([^>]*)<\/rdf:li>/is", $xmp_arr[$key], $match) ? $match[1] : $xmp_arr[$key];
+            $xmp_arr[$key] = preg_match_all("#<rdf:li[^>]*>([^>]*)<\/rdf:li>#is", $xmp_arr[$key], $match) ? $match[1] : $xmp_arr[$key];
 
             // hierarchical keywords need to be split into a third dimension
             if (! empty($xmp_arr[$key]) && $key == 'Hierarchical Keywords') {
                 foreach ($xmp_arr[$key] as $li => $val) {
                     $xmp_arr[$key][$li] = explode('|', $val);
                 }
+
                 unset($li, $val);
             }
         }
@@ -141,6 +139,7 @@ class ImagesMetadata
             $direction = -1;
             $deg = abs($deg);
         }
+
         return ($deg + ($min / 60) + ($sec / 3600)) * $direction;
     }
 
@@ -150,140 +149,123 @@ class ImagesMetadata
     // define the wp_generate_attachment_metadata callback
     public function generateAttachmentMetadata($metadata, $attachment_id)
     {
-        if (wp_attachment_is_image($attachment_id)) {
-            if (empty($metadata['sizes'])) {
-                // Get current post
-                $post = get_post($attachment_id);
-
-                // Create an array with the image meta (Title, Caption, Description) to be updated
-                // Note:  comment out the Excerpt/Caption or Content/Description lines if not needed
-                $my_image_meta = [];
-                $my_image_meta['ID'] = $attachment_id; // Specify the image (ID) to be updated
-
-                if (empty($metadata['image_meta']['title'])) {
-                    $new_title = ucwords(strtolower(preg_replace('%\s*[-_\s]+\s*%', ' ', $post->post_title)));
-                    $my_image_meta['post_title'] = $new_title;
-                } else {
-                    $new_title = $metadata['image_meta']['title'];
-                }
-
-                if (empty($post->post_excerpt)) {
-                    $new_description = $new_title;
-                    $my_image_meta['post_excerpt'] = $new_description;
-                } else {
-                    $new_description = $post->post_excerpt;
-                }
-
-                if (empty($post->post_content)) {
-                    $my_image_meta['post_content'] = $new_description;
-                }
-
-                // Set the image Alt-Text
-                update_post_meta($attachment_id, '_wp_attachment_image_alt', $new_description);
-
-                // Set the image meta (e.g. Title, Excerpt, Content)
-                wp_update_post($my_image_meta);
-
-                // Set ACF Fields (Credit)
-                if (!empty($metadata['image_meta']['credit'])) {
-                    update_field('media_author', $metadata['image_meta']['credit'], $attachment_id);
-                }
-
-                if (!empty($metadata['image_meta']['latitude'])) {
-                    update_field('media_lat', $metadata['image_meta']['latitude'], $attachment_id);
-                }
-
-                if (!empty($metadata['image_meta']['longitude'])) {
-                    update_field('media_lng', $metadata['image_meta']['longitude'], $attachment_id);
-                }
-
-                // Import tags
-                if (!empty($metadata['image_meta']['city']) || !empty($metadata['image_meta']['state']) || !empty($metadata['image_meta']['country']) || !empty($metadata['image_meta']['keywords'])) {
-                    $terms_places = get_terms('places', ['hide_empty' => false]);
-                    foreach ($terms_places as $term_places) {
-                        if (!empty($metadata['image_meta']['city']) && sanitize_title($metadata['image_meta']['city']) == $term_places->slug) {
-                            wp_set_object_terms($attachment_id, $term_places->slug, 'places', true);
-                        } elseif (!empty($metadata['image_meta']['state']) && sanitize_title($metadata['image_meta']['state']) == $term_places->slug) {
-                            wp_set_object_terms($attachment_id, $term_places->slug, 'places', true);
-                        } elseif (!empty($metadata['image_meta']['country']) && sanitize_title($metadata['image_meta']['country']) == $term_places->slug) {
-                            wp_set_object_terms($attachment_id, $term_places->slug, 'places', true);
-                        } elseif (!empty($metadata['image_meta']['keywords'])) {
-                            foreach ($metadata['image_meta']['keywords'] as $keyword) {
-                                if (sanitize_title($keyword) == $term_places->slug) {
-                                    wp_set_object_terms($attachment_id, $term_places->slug, 'places', true);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (!empty($metadata['image_meta']['keywords'])) {
-                    $terms_attachment_categories = get_terms('attachment_categories', ['hide_empty' => false]);
-                    if (!empty($terms_attachment_categories)) {
-                        foreach ($terms_attachment_categories as $term_attachment_categories) {
-                            foreach ($metadata['image_meta']['keywords'] as $keyword) {
-                                if (sanitize_title($keyword) == $term_attachment_categories->slug) {
-                                    wp_set_object_terms($attachment_id, $term_attachment_categories->slug, 'attachment_categories', true);
-                                }
-                            }
-                        }
-                    }
-
-                    $terms_themes = get_terms('themes', ['hide_empty' => false]);
-                    if (!empty($terms_themes)) {
-                        foreach ($terms_themes as $term_themes) {
-                            foreach ($metadata['image_meta']['keywords'] as $keyword) {
-                                if (sanitize_title($keyword) == $term_themes->slug) {
-                                    wp_set_object_terms($attachment_id, $term_themes->slug, 'themes', true);
-                                }
-                            }
-                        }
-                    }
-
-                    $terms_seasons = get_terms('seasons', ['hide_empty' => false]);
-                    if (!empty($terms_seasons)) {
-                        foreach ($terms_seasons as $term_seasons) {
-                            foreach ($metadata['image_meta']['keywords'] as $keyword) {
-                                if (sanitize_title($keyword) == $term_seasons->slug) {
-                                    wp_set_object_terms($attachment_id, $term_seasons->slug, 'seasons', true);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Crop API
-                global $_wp_additional_image_sizes;
-
-                // Added default sizes
-                $_wp_additional_image_sizes['thumbnail'] = ['height' => 150, 'width' => 150, 'crop' => true];
-                $_wp_additional_image_sizes['medium'] = ['height' => 300, 'width' => 300, 'crop' => true];
-                $_wp_additional_image_sizes['large'] = ['height' => 1024, 'width' => 1024, 'crop' => true];
-
-                // Get Mime-Type
-                $mime_type = mime_content_type(WP_UPLOAD_DIR . '/' . $metadata['file']);
-
-                foreach ($_wp_additional_image_sizes as $ratio => $size) {
-                    if (empty($metadata['sizes'][$ratio])) {
-                        $metadata['sizes'][$ratio] = [
-                            'file' => '../../../../../wp-json/woody/crop/' . $attachment_id . '/' . $ratio,
-                            'height' => $size['height'],
-                            'width' => $size['width'],
-                            'mime-type' => $mime_type,
-                        ];
-                    }
-                }
-
-                // Added full size
-                $filename = explode('/', $metadata['file']);
-                $filename = end($filename);
-                $metadata['sizes']['full'] = [
-                    'file' => $filename,
-                    'height' => $metadata['height'],
-                    'width' => $metadata['width'],
-                    'mime-type' => $mime_type
-                ];
+        if (wp_attachment_is_image($attachment_id) && empty($metadata['sizes'])) {
+            // Get current post
+            $post = get_post($attachment_id);
+            // Create an array with the image meta (Title, Caption, Description) to be updated
+            // Note:  comment out the Excerpt/Caption or Content/Description lines if not needed
+            $my_image_meta = [];
+            // Specify the image (ID) to be updated
+            $my_image_meta['ID'] = $attachment_id;
+            if (empty($metadata['image_meta']['title'])) {
+                $new_title = ucwords(strtolower(preg_replace('#\s*[-_\s]+\s*#', ' ', $post->post_title)));
+                $my_image_meta['post_title'] = $new_title;
+            } else {
+                $new_title = $metadata['image_meta']['title'];
             }
+            if (empty($post->post_excerpt)) {
+                $new_description = $new_title;
+                $my_image_meta['post_excerpt'] = $new_description;
+            } else {
+                $new_description = $post->post_excerpt;
+            }
+            if (empty($post->post_content)) {
+                $my_image_meta['post_content'] = $new_description;
+            }
+            // Set the image Alt-Text
+            update_post_meta($attachment_id, '_wp_attachment_image_alt', $new_description);
+            // Set the image meta (e.g. Title, Excerpt, Content)
+            wp_update_post($my_image_meta);
+            // Set ACF Fields (Credit)
+            if (!empty($metadata['image_meta']['credit'])) {
+                update_field('media_author', $metadata['image_meta']['credit'], $attachment_id);
+            }
+            if (!empty($metadata['image_meta']['latitude'])) {
+                update_field('media_lat', $metadata['image_meta']['latitude'], $attachment_id);
+            }
+            if (!empty($metadata['image_meta']['longitude'])) {
+                update_field('media_lng', $metadata['image_meta']['longitude'], $attachment_id);
+            }
+            // Import tags
+            if (!empty($metadata['image_meta']['city']) || !empty($metadata['image_meta']['state']) || !empty($metadata['image_meta']['country']) || !empty($metadata['image_meta']['keywords'])) {
+                $terms_places = get_terms('places', ['hide_empty' => false]);
+                foreach ($terms_places as $term_places) {
+                    if (!empty($metadata['image_meta']['city']) && sanitize_title($metadata['image_meta']['city']) == $term_places->slug) {
+                        wp_set_object_terms($attachment_id, $term_places->slug, 'places', true);
+                    } elseif (!empty($metadata['image_meta']['state']) && sanitize_title($metadata['image_meta']['state']) == $term_places->slug) {
+                        wp_set_object_terms($attachment_id, $term_places->slug, 'places', true);
+                    } elseif (!empty($metadata['image_meta']['country']) && sanitize_title($metadata['image_meta']['country']) == $term_places->slug) {
+                        wp_set_object_terms($attachment_id, $term_places->slug, 'places', true);
+                    } elseif (!empty($metadata['image_meta']['keywords'])) {
+                        foreach ($metadata['image_meta']['keywords'] as $keyword) {
+                            if (sanitize_title($keyword) == $term_places->slug) {
+                                wp_set_object_terms($attachment_id, $term_places->slug, 'places', true);
+                            }
+                        }
+                    }
+                }
+            }
+            if (!empty($metadata['image_meta']['keywords'])) {
+                $terms_attachment_categories = get_terms('attachment_categories', ['hide_empty' => false]);
+                if (!empty($terms_attachment_categories)) {
+                    foreach ($terms_attachment_categories as $term_attachment_categories) {
+                        foreach ($metadata['image_meta']['keywords'] as $keyword) {
+                            if (sanitize_title($keyword) == $term_attachment_categories->slug) {
+                                wp_set_object_terms($attachment_id, $term_attachment_categories->slug, 'attachment_categories', true);
+                            }
+                        }
+                    }
+                }
+
+                $terms_themes = get_terms('themes', ['hide_empty' => false]);
+                if (!empty($terms_themes)) {
+                    foreach ($terms_themes as $term_themes) {
+                        foreach ($metadata['image_meta']['keywords'] as $keyword) {
+                            if (sanitize_title($keyword) == $term_themes->slug) {
+                                wp_set_object_terms($attachment_id, $term_themes->slug, 'themes', true);
+                            }
+                        }
+                    }
+                }
+
+                $terms_seasons = get_terms('seasons', ['hide_empty' => false]);
+                if (!empty($terms_seasons)) {
+                    foreach ($terms_seasons as $term_seasons) {
+                        foreach ($metadata['image_meta']['keywords'] as $keyword) {
+                            if (sanitize_title($keyword) == $term_seasons->slug) {
+                                wp_set_object_terms($attachment_id, $term_seasons->slug, 'seasons', true);
+                            }
+                        }
+                    }
+                }
+            }
+            // Crop API
+            global $_wp_additional_image_sizes;
+            // Added default sizes
+            $_wp_additional_image_sizes['thumbnail'] = ['height' => 150, 'width' => 150, 'crop' => true];
+            $_wp_additional_image_sizes['medium'] = ['height' => 300, 'width' => 300, 'crop' => true];
+            $_wp_additional_image_sizes['large'] = ['height' => 1024, 'width' => 1024, 'crop' => true];
+            // Get Mime-Type
+            $mime_type = mime_content_type(WP_UPLOAD_DIR . '/' . $metadata['file']);
+            foreach ($_wp_additional_image_sizes as $ratio => $size) {
+                if (empty($metadata['sizes'][$ratio])) {
+                    $metadata['sizes'][$ratio] = [
+                        'file' => '../../../../../wp-json/woody/crop/' . $attachment_id . '/' . $ratio,
+                        'height' => $size['height'],
+                        'width' => $size['width'],
+                        'mime-type' => $mime_type,
+                    ];
+                }
+            }
+            // Added full size
+            $filename = explode('/', $metadata['file']);
+            $filename = end($filename);
+            $metadata['sizes']['full'] = [
+                'file' => $filename,
+                'height' => $metadata['height'],
+                'width' => $metadata['width'],
+                'mime-type' => $mime_type
+            ];
         }
 
         return $metadata;

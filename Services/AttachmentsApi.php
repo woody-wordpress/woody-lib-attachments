@@ -56,6 +56,7 @@ class AttachmentsApi
                     }
                 }
             }
+
             wp_send_json(true);
         } else {
             wp_send_json(false);
@@ -87,7 +88,7 @@ class AttachmentsApi
                     $search_id = $search['search'];
 
                     // On récupère toutes les clés/post_id de toutes les meta contenant l'id du média à remplacer
-                    $req_str = "SELECT post_id, meta_key FROM {$wpdb->prefix}woody_attachments WHERE attachment_id = '$search_id'";
+                    $req_str = "SELECT post_id, meta_key FROM {$wpdb->prefix}woody_attachments WHERE attachment_id = '{$search_id}'";
                     $search_results = $wpdb->get_results($wpdb->prepare($req_str));
 
                     if (!empty($search_results) && is_array($search_results)) {
@@ -102,7 +103,7 @@ class AttachmentsApi
         if (!empty($results)) {
             // $post_ids servira à lancer l'action get_attachments_by_post
             $posts_ids = [];
-            foreach ($results as $result_key => $result) {
+            foreach ($results as $result) {
                 $posts_ids[$result->post_id] = $result->post_id;
                 $postmeta = get_post_meta($result->post_id, $result->meta_key, true);
 

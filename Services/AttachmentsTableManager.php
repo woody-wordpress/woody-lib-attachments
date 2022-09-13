@@ -11,6 +11,11 @@ use Symfony\Component\Finder\Finder;
 
 class AttachmentsTableManager
 {
+    /**
+     * @var mixed[]|mixed
+     */
+    public $image_fields;
+
     public function upgrade()
     {
         $saved_version = (int) get_option('woody_attachments_db_version');
@@ -56,7 +61,7 @@ class AttachmentsTableManager
         if (!empty($finder)) {
             foreach ($finder as $file) {
                 $file_path = $file->getRealPath();
-                $data = json_decode(file_get_contents($file_path), true);
+                $data = json_decode(file_get_contents($file_path), true, 512, JSON_THROW_ON_ERROR);
                 $this->getMatchingFields($data['fields']);
             }
         }
@@ -99,10 +104,10 @@ class AttachmentsTableManager
 
         $args = apply_filters('woody_lib_attachments_getposts_args', $args);
 
-        $query = new \WP_Query($args);
+        $wpQuery = new \WP_Query($args);
 
-        if ($query->have_posts()) {
-            return $query;
+        if ($wpQuery->have_posts()) {
+            return $wpQuery;
         }
     }
 
@@ -162,6 +167,7 @@ class AttachmentsTableManager
                 if (is_array($sections_values)) {
                     $attachments_ids = array_merge($sections_values, $attachments_ids);
                 }
+
                 if (!empty($section['section_content'])) {
                     foreach ($section['section_content'] as $layout_key => $layout) {
                         $section_content_values = $this->getFieldsValues($field_names, $post_id, 'section_' . $section_key . '_section_content_' . $layout_key);
@@ -175,6 +181,7 @@ class AttachmentsTableManager
                                 if (is_array($tabs_values)) {
                                     $attachments_ids = array_merge($tabs_values, $attachments_ids);
                                 }
+
                                 if (!empty($tab['light_section_content'])) {
                                     foreach ($tab['light_section_content'] as $tab_layout_key => $tab_layout) {
                                         $tabs_content_values = $this->getFieldsValues($field_names, $post_id, 'section_' . $section_key . '_section_content_' . $layout_key . '_tabs_' . $tab_key . '_light_section_content_' . $tab_layout_key);
@@ -203,7 +210,7 @@ class AttachmentsTableManager
             output_success('Found ' . count($attachments_ids) . ' attachments used in post ' . $post_id);
             $this->insertAttachmentPost($attachments_ids, $post_id);
         } else {
-            output_log('Post ' . $post_id . ' isn\'t using any attachment');
+            output_log('Post ' . $post_id . " isn't using any attachment");
         }
     }
 
@@ -260,7 +267,8 @@ class AttachmentsTableManager
                     ]
                 );
             }
-            output_log('Inserted ' . count($attachments_fields) . ' rows in ' . $wpdb->base_prefix . 'woody_attachments');
+
+            output_log('Inserted ' . (is_countable($attachments_fields) ? count($attachments_fields) : 0) . ' rows in ' . $wpdb->base_prefix . 'woody_attachments');
         }
     }
 

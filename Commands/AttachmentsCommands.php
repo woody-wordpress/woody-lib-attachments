@@ -14,9 +14,9 @@ class AttachmentsCommands
 {
     private \Woody\Lib\Attachments\Services\CommandsManager $commandManager;
 
-    public function __construct(CommandsManager $commandManager)
+    public function __construct(CommandsManager $commandsManager)
     {
-        $this->commandManager = $commandManager;
+        $this->commandManager = $commandsManager;
     }
 
     public function warm($args, $assoc_args)
