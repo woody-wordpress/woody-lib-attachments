@@ -26,12 +26,12 @@ class CommandsManager
             $posts_ids = [];
             $offset = 0;
 
-            $query = $this->attachmentsTableManager->getPosts($posts_to_get, 1);
+            $query = $this->attachmentsTableManager->getPosts($posts_to_get, $offset);
             if (!empty($query)) {
                 while ($count_posts < $query->found_posts) {
                     $count_posts = $count_posts + $query->post_count;
                     $posts_ids = array_merge($posts_ids, $query->posts);
-                    $offset = $offset + $posts_to_get;
+                    $offset = $offset + $query->post_count;
                     $query = $this->attachmentsTableManager->getPosts($posts_to_get, $offset);
                 }
             }
