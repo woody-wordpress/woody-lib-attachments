@@ -14,6 +14,12 @@ use Symfony\Component\Finder\Finder;
 
 final class Attachments extends Module
 {
+    public $attachmentsApi;
+    public $attachmentsWpSettings;
+    public $imagesMetadata;
+    public $attachmentsPagesList;
+    public $attachmentsTableManager;
+    public $attachmentsCommands;
     protected $attachmentsManager;
 
     protected static $key = 'woody_lib_attachments';
@@ -89,23 +95,17 @@ final class Attachments extends Module
             register_rest_route('woody', 'attachments/terms/get', array(
                 'methods' => 'GET',
                 'callback' => [$this->attachmentsApi, 'getAttachmentTerms'],
-                'permission_callback' => function () {
-                    return current_user_can('edit_posts');
-                }
+                'permission_callback' => fn() => current_user_can('edit_posts')
             ));
             register_rest_route('woody', 'attachments/terms/set', array(
                 'methods' => 'GET',
                 'callback' => [$this->attachmentsApi, 'setAttachmentsTerms'],
-                'permission_callback' => function () {
-                    return current_user_can('edit_posts');
-                }
+                'permission_callback' => fn() => current_user_can('edit_posts')
             ));
             register_rest_route('woody', 'attachments/replace', array(
                 'methods' => 'GET',
                 'callback' => [$this->attachmentsApi, 'replacePostsMeta'],
-                'permission_callback' => function () {
-                    return current_user_can('edit_posts');
-                }
+                'permission_callback' => fn() => current_user_can('edit_posts')
             ));
         });
 
@@ -121,7 +121,7 @@ final class Attachments extends Module
     {
         // Enqueue the main Scripts
         $current_screen = get_current_screen();
-        if ($current_screen->id == 'upload' and $current_screen->post_type == 'attachment') {
+        if ($current_screen->id == 'upload' && $current_screen->post_type == 'attachment') {
             wp_enqueue_style('admin-attachments-stylesheet', $this->addonAssetPath('woody-lib-attachments', 'scss/attachments-admin.css'), '', WOODY_LIB_ATTACHMENTS_VERSION);
             wp_enqueue_script('admin-attachments-javascripts', $this->addonAssetPath('woody-lib-attachments', 'js/attachments-admin.js'), ['admin-javascripts'], WOODY_LIB_ATTACHMENTS_VERSION, true);
         }
