@@ -94,8 +94,6 @@ class AttachmentsTableManager
         $args = [
             'post_type' => $posts_types,
             'post_status' => ['publish', 'draft'],
-            'orderby' => 'menu_order',
-            'order'   => 'DESC',
             'posts_per_page' => $posts_per_page,
             'paged' => 1,
             'offset' => $offset,
