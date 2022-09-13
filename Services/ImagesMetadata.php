@@ -14,6 +14,7 @@ class ImagesMetadata
     /* ------------------------ */
     public function readImageMetadata($meta, $file, $sourceImageType, $iptc)
     {
+        $info = [];
         // XMP
         $content        = file_get_contents($file);
         $xmp_data_start = strpos($content, '<x:xmpmeta');
