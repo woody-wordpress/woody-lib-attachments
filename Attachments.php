@@ -32,7 +32,7 @@ final class Attachments extends Module
 
     public function initialize(ParameterManager $parameterManager, Container $container)
     {
-        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.0.0');
+        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.0.1');
         define('WOODY_LIB_ATTACHMENTS_ROOT', __FILE__);
         define('WOODY_LIB_ATTACHMENTS_DIR_ROOT', dirname(WOODY_LIB_ATTACHMENTS_ROOT));
         define('WOODY_LIB_ATTACHMENTS_DIR_RESOURCES', WOODY_LIB_ATTACHMENTS_DIR_ROOT . '/Resources');
@@ -101,17 +101,17 @@ final class Attachments extends Module
             register_rest_route('woody', 'attachments/terms/get', array(
                 'methods' => 'GET',
                 'callback' => [$this->attachmentsApi, 'getAttachmentTerms'],
-                'permission_callback' => fn() => current_user_can('edit_posts')
+                'permission_callback' => fn () => current_user_can('edit_posts')
             ));
             register_rest_route('woody', 'attachments/terms/set', array(
                 'methods' => 'GET',
                 'callback' => [$this->attachmentsApi, 'setAttachmentsTerms'],
-                'permission_callback' => fn() => current_user_can('edit_posts')
+                'permission_callback' => fn () => current_user_can('edit_posts')
             ));
             register_rest_route('woody', 'attachments/replace', array(
                 'methods' => 'GET',
                 'callback' => [$this->attachmentsApi, 'replacePostsMeta'],
-                'permission_callback' => fn() => current_user_can('edit_posts')
+                'permission_callback' => fn () => current_user_can('edit_posts')
             ));
         });
 

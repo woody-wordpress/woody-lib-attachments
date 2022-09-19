@@ -199,6 +199,15 @@ class AttachmentsTableManager
                                 }
                             }
                         }
+
+                        if ($layout['acf_fc_layout'] == 'links') {
+                            foreach ($layout['links'] as $link_key => $link) {
+                                $links_values = $this->getFieldsValues($field_names, $post_id, 'section_' . $section_key . '_section_content_' . $layout_key . '_links_' . $link_key);
+                                if (is_array($links_values)) {
+                                    $attachments_ids = array_merge($links_values, $attachments_ids);
+                                }
+                            }
+                        }
                     }
                 }
             }

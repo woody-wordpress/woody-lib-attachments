@@ -29,8 +29,6 @@ class CommandsManager
             $query = $this->attachmentsTableManager->getPosts($posts_to_get, $offset);
             if (!empty($query)) {
                 while ($count_posts < $query->found_posts) {
-                    output_log(sprintf('%s is less than %s', $count_posts, $query->found_posts));
-                    output_log(sprintf('Query %s posts from %s on %s total posts', $posts_to_get, $offset, $query->found_posts));
                     $count_posts += $query->post_count;
                     $posts_ids = array_merge($posts_ids, $query->posts);
                     $offset += $query->post_count;
