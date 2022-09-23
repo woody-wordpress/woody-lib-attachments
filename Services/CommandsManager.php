@@ -45,7 +45,7 @@ class CommandsManager
             $field_names = $this->attachmentsTableManager->getAttachmentsFieldNames();
             $i = 0;
             foreach ($posts_ids as $post_id) {
-                do_action('woody_async_add', 'get_attachments_by_post', ['post_id' => $post_id, 'field_names' => $field_names]);
+                do_action('woody_async_add', 'get_attachments_by_post', ['post_id' => $post_id, 'field_names' => $field_names], 'post_' . $post_id, true);
                 ++$i;
             }
 
