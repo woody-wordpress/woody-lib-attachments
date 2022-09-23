@@ -158,7 +158,7 @@ class AttachmentsManager
         $exclude = ['attachment', 'touristic_sheet', 'short_link', 'revision'];
 
         if (!empty('post') && !in_array($post->post_type, $exclude)) {
-            do_action('woody_async_add', 'get_attachments_by_post', ['post_id' => $post_id]);
+            do_action('woody_async_add', 'get_attachments_by_post', ['post_id' => $post_id], 'post_' . $post_id, true);
         }
     }
 }
