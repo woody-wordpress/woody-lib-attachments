@@ -31,6 +31,19 @@ class AttachmentsPageslist
     public function ListPagesUsingMedia()
     {
         $attachment_id = filter_input(INPUT_GET, 'attachment_id', FILTER_SANITIZE_STRING);
+
+        $attachment_tr_ids = [];
+        if (function_exists('pll_languages_list')) {
+            $langs = pll_languages_list();
+            if (!empty($langs)) {
+                foreach ($langs as $lang) {
+                    if ($lang !== pll_get_post_language($attachment_id)) {
+                        $attachment_tr_ids[$lang] = pll_get_post($attachment_id, $lang);
+                    }
+                }
+            }
+        }
+
         $results = $this->getResults($attachment_id);
 
         $mimetype_arr = explode('/', get_post_mime_type($attachment_id));

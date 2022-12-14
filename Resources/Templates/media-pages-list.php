@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
- // Exit if accessed directly
+// Exit if accessed directly
 ?>
 
 <header class="woody-mediapageslist-header woody-sitemap">
@@ -39,7 +39,7 @@ if (! defined('ABSPATH')) {
                 <?php echo get_the_title($attachment_id) ?>
             </p>
             <?php }
- ?>
+            ?>
 
             <?php if (!empty($results)) { ?>
             <button style="width:200px;" role="button" id="replaceAttachment"
@@ -47,7 +47,7 @@ if (! defined('ABSPATH')) {
                 Remplacer
             </button>
             <?php }
- ?>
+            ?>
         </div>
         <span id="fromToIcon" class="hidden dashicons dashicons-arrow-down-alt"></span>
         <div id="newMediaFrame" class="media-wrapper hidden">
@@ -60,7 +60,7 @@ if (! defined('ABSPATH')) {
                 <?php echo get_the_title($attachment_id) ?>
             </p>
             <?php }
- ?>
+            ?>
             <button role="button" id="submitNewAttachment" class="button button-primary button-large">
                 Valider
             </button>
@@ -103,7 +103,18 @@ if (!empty($results)) {
     echo '</table>';
 } else {
     echo "<h3>Ce média n'est utilisé dans aucune page</h3>";
-}
+    if ($attachment_tr_ids) {
+        echo "<p>Ne le supprimez pas avant d'avoir vérifié l'utilisation de ses traductions !</p>"; ?>
+        <ul class="actions">
+            <?php foreach ($attachment_tr_ids as $lang => $id) { ?>
+            <li>
+                <?php $mime_type = str_replace('/', '_', get_post_mime_type($id));
+                echo('<a class="button" href="/wp/wp-admin/admin.php?page=woody-pages-using-media&attachment_id='. $id .'&mime_type='. $mime_type .'">Vérifier la version '. strtoupper($lang) .'</a>'); ?>
+            </li>
+            <?php } ?>
+        </ul>
+        <?php }
+    }
 ?>
     </section>
 </div>
