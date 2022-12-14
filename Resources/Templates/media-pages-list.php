@@ -111,9 +111,10 @@ if (!empty($results)) {
                 <?php $mime_type = str_replace('/', '_', get_post_mime_type($id));
                 echo('<a class="button" href="/wp/wp-admin/admin.php?page=woody-pages-using-media&attachment_id='. $id .'&mime_type='. $mime_type .'">Vérifier la version '. strtoupper($lang) .'</a>'); ?>
             </li>
-            <?php } ?>
+            <?php }
+         ?>
         </ul>
-        <?php }
+<?php }
     }
 ?>
     </section>

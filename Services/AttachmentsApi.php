@@ -65,6 +65,7 @@ class AttachmentsApi
 
     public function replacePostsMeta()
     {
+        $updates = [];
         global $wpdb;
 
         $results = [];
@@ -94,8 +95,6 @@ class AttachmentsApi
                     }
                 }
             }
-
-            $updates = [];
 
             if (!empty($results)) {
                 // $post_ids servira à lancer l'action get_attachments_by_post
