@@ -25,7 +25,8 @@ class AttachmentsApi
         foreach ($taxs as $tax) {
             $terms = get_terms([
                 'taxonomy' => $tax,
-                'hide_empty' => false
+                'hide_empty' => false,
+                'lang' => PLL_DEFAULT_LANG
             ]);
 
             foreach ($terms as $term) {
