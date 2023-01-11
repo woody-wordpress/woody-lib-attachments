@@ -131,7 +131,7 @@ class AttachmentsApi
 
 
                 // Pour chaque post modifié, on met à jour la table woody_attachments
-                if (!empty($posts_ids)) {
+                if (!empty($posts_ids) && is_array($posts_ids)) {
                     $field_names = $this->attachmentsTableManager->getAttachmentsFieldNames();
                     foreach ($posts_ids as $post_id) {
                         $this->attachmentsTableManager->getAttachmentsByPost(['post_id' => $post_id, 'field_names' => $field_names]);

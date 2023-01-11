@@ -58,7 +58,7 @@ class AttachmentsTableManager
         $finder = new Finder();
         $finder->name('*.json')->files()->in($json_paths);
 
-        if (!empty($finder)) {
+        if (!empty($finder) && is_array($finder)) {
             foreach ($finder as $file) {
                 $file_path = $file->getRealPath();
                 $data = json_decode(file_get_contents($file_path), true, 512, JSON_THROW_ON_ERROR);
@@ -73,7 +73,7 @@ class AttachmentsTableManager
     {
         $matching_types = ['image', 'gallery', 'file'];
         $loop_types = ['group', 'repeater'];
-        if (is_array($fields) && !empty($fields)) {
+        if (!empty($fields) && is_array($fields)) {
             foreach ($fields as $field) {
                 if (in_array($field['type'], $loop_types)) {
                     $this->getMatchingFields($field['sub_fields']);
@@ -159,29 +159,29 @@ class AttachmentsTableManager
 
         $sections = get_field('section', $post_id);
 
-        if (!empty($sections)) {
+        if (!empty($sections) && is_array($sections)) {
             foreach ($sections as $section_key => $section) {
                 $sections_values = $this->getFieldsValues($field_names, $post_id, 'section_' . $section_key);
                 if (is_array($sections_values)) {
                     $attachments_ids = array_merge($sections_values, $attachments_ids);
                 }
 
-                if (!empty($section['section_content'])) {
+                if (!empty($section['section_content']) && is_array($section['section_content'])) {
                     foreach ($section['section_content'] as $layout_key => $layout) {
                         $section_content_values = $this->getFieldsValues($field_names, $post_id, 'section_' . $section_key . '_section_content_' . $layout_key);
                         if (is_array($section_content_values)) {
                             $attachments_ids = array_merge($section_content_values, $attachments_ids);
                         }
 
-                        if ($layout['acf_fc_layout'] == 'tabs_group') {
+                        if ($layout['acf_fc_layout'] == 'tabs_group' && !empty($layout['tabs']) && is_array($layout['tabs'])) {
                             foreach ($layout['tabs'] as $tab_key => $tab) {
                                 $tabs_values = $this->getFieldsValues($field_names, $post_id, 'section_' . $section_key . '_section_content_' . $layout_key . '_tabs_' . $tab_key);
                                 if (is_array($tabs_values)) {
                                     $attachments_ids = array_merge($tabs_values, $attachments_ids);
                                 }
 
-                                if (!empty($tab['light_section_content'])) {
-                                    foreach ($tab['light_section_content'] as $tab_layout_key => $tab_layout) {
+                                if (!empty($tab['light_section_content']) && is_array($tab['light_section_content'])) {
+                                    foreach (array_keys($tab['light_section_content']) as $tab_layout_key) {
                                         $tabs_content_values = $this->getFieldsValues($field_names, $post_id, 'section_' . $section_key . '_section_content_' . $layout_key . '_tabs_' . $tab_key . '_light_section_content_' . $tab_layout_key);
                                         if (is_array($tabs_content_values)) {
                                             $attachments_ids = array_merge($tabs_content_values, $attachments_ids);
@@ -191,8 +191,8 @@ class AttachmentsTableManager
                             }
                         }
 
-                        if ($layout['acf_fc_layout'] == 'interactive_gallery') {
-                            foreach ($layout['interactive_gallery_items'] as $gallery_key => $gallery) {
+                        if ($layout['acf_fc_layout'] == 'interactive_gallery' && !empty($layout['interactive_gallery_items']) && is_array($layout['interactive_gallery_items'])) {
+                            foreach (array_keys($layout['interactive_gallery_items']) as $gallery_key) {
                                 $gallery_values = $this->getFieldsValues($field_names, $post_id, 'section_' . $section_key . '_section_content_' . $layout_key . '_interactive_gallery_items_' . $gallery_key);
                                 if (is_array($gallery_values)) {
                                     $attachments_ids = array_merge($gallery_values, $attachments_ids);
@@ -200,8 +200,8 @@ class AttachmentsTableManager
                             }
                         }
 
-                        if ($layout['acf_fc_layout'] == 'links') {
-                            foreach ($layout['links'] as $link_key => $link) {
+                        if ($layout['acf_fc_layout'] == 'links' && !empty($layout['links']) && is_array($layout['links'])) {
+                            foreach (array_keys($layout['links']) as $link_key) {
                                 $links_values = $this->getFieldsValues($field_names, $post_id, 'section_' . $section_key . '_section_content_' . $layout_key . '_links_' . $link_key);
                                 if (is_array($links_values)) {
                                     $attachments_ids = array_merge($links_values, $attachments_ids);
@@ -224,28 +224,29 @@ class AttachmentsTableManager
     public function getFieldsValues($field_names, $post_id, $meta_key = '', $acf = false)
     {
         $return = [];
-
-        foreach ($field_names as $field_name) {
-            $full_meta_key = ($acf) ? $field_name : $meta_key . '_' . $field_name;
-            $value = ($acf) ? get_field($field_name, $post_id) : get_post_meta($post_id, $full_meta_key, true);
-            if (!empty($value)) {
-                if ((is_string($value) || is_int($value))) {
-                    $return[] = [
+        if (!empty($field_names) && is_array($field_names)) {
+            foreach ($field_names as $field_name) {
+                $full_meta_key = ($acf) ? $field_name : $meta_key . '_' . $field_name;
+                $value = ($acf) ? get_field($field_name, $post_id) : get_post_meta($post_id, $full_meta_key, true);
+                if (!empty($value)) {
+                    if ((is_string($value) || is_int($value))) {
+                        $return[] = [
                         'id' => $value,
                         'meta_key' => $full_meta_key
                     ];
-                } elseif (is_array($value)) {
-                    if (is_int($value['ID'])) {
-                        $return[] = [
-                            'id' => $value['ID'],
-                            'meta_key' => $full_meta_key
-                        ];
-                    } else {
-                        foreach ($value as $attachement_id) {
+                    } elseif (is_array($value)) {
+                        if (is_int($value['ID'])) {
                             $return[] = [
-                                'id' => $attachement_id,
+                                'id' => $value['ID'],
                                 'meta_key' => $full_meta_key
                             ];
+                        } else {
+                            foreach ($value as $attachement_id) {
+                                $return[] = [
+                                    'id' => $attachement_id,
+                                    'meta_key' => $full_meta_key
+                                ];
+                            }
                         }
                     }
                 }
@@ -262,7 +263,7 @@ class AttachmentsTableManager
         output_log('Delete ' . $wpdb->base_prefix . 'woody_attachments rows with post_id = ' . $post_id);
         $this->deleteAttachmentPost($post_id);
 
-        if (!empty($attachments_fields)) {
+        if (!empty($attachments_fields) && is_array($attachments_fields)) {
             foreach ($attachments_fields as $attachment_field) {
                 $wpdb->insert(
                     $wpdb->base_prefix . 'woody_attachments',
