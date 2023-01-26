@@ -58,7 +58,7 @@ class AttachmentsTableManager
         $finder = new Finder();
         $finder->name('*.json')->files()->in($json_paths);
 
-        if (!empty($finder) && is_array($finder)) {
+        if (!empty($finder) && is_iterable($finder)) {
             foreach ($finder as $file) {
                 $file_path = $file->getRealPath();
                 $data = json_decode(file_get_contents($file_path), true, 512, JSON_THROW_ON_ERROR);
