@@ -81,4 +81,11 @@ class AttachmentsWpSettings
 
         return $overrides;
     }
+
+    public function restrictFilenameSpecialChars($special_chars)
+    {
+        $special_chars[] = '©';
+
+        return $special_chars;
+    }
 }
