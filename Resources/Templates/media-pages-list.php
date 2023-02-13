@@ -13,7 +13,7 @@ if (! defined('ABSPATH')) {
 // Exit if accessed directly
 ?>
 
-<header class="woody-mediapageslist-header woody-sitemap">
+<header class="woody-mediapageslist-header">
     <h1>
         Utilisation et remplacement des média
         <span>Made with ♥ by Raccourci Agency</span>
@@ -112,9 +112,9 @@ if (!empty($results)) {
                 echo('<a class="button" href="/wp/wp-admin/admin.php?page=woody-pages-using-media&attachment_id='. $id .'&mime_type='. $mime_type .'">Vérifier la version '. strtoupper($lang) .'</a>'); ?>
             </li>
             <?php }
-         ?>
+            ?>
         </ul>
-<?php }
+        <?php }
     }
 ?>
     </section>
