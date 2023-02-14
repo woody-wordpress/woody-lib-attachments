@@ -1,0 +1,13 @@
+<header class="woody-unused-attachments-header">
+    <h1>Médias inutilisés</h1>
+    <span>Made with ♥ by Raccourci Agency</span>
+</header>
+<div class="woody-unused-attachments-container">
+    <p>D'après nos calculs, vous avez {{ total_attachments }} médias répartis dans {{ total_langs }} langues</p>
+    <p>{{ total_wysiwyg }} sont utilisés dans des blocs WYSIWYG</p>
+    <p>{{ total_media_fields }} sont utilisés dans des champs image/fichier</p>
+    <p><strong>{{ total_remove }} médias sont totalement inutilisés</strong></p>
+    <button class="button" id="removeIdsTrigger">Supprimer les médias inutilisés</button>
+    <p><small>Attention, cette action est irreversible</small></p>
+    <textarea class="" id="removeIdsInput" name="removeIdsInput" rows="20" cols="50">{{ unused_ids }}</textarea>
+</div>

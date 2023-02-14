@@ -26,6 +26,8 @@ final class Attachments extends Module
 
     public $attachmentsCommands;
 
+    public $attachmentsUnused;
+
     protected $attachmentsManager;
 
     protected static $key = 'woody_lib_attachments';
@@ -45,6 +47,7 @@ final class Attachments extends Module
         $this->attachmentsPagesList = $this->container->get('attachments.pageslist');
         $this->attachmentsTableManager = $this->container->get('attachments.table.manager');
         $this->attachmentsCommands = $this->container->get('attachments.commands');
+        $this->attachmentsUnused = $this->container->get('attachments.unused');
 
         $this->addImageSizes();
     }
@@ -61,6 +64,8 @@ final class Attachments extends Module
 
     public function subscribeHooks()
     {
+        add_filter('timber_locations', [$this, 'injectTimberLocation']);
+
         // DB actions
         add_action('woody_theme_update', [$this->attachmentsTableManager, 'upgrade'], 10);
 
@@ -122,6 +127,16 @@ final class Attachments extends Module
         // List pages linked to an image
         add_action('admin_menu', [$this->attachmentsPagesList, 'generatePagesList']);
         add_filter('media_row_actions', [$this->attachmentsPagesList, 'addPageListLinks'], 10, 3);
+
+        // List unused attachments
+        add_action('admin_menu', [$this->attachmentsUnused, 'generateUnusedList']);
+    }
+
+    public function injectTimberLocation($locations)
+    {
+        $locations[] = WOODY_LIB_ATTACHMENTS_DIR_RESOURCES . '/Views';
+
+        return $locations;
     }
 
     public function enqueueAdminAssets()
@@ -138,6 +153,8 @@ final class Attachments extends Module
             wp_enqueue_style('replace-attachments-stylesheet', $this->addonAssetPath('woody-lib-attachments', 'scss/replace-attachment.css'), '', WOODY_LIB_ATTACHMENTS_VERSION);
             wp_enqueue_script('replace-attachment-javascripts', $this->addonAssetPath('woody-lib-attachments', 'js/replace-attachment.js'), ['admin-javascripts'], WOODY_LIB_ATTACHMENTS_VERSION, true);
         }
+
+        console_log($screen);
     }
 
     public function addImageSizes()

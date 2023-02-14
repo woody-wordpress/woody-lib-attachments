@@ -51,8 +51,11 @@ class Services
                 'arguments' => [
                     ['service' => 'attachments.command.manager']
                 ]
+            ],
+            'attachments.unused' => [
+                'class'     => \Woody\Lib\Attachments\Services\AttachmentsUnused::class,
+                'arguments' => []
             ]
-
         ];
     }
 
