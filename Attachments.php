@@ -154,7 +154,9 @@ final class Attachments extends Module
             wp_enqueue_script('replace-attachment-javascripts', $this->addonAssetPath('woody-lib-attachments', 'js/replace-attachment.js'), ['admin-javascripts'], WOODY_LIB_ATTACHMENTS_VERSION, true);
         }
 
-        console_log($screen);
+        if ($current_screen->id == 'media_page_woody-unused-attachments') {
+            wp_enqueue_style('unused-attachments-stylesheet', $this->addonAssetPath('woody-lib-attachments', 'scss/unused-attachments.css'), '', WOODY_LIB_ATTACHMENTS_VERSION);
+        }
     }
 
     public function addImageSizes()

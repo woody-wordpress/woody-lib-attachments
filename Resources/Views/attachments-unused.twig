@@ -3,11 +3,28 @@
     <span>Made with ♥ by Raccourci Agency</span>
 </header>
 <div class="woody-unused-attachments-container">
-    <p>D'après nos calculs, vous avez {{ total_attachments }} médias répartis dans {{ total_langs }} langues</p>
-    <p>{{ total_wysiwyg }} sont utilisés dans des blocs WYSIWYG</p>
-    <p>{{ total_media_fields }} sont utilisés dans des champs image/fichier</p>
-    <p><strong>{{ total_remove }} médias sont totalement inutilisés</strong></p>
-    <button class="button" id="removeIdsTrigger">Supprimer les médias inutilisés</button>
-    <p><small>Attention, cette action est irreversible</small></p>
-    <textarea class="" id="removeIdsInput" name="removeIdsInput" rows="20" cols="50">{{ unused_ids }}</textarea>
+    <p><strong>{{ unused_ids }}</strong> médias sont totalement inutilisés</p>
+    {% if items %}
+        <ul class="items-grid flex-container">
+            {% for item in items %}
+                {% if item.thumbnail %}
+                    <li class="item" data-post-id="{{ item.post_id }}" title="{{ item.post_name }}">
+                        {{ item.thumbnail }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% if pagination %}
+        <div class="pagination flex-container">
+            <ul class="pager">
+                {% for key, page in pagination %}
+                    <li class="{{ key }}{{ page.current ? 'current'|html_class }}{{ page.visible ? 'visible'|html_class }}">
+                        <a class="clickable {{ key }} btn" href="{{ page.link }}">{{ key }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <small>Page {{ pager }}/{{ max_num_pages }}</small>
+        </div>
+    {% endif %}
 </div>

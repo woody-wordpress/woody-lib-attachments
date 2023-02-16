@@ -156,7 +156,6 @@ class AttachmentsTableManager
             $attachments_ids = array_merge($root_values, $attachments_ids);
         }
 
-
         $sections = get_field('section', $post_id);
 
         if (!empty($sections) && is_array($sections)) {
@@ -213,6 +212,15 @@ class AttachmentsTableManager
             }
         }
 
+        $wysiwyg_medias_ids = [];
+        $wysiwyg_medias_ids = $this->wysiwygMediasIds($post_id, $wysiwyg_medias_ids);
+        $wysiwyg_medias_ids = $this->wysiwygMediasIdsByNames($post_id, $wysiwyg_medias_ids);
+        $wysiwyg_medias_ids = array_values($wysiwyg_medias_ids);
+
+        if (!empty($wysiwyg_medias_ids)) {
+            $attachments_ids = array_merge($wysiwyg_medias_ids, $attachments_ids);
+        }
+
         if (!empty($attachments_ids)) {
             output_success('Found ' . count($attachments_ids) . ' attachments used in post ' . $post_id);
             $this->insertAttachmentPost($attachments_ids, $post_id);
@@ -220,6 +228,86 @@ class AttachmentsTableManager
             output_log('Post ' . $post_id . " isn't using any attachment");
         }
     }
+
+    private function wysiwygMediasIds($post_id, $ids = [])
+    {
+        global $wpdb;
+
+        // On récupère toutes les postmeta contenant une référence à wp-json/woody/crop et on en extrait le/les identifiant(s) d'attachment
+        $req = "SELECT p.ID, pm.meta_key, pm.meta_value FROM {$wpdb->prefix}postmeta as pm LEFT JOIN {$wpdb->prefix}posts as p ON pm.post_id = p.ID WHERE p.ID = {$post_id} AND pm.meta_value LIKE '%/wp-json/woody/crop/%'";
+        $results = $wpdb->get_results($wpdb->prepare($req));
+
+        if (!empty($results)) {
+            foreach ($results as $result) {
+                $matches = [];
+                preg_match_all('#wp-json/woody/crop/([0-9]+)/ratio#', $result->meta_value, $matches, PREG_SET_ORDER);
+                if (!empty($matches)) {
+                    foreach ($matches as $match) {
+                        unset($match[0]);
+                        if (!empty($match)) {
+                            foreach ($match as $match_value) {
+                                $ids[] = [
+                                    'id' => $match_value,
+                                    'meta_key' => $result->meta_key
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return array_unique($ids);
+    }
+
+    private function wysiwygMediasIdsByNames($post_id, $ids = [])
+    {
+        global $wpdb;
+
+        // On récupère toutes les postmeta contenant une référence à app/uploads/sitekey et on en extrait le/les identifiant(s) d'attachment
+        $site_key = WP_SITE_KEY;
+        $req = "SELECT p.ID, pm.meta_key, pm.meta_value FROM {$wpdb->prefix}postmeta as pm LEFT JOIN {$wpdb->prefix}posts as p ON pm.post_id = p.ID WHERE p.ID = {$post_id} AND pm.meta_value LIKE '%/app/uploads/{$site_key}/%' AND pm.meta_value NOT LIKE '%/wp-json/woody/crop/%'";
+        $results = $wpdb->get_results($wpdb->prepare($req));
+        if (!empty($results)) {
+            foreach ($results as $result) {
+                $matches = [];
+                preg_match_all('#/app/uploads/'. WP_SITE_KEY .'/[0-9]{4}/[0-9]{2}/([^" ]+)#', $result->meta_value, $matches, PREG_SET_ORDER);
+                if (!empty($matches)) {
+                    foreach ($matches as $match) {
+                        $file_path = $this->filterFilePath($match[0]);
+                        $att_ids_req = "SELECT ID FROM {$wpdb->prefix}posts WHERE guid LIKE '%{$file_path}'";
+                        $att_ids_results = $wpdb->get_results($wpdb->prepare($att_ids_req));
+
+                        foreach ($att_ids_results as $att_id_result) {
+                            $ids[] = [
+                                'id' => $att_id_result->ID,
+                                'meta_key' => $result->meta_key
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        return array_unique($ids);
+    }
+
+    private function filterFilePath($file_path)
+    {
+        $file_path = str_replace('/thumbs', '', $file_path);
+        preg_match('#(-[0-9]+x[0-9]+-[^.]+).#', $file_path, $matches);
+        if (is_array($matches) && !empty($matches[1])) {
+            $file_path = str_replace($matches[1], '', $file_path);
+        } else {
+            preg_match('#(-[0-9]+x[0-9]+).#', $file_path, $matches);
+            if (is_array($matches) && !empty($matches[1])) {
+                $file_path = str_replace($matches[1], '', $file_path);
+            }
+        }
+
+        return $file_path;
+    }
+
 
     public function getFieldsValues($field_names, $post_id, $meta_key = '', $acf = false)
     {
