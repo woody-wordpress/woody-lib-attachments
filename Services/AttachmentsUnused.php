@@ -73,7 +73,6 @@ class AttachmentsUnused
                         }
                     }
 
-
                     dropzone_set('woody_attachments_unused_ids', $unused_ids);
                 }
             }
