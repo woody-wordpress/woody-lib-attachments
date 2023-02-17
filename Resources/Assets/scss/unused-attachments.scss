@@ -24,6 +24,23 @@
         padding: 5px;
         margin: 0;
         width: 10%;
+        position: relative;
+
+        input {
+            position: absolute;
+            top: 9px;
+            left: 6px;
+            width: calc(100% - 12px);
+            height: calc(100% - 10px);
+            background-color: transparent;
+            border: none;
+            opacity: 0;
+
+            &:checked~img {
+                outline: 6px solid #2271b1;
+                outline-offset: -6px;
+            }
+        }
     }
 
     img {

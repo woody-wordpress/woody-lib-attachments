@@ -63,7 +63,6 @@ class AttachmentsUnused
 
                 if (!empty($unsused_ids_results)) {
                     $unused_ids = array_map([$this, 'getResultsID'], $unsused_ids_results);
-                    console_log(count($unused_ids), 'unused ids before lang filtering');
 
                     // On ne montre que les attachment en langue par défaut => la suppression de l'un entrainera la suppression de toutes ses traductions
                     foreach ($unused_ids as $unused_id_key => $unused_id) {
@@ -77,8 +76,6 @@ class AttachmentsUnused
                 }
             }
         }
-
-        console_log(count($unused_ids), 'unused ids default lang only');
 
         return $unused_ids;
     }

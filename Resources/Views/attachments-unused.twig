@@ -5,15 +5,22 @@
 <div class="woody-unused-attachments-container">
     <p><strong>{{ unused_ids }}</strong> médias sont totalement inutilisés</p>
     {% if items %}
-        <ul class="items-grid flex-container">
-            {% for item in items %}
-                {% if item.thumbnail %}
-                    <li class="item" data-post-id="{{ item.post_id }}" title="{{ item.post_name }}">
-                        {{ item.thumbnail }}
-                    </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
+        <form id="unused-attachments" method="get">
+            <input type="submit" id="delete_unused" class="button action" value="Supprimer les images sélectionnées">
+            </br>
+            <p>Pour des raisons de performances, la suppression d'images par lots est limitée à 10 images à la fois.
+            </br>Pour une suppression massive, merci de déposer un ticket</p>
+            <ul class="items-grid flex-container">
+                {% for item in items %}
+                    {% if item.thumbnail %}
+                        <li class="item" data-post-id="{{ item.post_id }}" title="{{ item.post_name }}">
+                            <input type="checkbox" class="media-checkbox" name="media[]" id="cb-select-{{ item.post_id }}" value="{{ item.post_id }}">
+                            {{ item.thumbnail }}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </form>
     {% endif %}
     {% if pagination %}
         <div class="pagination flex-container">
