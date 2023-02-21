@@ -55,6 +55,10 @@ class Services
             'attachments.unused' => [
                 'class'     => \Woody\Lib\Attachments\Services\AttachmentsUnused::class,
                 'arguments' => []
+            ],
+            'attachments.data.export' => [
+                'class'     => \Woody\Lib\Attachments\Services\AttachmentsDataExport::class,
+                'arguments' => []
             ]
         ];
     }

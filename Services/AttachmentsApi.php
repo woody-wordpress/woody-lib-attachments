@@ -158,4 +158,78 @@ class AttachmentsApi
         dropzone_delete('woody_attachments_unused_ids');
         wp_send_json($deleted);
     }
+
+    public function exportAttachmentsData(\WP_REST_Request $request)
+    {
+        $params = $request->get_params();
+
+        $args = [
+            'post_mime_type' => (empty($params['mimetype'][0])) ? [] : $this->filterMimeTypes($params['mimetype'][0]),
+            'lang' => (empty($params['lang'][0])) ? [] : $params['lang'][0],
+            'fields' => (empty($params['fields'])) ? [] : $params['fields']
+        ];
+
+        $attachments = [];
+        $count_posts = 0;
+        $query = $this->attachmentsQuery($args);
+
+        if (!empty($query)) {
+            // while ($count_posts < $query->found_posts) {
+            //     $count_posts += $query->post_count;
+            //     $attachments = array_push($attachments, $query->posts);
+            //     $args['offset'] += $query->post_count;
+            //     $query = $this->attachmentsQuery($args);
+            // }
+
+            output_h1(sprintf('Resquest is done. Found %s post', $count_posts));
+        }
+
+        wp_send_json($query);
+    }
+
+    public function attachmentsQuery($args)
+    {
+        $offset = (empty($args['offset'])) ? 0 : $args['offset'];
+
+        $query_args = [
+            'post_type'      => 'attachment',
+            'post_status'    => ['inherit', 'publish', 'any'],
+            // 'posts_per_page' => 30,
+            'orderby'        => 'title',
+            'order'          => 'DESC',
+            'offset' => $offset
+        ];
+
+        if ($args['lang'] == 'default_lang') {
+            $query_args['lang'] = PLL_DEFAULT_LANG;
+        }
+
+        if (!empty($args['post_mime_type'])) {
+            $query_args['post_mime_type'] = $args['post_mime_type'];
+        }
+
+        $wpQuery = new \WP_Query($query_args);
+
+        return $wpQuery;
+    }
+
+    public function filterMimeTypes($mimetype)
+    {
+        $mimetypes = [];
+
+        if ($mimetype == 'all') {
+            return [];
+        }
+
+        $all_types = get_allowed_mime_types();
+        if (!empty($all_types)) {
+            foreach ($all_types as $type) {
+                if (strpos($type, $mimetype) === 0) {
+                    $mimetypes[] = $type;
+                }
+            }
+        }
+
+        return $mimetypes;
+    }
 }

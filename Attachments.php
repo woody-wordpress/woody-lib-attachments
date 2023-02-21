@@ -28,6 +28,8 @@ final class Attachments extends Module
 
     public $attachmentsUnused;
 
+    public $attachmentsDataExport;
+
     protected $attachmentsManager;
 
     protected static $key = 'woody_lib_attachments';
@@ -48,6 +50,7 @@ final class Attachments extends Module
         $this->attachmentsTableManager = $this->container->get('attachments.table.manager');
         $this->attachmentsCommands = $this->container->get('attachments.commands');
         $this->attachmentsUnused = $this->container->get('attachments.unused');
+        $this->attachmentsDataExport = $this->container->get('attachments.data.export');
 
         $this->addImageSizes();
     }
@@ -122,6 +125,11 @@ final class Attachments extends Module
             register_rest_route('woody', 'attachments/delete', array(
                 'methods' => 'POST',
                 'callback' => [$this->attachmentsApi, 'deleteAttachments'],
+                'permission_callback' => fn () => current_user_can('delete_posts')
+            ));
+            register_rest_route('woody', 'attachments/exportdata', array(
+                'methods' => 'POST',
+                'callback' => [$this->attachmentsApi, 'exportAttachmentsData'],
                 'permission_callback' => fn () => current_user_can('edit_posts')
             ));
         });
@@ -135,6 +143,8 @@ final class Attachments extends Module
 
         // List unused attachments
         add_action('admin_menu', [$this->attachmentsUnused, 'generateUnusedList']);
+
+        add_action('admin_menu', [$this->attachmentsDataExport, 'generateDataExportPage']);
     }
 
     public function injectTimberLocation($locations)
@@ -163,6 +173,12 @@ final class Attachments extends Module
             wp_enqueue_media();
             wp_enqueue_style('unused-attachments-stylesheet', $this->addonAssetPath('woody-lib-attachments', 'scss/unused-attachments.css'), '', WOODY_LIB_ATTACHMENTS_VERSION);
             wp_enqueue_script('unused-attachments-javascripts', $this->addonAssetPath('woody-lib-attachments', 'js/unused-attachments.js'), ['admin-javascripts'], WOODY_LIB_ATTACHMENTS_VERSION, true);
+        }
+
+        if ($current_screen->id == 'media_page_woody-export-attachments-data') {
+            wp_enqueue_media();
+            wp_enqueue_style('export-attachments-data-stylesheet', $this->addonAssetPath('woody-lib-attachments', 'scss/export-attachments-data.css'), '', WOODY_LIB_ATTACHMENTS_VERSION);
+            wp_enqueue_script('export-attachments-data-javascripts', $this->addonAssetPath('woody-lib-attachments', 'js/export-attachments-data.js'), ['admin-javascripts'], WOODY_LIB_ATTACHMENTS_VERSION, true);
         }
     }
 
