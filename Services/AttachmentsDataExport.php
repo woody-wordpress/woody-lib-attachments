@@ -40,9 +40,11 @@ class AttachmentsDataExport
     public function deleteMediaExportFiles()
     {
         $files = dropzone_get('woody_export_attachments_files');
+        output_log($files);
         if (!empty($files) && !empty($files['paths']) && !empty($files['timestamp'])) {
             if ($files['timestamp'] < time() - 3600) {
                 foreach ($files['paths'] as $path) {
+                    output_log(sprintf('Unlink %s', $path));
                     unlink($path);
                 }
             }

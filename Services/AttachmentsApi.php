@@ -161,7 +161,7 @@ class AttachmentsApi
 
     public function exportAttachmentsData(\WP_REST_Request $request)
     {
-        $filespaths = [];
+        $filespath = '';
 
         $params = $request->get_params();
 
@@ -185,18 +185,12 @@ class AttachmentsApi
         }
 
         if (!empty($attachments)) {
-            $chunks = array_chunk($attachments, 3000);
-            if (!empty($chunks)) {
-                foreach ($chunks as $chunk) {
-                    $filespaths[] = $this->arrayToCsv($attachments, $fields);
-                }
-            }
-
-            dropzone_set('woody_export_attachments_files', ['paths' => $filespaths, 'timestamp' => time()]);
+            $filespath= $this->arrayToCsv($attachments, $fields);
+            dropzone_set('woody_export_attachments_files', ['path' => $filespath, 'timestamp' => time()]);
         }
 
-        if (!empty($filespaths)) {
-            wp_send_json($filespaths);
+        if (!empty($filespath)) {
+            wp_send_json($filespath);
         }
     }
 

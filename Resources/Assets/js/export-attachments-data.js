@@ -43,15 +43,9 @@ if(!!submitExport){
             })
         })
         .then(response => response.json())
-        .then(filespaths => {
+        .then(filespath => {
             document.body.classList.add('windowReady');
-            console.log(filespaths);
-            if(filespaths.length > 0){
-                filespaths.forEach(filepath => {
-                    console.log(window.location.origin + filepath.replace('home/admin/www/wordpress/current/web/', ''));
-                    // window.open(window.location.origin . filepath);
-                });
-            }
+            window.open(window.location.origin + filepath.replace('home/admin/www/wordpress/current/web/', ''), '_blank');
         })
         .catch(error => {
             console.error('Attachments delete fetch: ' + error);

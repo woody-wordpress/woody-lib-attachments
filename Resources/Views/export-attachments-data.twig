@@ -1,49 +1,87 @@
-<pre>Export attachments data</pre>
+<header class="woody-unused-attachments-header">
+    <h1>Exporter les données des médias</h1>
+    <span>Made with ♥ by Raccourci Agency</span>
+</header>
+<div class="woody-export-attachments-data-container flex-container">
+    <form>
+        <h3>Types de médias</h3>
+        <div class="form-input flex-container">
+            <div class="radio-wrapper">
+                <input class="mimetype-radio" type="radio" id="image_types" name="mimetype" value="image" checked>
+                <label for="image_types">Images</label>
+            </div>
+            <div class="radio-wrapper">
+                <input class="mimetype-radio" type="radio" id="video_types" name="mimetype" value="video">
+                <label for="video_types">Vidéos</label>
+            </div>
+            <div class="radio-wrapper">
+                <input class="mimetype-radio" type="radio" id="text_types" name="mimetype" value="text">
+                <label for="text_types">Documents</label>
+            </div>
+            <div class="radio-wrapper">
+                <input class="mimetype-radio" type="radio" id="audio_types" name="mimetype" value="audio">
+                <label for="audio_types">Audios</label>
+            </div>
+            <div class="radio-wrapper">
+                <input class="mimetype-radio" type="radio" id="all_types" name="mimetype" value="all" >
+                <label for="all_types">Tous les médias</label>
+            </div>
+        </div>
 
-<form>
-    <div class="form-input flex-container">
-        <input class="mimetype-radio" type="radio" id="all_types" name="mimetype" value="all" checked>
-        <label for="all_types">Tous les médias</label>
-        <input class="mimetype-radio" type="radio" id="image_types" name="mimetype" value="image">
-        <label for="image_types">Images</label>
-        <input class="mimetype-radio" type="radio" id="video_types" name="mimetype" value="video">
-        <label for="video_types">Vidéos</label>
-        <input class="mimetype-radio" type="radio" id="text_types" name="mimetype" value="text">
-        <label for="text_types">Documents</label>
-        <input class="mimetype-radio" type="radio" id="audio_types" name="mimetype" value="audio">
-        <label for="audio_types">Audios</label>
-    </div>
-
-    <div class="form-input flex-container">
-        <input class="language-radio" type="radio" id="language_all" name="language_query" value="language_all">
-        <label for="language_all">Toutes les langues</label>
-        <input class="language-radio" type="radio" id="language_default" name="language_query" value="language_default" checked>
-        <label for="language_default">Langue par défaut</label>
-        <p>Si vous vous choisissez d'exporter les données de toutes les langues, les données des images apparaîtront autant de fois que vous avez de langues sur le site</br>
+        <h3>Langues</h3>
+        <p class="desc">Si vous vous choisissez toutes les langues, les données des images apparaîtront autant de fois que vous avez de langues sur le site</br>
         Dans le cas d'un export d'images, nous vous conseillons de n'exporter que la langue par défaut du site</br>
         Pour les autres types de médias, nous vous conseillons un export dans toutes les langues</p>
-    </div>
+        <div class="form-input flex-container">
+            <div class="radio-wrapper">
+                <input class="language-radio" type="radio" id="language_default" name="language_query" value="language_default" checked>
+                <label for="language_default">Langue par défaut</label>
+            </div>
+            <div class="radio-wrapper">
+                <input class="language-radio" type="radio" id="language_all" name="language_query" value="language_all">
+                <label for="language_all">Toutes les langues</label>
+            </div>
+        </div>
 
-    <div class="form-input flex-container">
-        <input class="field-checkbox" type="checkbox" id="obj_id" name="obj_id" value="ID" checked>
-        <label for="obj_id">Identifiant</label>
-        <input class="field-checkbox" type="checkbox" id="obj_name" name="obj_name" value="post_name" checked>
-        <label for="obj_name">Nom du média</label>
-            <input class="field-checkbox" type="checkbox" id="obj_title" name="obj_title" value="post_title" checked>
-        <label for="obj_title">Titre du média</label>
-        <input class="field-checkbox" type="checkbox" id="obj_url" name="obj_url" value="url" checked>
-        <label for="obj_url">Url du fichier</label>
-        <input class="field-checkbox" type="checkbox" id="obj_caption" name="obj_caption" value="post_excerpt" checked>
-        <label for="obj_caption">Légende</label>
-        <input class="field-checkbox" type="checkbox" id="obj_author" name="obj_author" value="media_author" checked>
-        <label for="obj_author">Auteur</label>
-        <input class="field-checkbox" type="checkbox" id="obj_rights" name="obj_rights" value="medias_rights_management" checked>
-        <label for="obj_rights">Gestion des droits</label>
-        <input class="field-checkbox" type="checkbox" id="obj_lat" name="obj_lat" value="media_lat" checked>
-        <label for="obj_lat">Latitude</label>
-        <input class="field-checkbox" type="checkbox" id="obj_lng" name="obj_lng" value="media_lng" checked>
-        <label for="obj_lng">Longitude</label>
-    </div>
-    <input type="submit" id="submit_export" value="Exporter les données des médias"></input>
-</form>
-
+        <h3>Champs à faire apparaître dans l'export</h3>
+        <div class="form-input flex-container">
+            <div class="checkbox-wrapper">
+                <input class="field-checkbox" type="checkbox" id="obj_id" name="obj_id" value="ID" checked disabled>
+                <label for="obj_id">Identifiant</label>
+            </div>
+            <div class="checkbox-wrapper">
+                <input class="field-checkbox" type="checkbox" id="obj_name" name="obj_name" value="post_name" checked>
+                <label for="obj_name">Nom du média</label>
+            </div>
+            <div class="checkbox-wrapper">
+                <input class="field-checkbox" type="checkbox" id="obj_title" name="obj_title" value="post_title" checked>
+                <label for="obj_title">Titre du média</label>
+            </div>
+            <div class="checkbox-wrapper">
+                <input class="field-checkbox" type="checkbox" id="obj_url" name="obj_url" value="url" checked>
+                <label for="obj_url">Url du fichier</label>
+            </div>
+            <div class="checkbox-wrapper">
+                <input class="field-checkbox" type="checkbox" id="obj_caption" name="obj_caption" value="post_excerpt" checked>
+                <label for="obj_caption">Légende</label>
+            </div>
+            <div class="checkbox-wrapper">
+                <input class="field-checkbox" type="checkbox" id="obj_author" name="obj_author" value="media_author" checked>
+                <label for="obj_author">Auteur</label>
+            </div>
+            <div class="checkbox-wrapper">
+                <input class="field-checkbox" type="checkbox" id="obj_rights" name="obj_rights" value="medias_rights_management" checked>
+                <label for="obj_rights">Gestion des droits</label>
+            </div>
+            <div class="checkbox-wrapper">
+                <input class="field-checkbox" type="checkbox" id="obj_lat" name="obj_lat" value="media_lat" checked>
+                <label for="obj_lat">Latitude</label>
+            </div>
+            <div class="checkbox-wrapper">
+                <input class="field-checkbox" type="checkbox" id="obj_lng" name="obj_lng" value="media_lng" checked>
+                <label for="obj_lng">Longitude</label>
+            </div>
+        </div>
+        <input type="submit" id="submit_export" class="button button-primary" value="Exporter les données des médias"></input>
+    </form>
+</div>
