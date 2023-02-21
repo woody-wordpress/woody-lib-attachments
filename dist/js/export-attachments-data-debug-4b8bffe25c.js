@@ -43,7 +43,7 @@ if(!!submitExport){
             })
         })
         .then(response => response.json())
-        .then(filespath => {
+        .then(filepath => {
             document.body.classList.add('windowReady');
             window.open(window.location.origin + filepath.replace('home/admin/www/wordpress/current/web/', ''), '_blank');
         })

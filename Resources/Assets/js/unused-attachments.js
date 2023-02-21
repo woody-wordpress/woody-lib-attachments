@@ -29,7 +29,6 @@ if(!!deleteSubmit){
                 })
                 .then(response => response.json())
                 .then(deleted => {
-                    console.log(deleted);
                     window.location.href = window.location.href;
                 })
                 .catch(error => {
