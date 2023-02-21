@@ -1,0 +1,37 @@
+<header class="woody-unused-attachments-header">
+    <h1>Médias inutilisés</h1>
+    <span>Made with ♥ by Raccourci Agency</span>
+</header>
+<div class="woody-unused-attachments-container">
+    <p><strong>{{ unused_ids }}</strong> médias sont totalement inutilisés</p>
+    {% if items %}
+        <form id="unused-attachments" method="get">
+            <input type="submit" id="delete_unused" class="button action" value="Supprimer les images sélectionnées">
+            </br>
+            <p>Pour des raisons de performances, la suppression d'images par lots est limitée à 10 images à la fois.
+            </br>Pour une suppression massive, merci de déposer un ticket</p>
+            <ul class="items-grid flex-container">
+                {% for item in items %}
+                    {% if item.thumbnail %}
+                        <li class="item" data-post-id="{{ item.post_id }}" title="{{ item.post_name }}">
+                            <input type="checkbox" class="media-checkbox" name="media[]" id="cb-select-{{ item.post_id }}" value="{{ item.post_id }}">
+                            {{ item.thumbnail }}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </form>
+    {% endif %}
+    {% if pagination %}
+        <div class="pagination flex-container">
+            <ul class="pager">
+                {% for key, page in pagination %}
+                    <li class="{{ key }}{{ page.current ? 'current'|html_class }}{{ page.visible ? 'visible'|html_class }}">
+                        <a class="clickable {{ key }} btn" href="{{ page.link }}">{{ key }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <small>Page {{ pager }}/{{ max_num_pages }}</small>
+        </div>
+    {% endif %}
+</div>

@@ -159,6 +159,7 @@ class AttachmentsManager
 
         if (!empty('post') && !in_array($post->post_type, $exclude)) {
             do_action('woody_async_add', 'get_attachments_by_post', ['post_id' => $post_id], 'post_' . $post_id, true);
+            dropzone_delete('woody_attachments_unused_ids');
         }
     }
 }

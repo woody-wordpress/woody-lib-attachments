@@ -1,0 +1,21 @@
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.woody-export-attachments-data-container {
+    padding: 30px 0;
+}
+
+.form-input {
+    padding: 20px;
+    background: white;
+    border-radius: 6px;
+    margin-bottom: 30px;
+    box-sizing: border-box;
+    gap: 30px;
+
+    .desc {
+        width: 100%;
+    }
+}
