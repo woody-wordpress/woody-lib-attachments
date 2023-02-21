@@ -15,17 +15,17 @@
     </div>
 
     <div class="form-input flex-container">
-        <input class="lang-radio" type="radio" id="all_langs" name="lang" value="all">
-        <label for="all_langs">Toutes les langues</label>
-        <input class="lang-radio" type="radio" id="default_lang" name="lang" value="default_lang" checked>
-        <label for="default_lang">Langue par défaut</label>
-        <p>Si vous vous choisissez d'exporter les données de toutes les langeus, les données des images apparaîtront autant de fois que vous avez de langues sur le site</br>
+        <input class="language-radio" type="radio" id="language_all" name="language_query" value="language_all">
+        <label for="language_all">Toutes les langues</label>
+        <input class="language-radio" type="radio" id="language_default" name="language_query" value="language_default" checked>
+        <label for="language_default">Langue par défaut</label>
+        <p>Si vous vous choisissez d'exporter les données de toutes les langues, les données des images apparaîtront autant de fois que vous avez de langues sur le site</br>
         Dans le cas d'un export d'images, nous vous conseillons de n'exporter que la langue par défaut du site</br>
         Pour les autres types de médias, nous vous conseillons un export dans toutes les langues</p>
     </div>
 
     <div class="form-input flex-container">
-        <input class="field-checkbox" type="checkbox" id="obj_id" name="obj_id" value="id" checked>
+        <input class="field-checkbox" type="checkbox" id="obj_id" name="obj_id" value="ID" checked>
         <label for="obj_id">Identifiant</label>
         <input class="field-checkbox" type="checkbox" id="obj_name" name="obj_name" value="post_name" checked>
         <label for="obj_name">Nom du média</label>
@@ -34,14 +34,16 @@
         <input class="field-checkbox" type="checkbox" id="obj_url" name="obj_url" value="url" checked>
         <label for="obj_url">Url du fichier</label>
         <input class="field-checkbox" type="checkbox" id="obj_caption" name="obj_caption" value="post_excerpt" checked>
-        <label for="obj_caption">Url du fichier</label>
+        <label for="obj_caption">Légende</label>
         <input class="field-checkbox" type="checkbox" id="obj_author" name="obj_author" value="media_author" checked>
         <label for="obj_author">Auteur</label>
         <input class="field-checkbox" type="checkbox" id="obj_rights" name="obj_rights" value="medias_rights_management" checked>
-        <label for="obj_rights">Auteur</label>
-        <input class="field-checkbox" type="checkbox" id="obj_gps" name="obj_gps" value="latitude_longitude" checked>
-        <label for="obj_gps">Coordonnées gps</label>
+        <label for="obj_rights">Gestion des droits</label>
+        <input class="field-checkbox" type="checkbox" id="obj_lat" name="obj_lat" value="media_lat" checked>
+        <label for="obj_lat">Latitude</label>
+        <input class="field-checkbox" type="checkbox" id="obj_lng" name="obj_lng" value="media_lng" checked>
+        <label for="obj_lng">Longitude</label>
     </div>
-    <input type="submit" id="submit_export" value="Exporter les données des images"></input>
+    <input type="submit" id="submit_export" value="Exporter les données des médias"></input>
 </form>
 

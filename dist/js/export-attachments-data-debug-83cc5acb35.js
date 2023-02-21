@@ -2,11 +2,12 @@ let submitExport = document.getElementById('submit_export');
 
 if(!!submitExport){
     submitExport.addEventListener('click', function(e){
+        document.body.classList.remove('windowReady');
         e.preventDefault();
         let mimeTypeNodes = document.querySelectorAll('.mimetype-radio:checked');
         let mimeType = [];
-        let langNodes = document.querySelectorAll('.lang-radio:checked');
-        let lang = [];
+        let languageNodes = document.querySelectorAll('.language-radio:checked');
+        let language = [];
         let fieldsNodes = document.querySelectorAll('.field-checkbox:checked');
         let fields = [];
 
@@ -16,9 +17,9 @@ if(!!submitExport){
             });
         }
 
-        if(langNodes.length > 0){
-            langNodes.forEach(function(langNode){
-                lang.push(langNode.value);
+        if(languageNodes.length > 0){
+            languageNodes.forEach(function(languageNode){
+                language.push(languageNode.value);
             });
         }
 
@@ -37,13 +38,20 @@ if(!!submitExport){
             },
             body: JSON.stringify({
                 mimetype: mimeType,
-                lang: lang,
+                language: language,
                 fields: fields
             })
         })
         .then(response => response.json())
-        .then(data => {
-            console.log(data);
+        .then(filespaths => {
+            document.body.classList.add('windowReady');
+            console.log(filespaths);
+            if(filespaths.length > 0){
+                filespaths.forEach(filepath => {
+                    console.log(window.location.origin + filepath.replace('home/admin/www/wordpress/current/web/', ''));
+                    // window.open(window.location.origin . filepath);
+                });
+            }
         })
         .catch(error => {
             console.error('Attachments delete fetch: ' + error);
