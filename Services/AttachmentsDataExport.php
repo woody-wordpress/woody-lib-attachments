@@ -25,7 +25,7 @@ class AttachmentsDataExport
     public function exportDataPage()
     {
         $data = [];
-
+        // On traite les données du formulaire posté pour créer un job async qui va générer un csv avec les données de tous les médias
         if (!empty($_POST) && !empty($_POST['mimetype']) && !empty($_POST['request_language'])) {
             do_action(
                 'woody_async_add',
@@ -40,11 +40,10 @@ class AttachmentsDataExport
             );
         }
 
-
+        // On récupère la liste  des fichiers d'export encore valides pour afficher les liens de téléchargement
         $data['files'] = dropzone_get('woody_export_attachments_files');
-
-        date_default_timezone_set(WOODY_TIMEZONE);
         if (!empty($data['files'])) {
+            date_default_timezone_set(WOODY_TIMEZONE);
             foreach ($data['files'] as $file_key => $file) {
                 if ($file['timestamp']) {
                     $data['files'][$file_key]['created'] = date('d/m à H:i', $file['timestamp']);
@@ -76,12 +75,15 @@ class AttachmentsDataExport
     {
         output_h1('Do attachments export');
         if ($args['request_args'] and $args['fields']) {
+            // On récupère tous les attachments en fonctions des arguments passés(mimetype, lang)
             $attachments = [];
             $count_posts = 0;
             output_h2('Requesting attachments');
             $query = $this->attachmentsQuery($args['request_args']);
             output_log(sprintf('0/%s ', $query->found_posts));
 
+            // Tant que l'on a pas récupéré la totalité des attachments correspondant à la requête ($query->found_posts),
+            // on continue à lancer des requêtes et à pousser les résultats formattés dans le a tableau $attachments
             if (!empty($query) && !empty($query->posts)) {
                 while ($count_posts < $query->found_posts) {
                     $count_posts += $query->post_count;
@@ -92,10 +94,13 @@ class AttachmentsDataExport
                 }
             }
 
+            // Une fois les attachments récupérés, on convertit le tableau en un fichier csv que l'on stocke dans les uploads du site initiateur
             if (!empty($attachments)) {
                 $time = time();
                 $filespath = $this->arrayToCsv($attachments, $time);
                 if ($filespath) {
+                    // On réucpère la liste des fichiers existants pour la mettre à jour.
+                    // Cette liste nous servira à afficherles liens de téléchargement
                     $existing_files = dropzone_get('woody_export_attachments_files');
                     $existing_files[] = ['path' => $filespath, 'timestamp' => $time];
                     dropzone_set('woody_export_attachments_files', $existing_files);
@@ -200,7 +205,7 @@ class AttachmentsDataExport
     {
         if (!wp_next_scheduled('woody_delete_medias_export_files')) {
             wp_schedule_event(time(), 'daily', 'woody_delete_medias_export_files');
-            output_success('Schedule %woody_delete_medias_export_files');
+            output_success('Schedule woody_delete_medias_export_files');
         }
     }
 
