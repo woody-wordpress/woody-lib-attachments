@@ -170,27 +170,43 @@ class AttachmentsApi
             'language' => (empty($params['language'][0])) ? [] : $params['language'][0]
         ];
 
-        $attachments = [];
-        $count_posts = 0;
-        $query = $this->attachmentsQuery($request_args);
         $fields = (empty($params['fields'])) ? [] : $params['fields'];
 
-        if (!empty($query) && !empty($query->posts)) {
-            while ($count_posts < $query->found_posts) {
-                $count_posts += $query->post_count;
-                $attachments = array_merge($attachments, $this->getAttachmentsData($query->posts, $fields));
-                $request_args['offset'] += $query->post_count;
-                $query = $this->attachmentsQuery($request_args);
+        $do_action = do_action('woody_async_add', 'attachments_do_export', ['request_args' => $request_args, 'fields' => $fields]);
+
+        wp_send_json($do_action);
+    }
+
+    public function attachmentsDoExport($args)
+    {
+        output_h1('Do attachments export');
+        if ($args['request_args'] and $args['fields']) {
+            $attachments = [];
+            $count_posts = 0;
+            output_h2('Requesting attachments');
+            $query = $this->attachmentsQuery($args['request_args']);
+            output_log(sprintf('0/%s ', $query->found_posts));
+
+            if (!empty($query) && !empty($query->posts)) {
+                while ($count_posts < $query->found_posts) {
+                    $count_posts += $query->post_count;
+                    $attachments = array_merge($attachments, $this->getAttachmentsData($query->posts, $args['fields']));
+                    $args['request_args']['offset'] += $query->post_count;
+                    output_log(sprintf('%s/%s ', $args['request_args']['offset'], $query->found_posts));
+                    $query = $this->attachmentsQuery($args['request_args']);
+                }
             }
-        }
 
-        if (!empty($attachments)) {
-            $filespath= $this->arrayToCsv($attachments, $fields);
-            dropzone_set('woody_export_attachments_files', ['path' => $filespath, 'timestamp' => time()]);
-        }
-
-        if (!empty($filespath)) {
-            wp_send_json($filespath);
+            if (!empty($attachments)) {
+                $time = time();
+                $filespath = $this->arrayToCsv($attachments, $time);
+                if ($filespath) {
+                    $existing_files = dropzone_get('woody_export_attachments_files');
+                    $existing_files[] = ['path' => $filespath, 'timestamp' => $time];
+                    dropzone_set('woody_export_attachments_files', $existing_files);
+                    output_success(sprintf('csv file created from %s attachments matching the request.', $count_posts));
+                }
+            }
         }
     }
 
@@ -267,15 +283,12 @@ class AttachmentsApi
         return $return;
     }
 
-    public function arrayToCsv($attachments)
+    public function arrayToCsv($attachments, $time)
     {
-        output_log('arrayToCsv');
         if (!empty($attachments)) {
             $csvhead = array_keys($attachments[0]);
             array_unshift($attachments, $csvhead);
-            output_log($csvhead);
-            $filepath = '/home/admin/www/wordpress/current/web/app/uploads/' . WP_SITE_KEY . '/media-export-' . time() . '.csv';
-            output_log($filepath);
+            $filepath = '/home/admin/www/wordpress/current/web/app/uploads/' . WP_SITE_KEY . '/media-export-' . $time . '.csv';
             $file = fopen($filepath, 'w');
 
             foreach ($attachments as $attachment) {

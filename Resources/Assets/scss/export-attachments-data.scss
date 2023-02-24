@@ -7,6 +7,7 @@
     padding: 30px 0;
 }
 
+.files-wrapper,
 .form-input {
     padding: 20px;
     background: white;
@@ -18,4 +19,21 @@
     .desc {
         width: 100%;
     }
+}
+
+.export-form {
+    width: 50%;
+    margin-right: 30px;
+}
+
+.download-files {
+    width: 38%;
+    margin-left: auto;
+    margin-right: 30px;
+}
+
+.submit-container {
+    margin: 30px 0 60px 0;
+    gap: 20px;
+    align-items: center;
 }
