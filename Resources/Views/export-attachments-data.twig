@@ -3,7 +3,7 @@
     <span>Made with ♥ by Raccourci Agency</span>
 </header>
 <div class="woody-export-attachments-data-container flex-container">
-    <form>
+    <form class="export-form">
         <h3>Types de médias</h3>
         <div class="form-input flex-container">
             <div class="radio-wrapper">
@@ -82,6 +82,21 @@
                 <label for="obj_lng">Longitude</label>
             </div>
         </div>
+        <div class="flex-container submit-container">
         <input type="submit" id="submit_export" class="button button-primary" value="Exporter les données des médias"></input>
+        <strong></small>NB : La création du fichier prend entre 10 et 15 minutes et sa durée de vie est de 24h</small></strong>
+        </div>
     </form>
+    <div class="download-files">
+        <h2>Fichiers disponibles au téléchargement</h2>
+        <div class="files-wrapper">
+        {% if files %}
+            <ul class="files">
+                {% for file in files %}
+                    <li>Exporté le {{ file.created|default }} : <a href="{{ file.url }}" tagret="_blank">{{ file.name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        </div>
+    </div>
 </div>

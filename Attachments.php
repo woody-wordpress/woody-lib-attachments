@@ -147,6 +147,7 @@ final class Attachments extends Module
         add_action('admin_menu', [$this->attachmentsDataExport, 'generateDataExportPage']);
         add_action('woody_theme_update', [$this->attachmentsDataExport, 'scheduleDeleteExportFiles']);
         add_action('woody_delete_medias_export_files', [$this->attachmentsDataExport, 'deleteMediaExportFiles']);
+        add_action('attachments_do_export', [$this->attachmentsApi, 'attachmentsDoExport']);
     }
 
     public function injectTimberLocation($locations)
