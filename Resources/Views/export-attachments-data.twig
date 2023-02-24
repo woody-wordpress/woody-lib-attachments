@@ -3,7 +3,7 @@
     <span>Made with ♥ by Raccourci Agency</span>
 </header>
 <div class="woody-export-attachments-data-container flex-container">
-    <form class="export-form">
+    <form class="export-form" action="" method="POST">
         <h3>Types de médias</h3>
         <div class="form-input flex-container">
             <div class="radio-wrapper">
@@ -34,11 +34,11 @@
         Pour les autres types de médias, nous vous conseillons un export dans toutes les langues</p>
         <div class="form-input flex-container">
             <div class="radio-wrapper">
-                <input class="language-radio" type="radio" id="language_default" name="language_query" value="language_default" checked>
+                <input class="language-radio" type="radio" id="language_default" name="request_language" value="language_default" checked>
                 <label for="language_default">Langue par défaut</label>
             </div>
             <div class="radio-wrapper">
-                <input class="language-radio" type="radio" id="language_all" name="language_query" value="language_all">
+                <input class="language-radio" type="radio" id="language_all" name="request_language" value="language_all">
                 <label for="language_all">Toutes les langues</label>
             </div>
         </div>
@@ -46,40 +46,40 @@
         <h3>Champs à faire apparaître dans l'export</h3>
         <div class="form-input flex-container">
             <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="obj_id" name="obj_id" value="ID" checked disabled>
-                <label for="obj_id">Identifiant</label>
+                <input class="field-checkbox" type="checkbox" id="export_field_id" name="export_field_id" value="ID" checked disabled>
+                <label for="export_field_id">Identifiant</label>
             </div>
             <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="obj_name" name="obj_name" value="post_name" checked>
-                <label for="obj_name">Nom du média</label>
+                <input class="field-checkbox" type="checkbox" id="export_field_name" name="export_field_name" value="post_name" checked>
+                <label for="export_field_name">Nom du média</label>
             </div>
             <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="obj_title" name="obj_title" value="post_title" checked>
-                <label for="obj_title">Titre du média</label>
+                <input class="field-checkbox" type="checkbox" id="export_field_title" name="export_field_title" value="post_title" checked>
+                <label for="export_field_title">Titre du média</label>
             </div>
             <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="obj_url" name="obj_url" value="url" checked>
-                <label for="obj_url">Url du fichier</label>
+                <input class="field-checkbox" type="checkbox" id="export_field_url" name="export_field_url" value="url" checked>
+                <label for="export_field_url">Url du fichier</label>
             </div>
             <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="obj_caption" name="obj_caption" value="post_excerpt" checked>
-                <label for="obj_caption">Légende</label>
+                <input class="field-checkbox" type="checkbox" id="export_field_caption" name="export_field_caption" value="post_excerpt" checked>
+                <label for="export_field_caption">Légende</label>
             </div>
             <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="obj_author" name="obj_author" value="media_author" checked>
-                <label for="obj_author">Auteur</label>
+                <input class="field-checkbox" type="checkbox" id="export_field_author" name="export_field_author" value="media_author" checked>
+                <label for="export_field_author">Auteur</label>
             </div>
             <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="obj_rights" name="obj_rights" value="medias_rights_management" checked>
-                <label for="obj_rights">Gestion des droits</label>
+                <input class="field-checkbox" type="checkbox" id="export_field_rights" name="export_field_rights" value="medias_rights_management" checked>
+                <label for="export_field_rights">Gestion des droits</label>
             </div>
             <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="obj_lat" name="obj_lat" value="media_lat" checked>
-                <label for="obj_lat">Latitude</label>
+                <input class="field-checkbox" type="checkbox" id="export_field_lat" name="export_field_lat" value="media_lat" checked>
+                <label for="export_field_lat">Latitude</label>
             </div>
             <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="obj_lng" name="obj_lng" value="media_lng" checked>
-                <label for="obj_lng">Longitude</label>
+                <input class="field-checkbox" type="checkbox" id="export_field_lng" name="export_field_lng" value="media_lng" checked>
+                <label for="export_field_lng">Longitude</label>
             </div>
         </div>
         <div class="flex-container submit-container">

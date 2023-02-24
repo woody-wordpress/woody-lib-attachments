@@ -26,13 +26,28 @@ class AttachmentsDataExport
     {
         $data = [];
 
+        if (!empty($_POST) && !empty($_POST['mimetype']) && !empty($_POST['request_language'])) {
+            do_action(
+                'woody_async_add',
+                'attachments_do_export',
+                [
+                    'request_args' => [
+                        'post_mime_type' => $this->filterMimeTypes($_POST['mimetype']),
+                        'language' => $_POST['request_language']
+                    ],
+                    'fields' => $this->getExportFields($_POST)
+                ]
+            );
+        }
+
+
         $data['files'] = dropzone_get('woody_export_attachments_files');
 
+        date_default_timezone_set(WOODY_TIMEZONE);
         if (!empty($data['files'])) {
-            console_log($data['files']);
             foreach ($data['files'] as $file_key => $file) {
                 if ($file['timestamp']) {
-                    $data['files'][$file_key]['created'] = date('d/m H:i', $file['timestamp']);
+                    $data['files'][$file_key]['created'] = date('d/m à H:i', $file['timestamp']);
                 }
                 if ($file['path']) {
                     $data['files'][$file_key]['url'] = str_replace('/home/admin/www/wordpress/current/web', home_url(), $file['path']);
@@ -42,6 +57,143 @@ class AttachmentsDataExport
         }
 
         return \Timber::render('export-attachments-data.twig', $data);
+    }
+
+    public function getExportFields($request)
+    {
+        $return = [];
+        if (!empty($request)) {
+            foreach ($request as $param) {
+                if (strpos($param, 'export_field_') !== -1) {
+                    $return[] = $param;
+                }
+            }
+        }
+        return $return;
+    }
+
+    public function attachmentsDoExport($args)
+    {
+        output_h1('Do attachments export');
+        if ($args['request_args'] and $args['fields']) {
+            $attachments = [];
+            $count_posts = 0;
+            output_h2('Requesting attachments');
+            $query = $this->attachmentsQuery($args['request_args']);
+            output_log(sprintf('0/%s ', $query->found_posts));
+
+            if (!empty($query) && !empty($query->posts)) {
+                while ($count_posts < $query->found_posts) {
+                    $count_posts += $query->post_count;
+                    $attachments = array_merge($attachments, $this->getAttachmentsData($query->posts, $args['fields']));
+                    $args['request_args']['offset'] += $query->post_count;
+                    output_log(sprintf('%s/%s ', $args['request_args']['offset'], $query->found_posts));
+                    $query = $this->attachmentsQuery($args['request_args']);
+                }
+            }
+
+            if (!empty($attachments)) {
+                $time = time();
+                $filespath = $this->arrayToCsv($attachments, $time);
+                if ($filespath) {
+                    $existing_files = dropzone_get('woody_export_attachments_files');
+                    $existing_files[] = ['path' => $filespath, 'timestamp' => $time];
+                    dropzone_set('woody_export_attachments_files', $existing_files);
+                    output_success(sprintf('csv file created from %s attachments matching the request.', $count_posts));
+                }
+            }
+        }
+    }
+
+    public function attachmentsQuery($request_args)
+    {
+        $args = [
+            'post_type'      => 'attachment',
+            'post_status'    => 'inherit',
+            'posts_per_page' => 200,
+            'offset' => (empty($request_args['offset'])) ? 0 : $request_args['offset']
+        ];
+
+        if ($request_args['language'] == 'language_default') {
+            $args['lang'] = PLL_DEFAULT_LANG;
+        }
+
+        if (!empty($request_args['post_mime_type'])) {
+            $args['post_mime_type'] = $request_args['post_mime_type'];
+        }
+
+        $wpQuery = new \WP_Query($args);
+
+        if ($wpQuery->have_posts()) {
+            return $wpQuery;
+        }
+    }
+
+    public function filterMimeTypes($mimetype)
+    {
+        $mimetypes = [];
+
+        if ($mimetype == 'all') {
+            return [];
+        }
+
+        $all_types = get_allowed_mime_types();
+        if (!empty($all_types)) {
+            foreach ($all_types as $type) {
+                if (strpos($type, $mimetype) === 0) {
+                    $mimetypes[] = $type;
+                }
+            }
+        }
+
+        return $mimetypes;
+    }
+
+    public function getAttachmentsData($posts, $fields)
+    {
+        $return = [];
+        $post_fields = ['ID', 'post_name', 'post_title', 'post_excerpt'];
+        $acf_fields = ['media_author', 'medias_rights_management', 'media_lat', 'media_lng'];
+
+        if (!empty($posts)) {
+            foreach ($posts as $post) {
+                foreach ($post_fields as $post_field) {
+                    if (in_array($post_field, $fields)) {
+                        $return[$post->ID][$post_field] = $post->{$post_field};
+                    }
+                }
+
+                foreach ($acf_fields as $acf_field) {
+                    if (in_array($acf_field, $fields)) {
+                        $return[$post->ID][$acf_field] = get_field($acf_field, $post->ID);
+                    }
+                }
+
+                if (in_array('url', $fields)) {
+                    $return[$post->ID]['path'] = home_url() . str_replace('/home/admin/www/wordpress/current/web', '', get_attached_file($post->ID));
+                }
+            }
+        }
+
+        return $return;
+    }
+
+    public function arrayToCsv($attachments, $time)
+    {
+        if (!empty($attachments)) {
+            $csvhead = array_keys($attachments[0]);
+            array_unshift($attachments, $csvhead);
+            $filepath = '/home/admin/www/wordpress/current/web/app/uploads/' . WP_SITE_KEY . '/media-export-' . $time . '.csv';
+            $file = fopen($filepath, 'w');
+
+            foreach ($attachments as $attachment) {
+                fputcsv($file, $attachment);
+            }
+
+            fclose($fp);
+
+            return $filepath;
+        }
     }
 
     public function scheduleDeleteExportFiles()
