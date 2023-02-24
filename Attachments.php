@@ -127,11 +127,6 @@ final class Attachments extends Module
                 'callback' => [$this->attachmentsApi, 'deleteAttachments'],
                 'permission_callback' => fn () => current_user_can('delete_posts')
             ));
-            register_rest_route('woody', 'attachments/exportdata', array(
-                'methods' => 'POST',
-                'callback' => [$this->attachmentsApi, 'exportAttachmentsData'],
-                'permission_callback' => fn () => current_user_can('edit_posts')
-            ));
         });
 
         //Woody Actions
@@ -181,7 +176,6 @@ final class Attachments extends Module
         if ($current_screen->id == 'media_page_woody-export-attachments-data') {
             wp_enqueue_media();
             wp_enqueue_style('export-attachments-data-stylesheet', $this->addonAssetPath('woody-lib-attachments', 'scss/export-attachments-data.css'), '', WOODY_LIB_ATTACHMENTS_VERSION);
-            wp_enqueue_script('export-attachments-data-javascripts', $this->addonAssetPath('woody-lib-attachments', 'js/export-attachments-data.js'), ['admin-javascripts'], WOODY_LIB_ATTACHMENTS_VERSION, true);
         }
     }
 
