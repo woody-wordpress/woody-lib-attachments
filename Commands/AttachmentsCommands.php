@@ -29,6 +29,6 @@ class AttachmentsCommands
 
     public function clean_exports($args, $assoc_args)
     {
-        $this->attachmentsDataExport->deleteMediaExportFiles();
+        $this->attachmentsDataExport->deleteMediaExportFiles($assoc_args);
     }
 }

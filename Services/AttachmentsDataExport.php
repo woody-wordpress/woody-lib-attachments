@@ -209,20 +209,31 @@ class AttachmentsDataExport
         }
     }
 
-    public function deleteMediaExportFiles()
+    public function deleteMediaExportFiles($args = [])
     {
         $files = dropzone_get('woody_export_attachments_files');
         if (!empty($files)) {
             foreach ($files as $file_key => $file) {
                 if (!empty($file['path']) && !empty($file['timestamp'])) {
-                    if ($file['timestamp'] < time() - 3600 * 24) {
+                    if ($args['force']) {
+                        output_log('Force export files deletion');
                         output_log(sprintf('Unlink %s', $file['path']));
                         unlink($file['path']);
                         unset($files[$file_key]);
+                    } else {
+                        if ($file['timestamp'] < time() - 3600 * 24) {
+                            output_log(sprintf('Unlink %s', $file['path']));
+                            unlink($file['path']);
+                            unset($files[$file_key]);
+                        }
                     }
                 }
             }
         }
-        dropzone_set('woody_export_attachments_files', $files);
+        if (empty($files)) {
+            dropzone_delete('woody_export_attachments_files');
+        } else {
+            dropzone_set('woody_export_attachments_files', $files);
+        }
     }
 }
