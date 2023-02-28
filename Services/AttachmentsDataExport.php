@@ -100,7 +100,7 @@ class AttachmentsDataExport
                 $filespath = $this->arrayToCsv($attachments, $time);
                 if ($filespath) {
                     // On réucpère la liste des fichiers existants pour la mettre à jour.
-                    // Cette liste nous servira à afficherles liens de téléchargement
+                    // Cette liste nous servira à afficher les liens de téléchargement
                     $existing_files = dropzone_get('woody_export_attachments_files');
                     $existing_files[] = ['path' => $filespath, 'timestamp' => $time];
                     dropzone_set('woody_export_attachments_files', $existing_files);
@@ -212,13 +212,17 @@ class AttachmentsDataExport
     public function deleteMediaExportFiles()
     {
         $files = dropzone_get('woody_export_attachments_files');
-        if (!empty($files) && !empty($files['paths']) && !empty($files['timestamp'])) {
-            if ($files['timestamp'] < time() - 3600 * 24) {
-                foreach ($files['paths'] as $path) {
-                    output_log(sprintf('Unlink %s', $path));
-                    unlink($path);
+        if (!empty($files)) {
+            foreach ($files as $file_key => $file) {
+                if (!empty($file['path']) && !empty($file['timestamp'])) {
+                    if ($file['timestamp'] < time() - 3600 * 24) {
+                        output_log(sprintf('Unlink %s', $file['path']));
+                        unlink($file['path']);
+                        unset($files[$file_key]);
+                    }
                 }
             }
         }
+        dropzone_set('woody_export_attachments_files', $files);
     }
 }
