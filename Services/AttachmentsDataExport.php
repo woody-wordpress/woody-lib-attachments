@@ -221,7 +221,9 @@ class AttachmentsDataExport
                         unlink($file['path']);
                         unset($files[$file_key]);
                     } else {
-                        if ($file['timestamp'] < time() - 3600 * 24) {
+                        if (!file_exists($file['path'])) {
+                            unset($files[$file_key]);
+                        } elseif ($file['timestamp'] < time() - 3600 * 24) {
                             output_log(sprintf('Unlink %s', $file['path']));
                             unlink($file['path']);
                             unset($files[$file_key]);
