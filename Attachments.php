@@ -36,7 +36,7 @@ final class Attachments extends Module
 
     public function initialize(ParameterManager $parameterManager, Container $container)
     {
-        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.1.2');
+        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.1.3');
         define('WOODY_LIB_ATTACHMENTS_ROOT', __FILE__);
         define('WOODY_LIB_ATTACHMENTS_DIR_ROOT', dirname(WOODY_LIB_ATTACHMENTS_ROOT));
         define('WOODY_LIB_ATTACHMENTS_DIR_RESOURCES', WOODY_LIB_ATTACHMENTS_DIR_ROOT . '/Resources');
