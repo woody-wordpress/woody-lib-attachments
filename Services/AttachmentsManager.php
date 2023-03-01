@@ -46,6 +46,7 @@ class AttachmentsManager
         if (wp_attachment_is_image($attachment_id)) {
             $this->imageAutoTranslate($attachment_id);
             $this->imageLinkedVideo($attachment_id);
+            dropzone_delete('woody_attachments_unused_ids');
         }
     }
 
