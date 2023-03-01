@@ -25,6 +25,19 @@ class AttachmentsUnused
     public function unusedMediaList()
     {
         $data = [];
+        $delete_ids = [];
+        if (!empty($_POST) && is_array($_POST)) {
+            foreach ($_POST as $id_key => $id) {
+                if (strpos($id_key, 'cb-select-') === 0) {
+                    $delete_ids[] = $id;
+                    update_post_meta($id, 'woody_attachment_deleting', true, );
+                }
+            }
+        }
+
+        if (!empty($delete_ids)) {
+            do_action('woody_async_add', 'delete_unsused_attachments', $delete_ids);
+        }
 
         $unused_ids = $this->getUnusedIds();
 
@@ -126,7 +139,8 @@ class AttachmentsUnused
                     'post_id' => $post_id,
                     'post_name' => get_post_field('post_name', $post_id),
                     'link' => wp_get_attachment_url($post_id),
-                    'thumbnail' => wp_get_attachment_image($post_id)
+                    'thumbnail' => wp_get_attachment_image($post_id, 'ratio_square_small'),
+                    'deleting' => get_post_meta($post_id, 'woody_attachment_deleting', true)
                 ];
             }
         }
@@ -167,5 +181,17 @@ class AttachmentsUnused
     private function getResultsID($obj)
     {
         return $obj->ID;
+    }
+
+    public function deleteAttachments($posts_ids)
+    {
+        if (!empty($posts_ids) && is_array($posts_ids)) {
+            foreach ($posts_ids as $post_id) {
+                output_log('Deleting post ' . $post_id);
+                wp_delete_post($post_id, true);
+            }
+        }
+
+        dropzone_delete('woody_attachments_unused_ids');
     }
 }

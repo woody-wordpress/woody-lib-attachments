@@ -26,6 +26,31 @@
         width: 10%;
         position: relative;
 
+        &.draft {
+            pointer-events: none;
+
+            img {
+                opacity: .5;
+            }
+
+            &:after {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                content: 'Suppression programmée';
+                position: absolute;
+                top: 5px;
+                left: 5px;
+                width: calc(100% - 10px);
+                height: calc(100% - 10px);
+                padding: 10px;
+                color: white;
+                background-color: rgba(black, .75);
+                text-align: center;
+                box-sizing: border-box;
+            }
+        }
+
         input {
             position: absolute;
             top: 9px;
