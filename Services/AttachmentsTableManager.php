@@ -190,6 +190,17 @@ class AttachmentsTableManager
                             }
                         }
 
+                        if ($layout['acf_fc_layout'] == 'manual_focus' && !empty($layout['content_selection']) && is_array($layout['content_selection'])) {
+                            foreach ($layout['content_selection'] as $content_selection_key => $content_selection) {
+                                if ($content_selection['content_selection_type'] === 'custom_content') {
+                                    $content_selection_values = $this->getFieldsValues($field_names, $post_id, 'section_' . $section_key . '_section_content_' . $layout_key . '_content_selection_' . $content_selection_key . '_custom_content');
+                                    if (is_array($content_selection_values)) {
+                                        $attachments_ids = array_merge($content_selection_values, $attachments_ids);
+                                    }
+                                }
+                            }
+                        }
+
                         if ($layout['acf_fc_layout'] == 'interactive_gallery' && !empty($layout['interactive_gallery_items']) && is_array($layout['interactive_gallery_items'])) {
                             foreach (array_keys($layout['interactive_gallery_items']) as $gallery_key) {
                                 $gallery_values = $this->getFieldsValues($field_names, $post_id, 'section_' . $section_key . '_section_content_' . $layout_key . '_interactive_gallery_items_' . $gallery_key);
@@ -211,6 +222,7 @@ class AttachmentsTableManager
                 }
             }
         }
+
 
         $wysiwyg_medias_ids = [];
         $wysiwyg_medias_ids = $this->wysiwygMediasIds($post_id, $wysiwyg_medias_ids);
@@ -316,6 +328,10 @@ class AttachmentsTableManager
             foreach ($field_names as $field_name) {
                 $full_meta_key = ($acf) ? $field_name : $meta_key . '_' . $field_name;
                 $value = ($acf) ? get_field($field_name, $post_id) : get_post_meta($post_id, $full_meta_key, true);
+                if ($meta_key == 'section_4_section_content_0_content_selection_0' && $field_name == 'img') {
+                    output_log($full_meta_key);
+                    output_log($value);
+                }
                 if (!empty($value)) {
                     if ((is_string($value) || is_int($value))) {
                         $return[] = [

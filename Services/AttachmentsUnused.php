@@ -125,7 +125,8 @@ class AttachmentsUnused
                 $items[] = [
                     'post_id' => $post_id,
                     'post_name' => get_post_field('post_name', $post_id),
-                    'thumbnail' => wp_get_attachment_image($post_id, 'thumbnail')
+                    'link' => wp_get_attachment_url($post_id),
+                    'thumbnail' => wp_get_attachment_image($post_id)
                 ];
             }
         }

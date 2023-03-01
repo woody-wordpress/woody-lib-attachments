@@ -14,8 +14,9 @@
                 {% for item in items %}
                     {% if item.thumbnail %}
                         <li class="item" data-post-id="{{ item.post_id }}" title="{{ item.post_name }}">
-                            <input type="checkbox" class="media-checkbox" name="media[]" id="cb-select-{{ item.post_id }}" value="{{ item.post_id }}">
-                            {{ item.thumbnail }}
+                                <input type="checkbox" class="media-checkbox" name="media[]" id="cb-select-{{ item.post_id }}" value="{{ item.post_id }}">
+                                {{ item.thumbnail }}
+                                <a class="img-link" href="{{ item.link }}" target="_blank">Voir l'original</a>
                         </li>
                     {% endif %}
                 {% endfor %}

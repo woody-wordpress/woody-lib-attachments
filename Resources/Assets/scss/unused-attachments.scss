@@ -48,7 +48,28 @@
         width: 100%;
         height: 100%;
     }
+
+    .img-link {
+        position: absolute;
+        bottom: 5px;
+        left: 5px;
+        width: calc(100% - 10px);
+        text-align: center;
+        background: rgba(#2271b1, 0.75);
+        padding: 3px 0;
+        color: white;
+        text-decoration: none;
+        transition: opacity .3s;
+        z-index: 100;
+        opacity: 0;
+    }
+
+    li:hover .img-link {
+        opacity: 1;
+    }
 }
+
+
 
 .pagination {
     align-items: center;
