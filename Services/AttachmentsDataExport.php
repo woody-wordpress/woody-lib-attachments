@@ -192,7 +192,7 @@ class AttachmentsDataExport
             $file = fopen($filepath, 'w');
 
             foreach ($attachments as $attachment) {
-                fputcsv($file, $attachment);
+                fputcsv($file, $attachment, ';');
             }
 
             fclose($fp);
