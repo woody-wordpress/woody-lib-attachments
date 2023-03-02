@@ -138,7 +138,7 @@ class AttachmentsUnused
                 $items[] = [
                     'post_id' => $post_id,
                     'post_name' => get_post_field('post_name', $post_id),
-                    'link' => wp_get_attachment_url($post_id),
+                    'link' => get_edit_post_link($post_id),
                     'thumbnail' => wp_get_attachment_image($post_id, 'ratio_square_small'),
                     'deleting' => get_post_meta($post_id, 'woody_attachment_deleting', true)
                 ];
