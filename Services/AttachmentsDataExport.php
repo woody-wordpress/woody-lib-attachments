@@ -188,7 +188,7 @@ class AttachmentsDataExport
         if (!empty($attachments)) {
             $csvhead = array_keys($attachments[0]);
             array_unshift($attachments, $csvhead);
-            $filepath = '/home/admin/www/wordpress/current/web/app/uploads/' . WP_SITE_KEY . '/media-export-' . $time . '.csv';
+            $filepath = WP_UPLOAD_DIR . '/media-export-' . $time . '.csv';
             $file = fopen($filepath, 'w');
 
             foreach ($attachments as $attachment) {
