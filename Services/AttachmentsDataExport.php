@@ -195,7 +195,7 @@ class AttachmentsDataExport
                 fputcsv($file, $attachment, ';');
             }
 
-            fclose($fp);
+            fclose($file);
 
             return $filepath;
         }
