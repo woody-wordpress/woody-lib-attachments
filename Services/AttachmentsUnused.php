@@ -69,7 +69,7 @@ class AttachmentsUnused
             $used_ids = $this->getUsedIds();
             $used_ids_str = (is_array($used_ids) && !empty($used_ids)) ? implode($used_ids, ',') : '';
 
-            // On récupère les ids de tous les attachments et on retire les éléments dont l'une des traductions est utilisé
+            // On récupère les ids de tous les attachments et on retire les éléments dont l'une des traductions est utilisée
             if (!empty($used_ids_str)) {
                 $unsused_ids_req = "SELECT ID FROM {$wpdb->prefix}posts WHERE post_type = 'attachment' AND ID NOT IN ({$used_ids_str})";
                 $unsused_ids_results = $wpdb->get_results($wpdb->prepare($unsused_ids_req));
