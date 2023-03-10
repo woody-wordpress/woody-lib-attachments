@@ -9,6 +9,59 @@ namespace Woody\Lib\Attachments\Services;
 
 class ImagesMetadata
 {
+    public function wpHandleUpload($array, $var)
+    {
+        if ($array['type'] !== 'image/jpeg' && $array['type'] !== 'image/png') {
+            error_log('Color Space Fixer: Not a JPEG or PNG file, skipping color space fixing');
+            return $array;
+        }
+
+        if (!extension_loaded('imagick')) {
+            error_log('Color Space Fixer: Whoops, imagick is not loaded');
+            return $array;
+        }
+
+        if (extension_loaded('imagick') && !csf_lcms_enabled()) {
+            error_log('Color Space Fixer: Whoops, imagick was not built with lcms support');
+            return $array;
+        }
+
+        try {
+            $path = $array['file'];
+            $image = new Imagick($path);
+            csf_fix_color_space($image, $path);
+        } catch (Exception $e) {
+            error_log('Color Space Fixer: Whoops, failed to convert image color space');
+        }
+
+        return $array;
+    }
+
+    /**
+     * Convert color space
+     * @param Imagick $image
+     * @param $path
+     */
+    private function csf_fix_color_space(Imagick $image, $path)
+    {
+        // Color space conversion code based on cimage
+        // https://github.com/mosbth/cimage/blob/cd142c58806c8edb6164a12a20e120eb7f436dfb/CImage.php#L2552
+        // The MIT License (MIT)
+        // Copyright (c) 2012 - 2016 Mikael Roos, https://mikaelroos.se, mos@dbwebb.se
+        // sudo apt-get install liblcms2-utils
+        // jpgicc avant.jpg apres.jpg
+
+        error_log("Color Space Fixer: Converting to sRGB");
+
+        $sRGB_icc = file_get_contents(__DIR__ . '/icc/sRGB2014.icc');
+        $image->profileImage('icc', $sRGB_icc);
+        $image->transformImageColorspace(Imagick::COLORSPACE_SRGB);
+
+        error_log("Color Space Fixer: Writing image");
+
+        $image->writeImage($path);
+    }
+
     /* ------------------------ */
     /* Read EXIF/IPTC Metadatas */
     /* ------------------------ */

@@ -96,6 +96,7 @@ final class Attachments extends Module
         add_filter('big_image_size_threshold', '__return_false'); // Désactive la duplication  de photo (filename-scaled.jpg) depuis WP 5.3
         add_filter('wp_handle_upload_overrides', [$this->attachmentsWpSettings, 'handleOverridesForGeoJSON'], 10, 2);
         add_filter('sanitize_file_name_chars', [$this->attachmentsWpSettings, 'restrictFilenameSpecialChars'], 10, 1);
+        add_filter('wp_handle_upload', [$this->imagesMetadata, 'wpHandleUpload'], 10, 2);
 
         // API
         add_action('rest_api_init', function () {
