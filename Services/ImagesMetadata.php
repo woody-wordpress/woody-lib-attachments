@@ -39,8 +39,8 @@ class ImagesMetadata
 
     private function isJPCicc_installed()
     {
-        exec('jpgicc -v 2>&1', $output, $result);
-        print_r($result);
+        exec('which jpgicc 2>&1', $output, $result);
+        return !empty($output);
     }
 
     // exec($this->binaryPath . ' -v -q 2>&1', $output, $result);
