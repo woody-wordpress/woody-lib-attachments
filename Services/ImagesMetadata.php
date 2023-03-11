@@ -12,7 +12,7 @@ class ImagesMetadata
     public function wpHandleUpload($array, $var)
     {
         if ($array['type'] !== 'image/jpeg' && $array['type'] !== 'image/png') {
-            error_log('Color Space Fixer: Not a JPEG or PNG file, skipping color space fixing');
+            //error_log('Color Space Fixer: Not a JPEG or PNG file, skipping color space fixing');
             return $array;
         }
 
@@ -36,6 +36,14 @@ class ImagesMetadata
 
         return $array;
     }
+
+    private function isJPCicc_installed()
+    {
+        exec('jpgicc -v 2>&1', $output, $result);
+        print_r($result);
+    }
+
+    // exec($this->binaryPath . ' -v -q 2>&1', $output, $result);
 
     /**
      * Convert color space
