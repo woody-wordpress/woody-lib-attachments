@@ -9,6 +9,30 @@ namespace Woody\Lib\Attachments\Services;
 
 class ImagesMetadata
 {
+    public function wpHandleUpload($array, $var)
+    {
+        if ($array['type'] !== 'image/jpeg') {
+            //output_error('Color Fixer: Whoops, file is not image compatible');
+            return $array;
+        }
+
+        exec('which jpgicc 2>&1', $output, $result);
+        if (empty($output)) {
+            output_error('Color Fixer: Whoops, jpgicc is not installed');
+            return $array;
+        }
+
+        try {
+            $path = $array['file'];
+            $target = pathinfo($path, PATHINFO_DIRNAME) . '/' . pathinfo($path, PATHINFO_FILENAME) . '_icc.' . pathinfo($path, PATHINFO_EXTENSION);
+            exec(sprintf('jpgicc -v %s %s && mv -f %s %s', $path, $target, $target, $path), $output, $result);
+        } catch (Exception $e) {
+            output_error('Color Fixer: Whoops, failed to convert image color space');
+        }
+
+        return $array;
+    }
+
     /* ------------------------ */
     /* Read EXIF/IPTC Metadatas */
     /* ------------------------ */
