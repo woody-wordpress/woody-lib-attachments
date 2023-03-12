@@ -48,6 +48,7 @@ class AttachmentsDataExport
                 if ($file['timestamp']) {
                     $data['files'][$file_key]['created'] = date('d/m à H:i', $file['timestamp']);
                 }
+
                 if ($file['path']) {
                     $data['files'][$file_key]['url'] = str_replace('/home/admin/www/wordpress/current/web', home_url(), $file['path']);
                     $data['files'][$file_key]['name'] = str_replace(sprintf('/home/admin/www/wordpress/current/web/app/uploads/%s/', WP_SITE_KEY), '', $file['path']);
@@ -68,13 +69,14 @@ class AttachmentsDataExport
                 }
             }
         }
+
         return $return;
     }
 
     public function attachmentsDoExport($args)
     {
         output_h1('Do attachments export');
-        if ($args['request_args'] and $args['fields']) {
+        if ($args['request_args'] && $args['fields']) {
             // On récupère tous les attachments en fonctions des arguments passés(mimetype, lang)
             $attachments = [];
             $count_posts = 0;
@@ -145,7 +147,7 @@ class AttachmentsDataExport
         $all_types = get_allowed_mime_types();
         if (!empty($all_types)) {
             foreach ($all_types as $type) {
-                if (strpos($type, $mimetype) === 0) {
+                if (strpos($type, (string) $mimetype) === 0) {
                     $mimetypes[] = $type;
                 }
             }
@@ -220,18 +222,17 @@ class AttachmentsDataExport
                         output_log(sprintf('Unlink %s', $file['path']));
                         unlink($file['path']);
                         unset($files[$file_key]);
-                    } else {
-                        if (!file_exists($file['path'])) {
-                            unset($files[$file_key]);
-                        } elseif ($file['timestamp'] < time() - 3600 * 24) {
-                            output_log(sprintf('Unlink %s', $file['path']));
-                            unlink($file['path']);
-                            unset($files[$file_key]);
-                        }
+                    } elseif (!file_exists($file['path'])) {
+                        unset($files[$file_key]);
+                    } elseif ($file['timestamp'] < time() - 3600 * 24) {
+                        output_log(sprintf('Unlink %s', $file['path']));
+                        unlink($file['path']);
+                        unset($files[$file_key]);
                     }
                 }
             }
         }
+
         if (empty($files)) {
             dropzone_delete('woody_export_attachments_files');
         } else {

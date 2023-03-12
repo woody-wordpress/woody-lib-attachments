@@ -14,6 +14,7 @@ use Woody\Lib\Attachments\Services\AttachmentsDataExport;
 class AttachmentsCommands
 {
     private \Woody\Lib\Attachments\Services\CommandsManager $commandManager;
+
     private \Woody\Lib\Attachments\Services\AttachmentsDataExport $attachmentsDataExport;
 
     public function __construct(CommandsManager $commandsManager, AttachmentsDataExport $attachmentsDataExport)

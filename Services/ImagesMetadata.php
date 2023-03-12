@@ -26,7 +26,7 @@ class ImagesMetadata
             $path = $array['file'];
             $target = pathinfo($path, PATHINFO_DIRNAME) . '/' . pathinfo($path, PATHINFO_FILENAME) . '_icc.' . pathinfo($path, PATHINFO_EXTENSION);
             exec(sprintf('jpgicc -v %s %s && mv -f %s %s', $path, $target, $target, $path), $output, $result);
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             output_error('Color Fixer: Whoops, failed to convert image color space');
         }
 
