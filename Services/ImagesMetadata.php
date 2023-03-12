@@ -12,7 +12,7 @@ class ImagesMetadata
     public function wpHandleUpload($array, $var)
     {
         if ($array['type'] !== 'image/jpeg') {
-            output_error('Color Fixer: Whoops, file is not image compatible');
+            //output_error('Color Fixer: Whoops, file is not image compatible');
             return $array;
         }
 
