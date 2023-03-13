@@ -143,14 +143,13 @@ class AttachmentsApi
         wp_send_json($updates);
     }
 
-    public function deleteAttachments(\WP_REST_Request $request)
+    public function deleteAttachments(\WP_REST_Request $wprestRequest)
     {
-        $params = $request->get_params();
+        $params = $wprestRequest->get_params();
         $ids = $params['ids'] ?: [];
         $deleted = [];
         if (!empty($ids)) {
             foreach ($ids as $id) {
-                $post = get_post($id);
                 $deleted[] = wp_delete_post($id, true);
             }
         }

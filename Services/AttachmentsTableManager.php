@@ -252,7 +252,7 @@ class AttachmentsTableManager
         if (!empty($results)) {
             foreach ($results as $result) {
                 $matches = [];
-                preg_match_all('#wp-json/woody/crop/([0-9]+)/ratio#', $result->meta_value, $matches, PREG_SET_ORDER);
+                preg_match_all('#wp-json/woody/crop/(\d+)/ratio#', $result->meta_value, $matches, PREG_SET_ORDER);
                 if (!empty($matches)) {
                     foreach ($matches as $match) {
                         unset($match[0]);
@@ -307,11 +307,11 @@ class AttachmentsTableManager
     private function filterFilePath($file_path)
     {
         $file_path = str_replace('/thumbs', '', $file_path);
-        preg_match('#(-[0-9]+x[0-9]+-[^.]+).#', $file_path, $matches);
+        preg_match('#(-\d+x\d+-[^.]+).#', $file_path, $matches);
         if (is_array($matches) && !empty($matches[1])) {
             $file_path = str_replace($matches[1], '', $file_path);
         } else {
-            preg_match('#(-[0-9]+x[0-9]+).#', $file_path, $matches);
+            preg_match('#(-\d+x\d+).#', $file_path, $matches);
             if (is_array($matches) && !empty($matches[1])) {
                 $file_path = str_replace($matches[1], '', $file_path);
             }
@@ -332,6 +332,7 @@ class AttachmentsTableManager
                     output_log($full_meta_key);
                     output_log($value);
                 }
+
                 if (!empty($value)) {
                     if ((is_string($value) || is_int($value))) {
                         $return[] = [

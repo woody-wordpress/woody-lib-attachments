@@ -36,7 +36,7 @@ final class Attachments extends Module
 
     public function initialize(ParameterManager $parameterManager, Container $container)
     {
-        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.2.2');
+        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.3.0');
         define('WOODY_LIB_ATTACHMENTS_ROOT', __FILE__);
         define('WOODY_LIB_ATTACHMENTS_DIR_ROOT', dirname(WOODY_LIB_ATTACHMENTS_ROOT));
         define('WOODY_LIB_ATTACHMENTS_DIR_RESOURCES', WOODY_LIB_ATTACHMENTS_DIR_ROOT . '/Resources');
@@ -102,6 +102,7 @@ final class Attachments extends Module
         add_filter('big_image_size_threshold', '__return_false'); // Désactive la duplication  de photo (filename-scaled.jpg) depuis WP 5.3
         add_filter('wp_handle_upload_overrides', [$this->attachmentsWpSettings, 'handleOverridesForGeoJSON'], 10, 2);
         add_filter('sanitize_file_name_chars', [$this->attachmentsWpSettings, 'restrictFilenameSpecialChars'], 10, 1);
+        add_filter('wp_handle_upload', [$this->imagesMetadata, 'wpHandleUpload'], 100, 2);
 
         // API
         add_action('rest_api_init', function () {

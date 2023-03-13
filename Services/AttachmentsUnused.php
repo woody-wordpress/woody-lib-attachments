@@ -45,7 +45,7 @@ class AttachmentsUnused
             // On créé la pagination si besoin
             $items_length = 100;
             $pager = filter_input(INPUT_GET, 'pager', FILTER_VALIDATE_INT);
-            $data['unused_ids'] = count($unused_ids);
+            $data['unused_ids'] = is_countable($unused_ids) ? count($unused_ids) : 0;
             $data['max_num_pages'] = round($data['unused_ids'] / $items_length);
             $data['pager'] = empty($pager) ? 1 : $pager;
             $data['pagination'] = $this->createPagination($data['max_num_pages'], $data['pager']);
@@ -67,7 +67,7 @@ class AttachmentsUnused
             global $wpdb;
             // On récupère la liste de tous les identifiants dont au moins l'une des traductions est utilisée
             $used_ids = $this->getUsedIds();
-            $used_ids_str = (is_array($used_ids) && !empty($used_ids)) ? implode($used_ids, ',') : '';
+            $used_ids_str = (is_array($used_ids) && !empty($used_ids)) ? implode(',', $used_ids) : '';
 
             // On récupère les ids de tous les attachments et on retire les éléments dont l'une des traductions est utilisée
             if (!empty($used_ids_str)) {
