@@ -134,10 +134,17 @@ final class Attachments extends Module
         add_action('admin_menu', [$this->attachmentsUnused, 'generateUnusedList']);
         add_action('delete_unsused_attachments', [$this->attachmentsUnused, 'deleteAttachments']);
 
+        // Export attachments data
         add_action('admin_menu', [$this->attachmentsDataExport, 'generateDataExportPage']);
         add_action('woody_theme_update', [$this->attachmentsDataExport, 'scheduleDeleteExportFiles']);
         add_action('woody_delete_medias_export_files', [$this->attachmentsDataExport, 'deleteMediaExportFiles']);
         add_action('attachments_do_export', [$this->attachmentsDataExport, 'attachmentsDoExport']);
+
+        // Manage medias columns
+        add_filter('manage_media_columns', [$this->attachmentsManager, 'woodyExpiredMediaAddColumn']);
+        add_action('manage_media_custom_column', [$this->attachmentsManager, 'woodyExpiredMediaFillColumn'], 10, 2);
+        add_filter('manage_upload_sortable_columns', [$this->attachmentsManager, 'woodyExpiredMediaSortColumn']);
+        add_action('pre_get_posts', [$this->attachmentsManager, 'woodyExpiredMediaSortRule']);
     }
 
     public function injectTimberLocation($locations)

@@ -163,4 +163,59 @@ class AttachmentsManager
             dropzone_delete('woody_attachments_unused_ids');
         }
     }
+
+    public function woodyExpiredMediaAddColumn($columns)
+    {
+        $columns['expire'] = 'Date d\'expiration';
+
+        return $columns;
+    }
+
+    public function woodyExpiredMediaFillColumn($column_name, $post_id)
+    {
+        if ($column_name == 'expire') {
+            $expire_date = get_field('attachment_expire', $post_id);
+            $now = time();
+            $expire_time = strtotime($expire_date);
+
+            switch ($expire_time) {
+                case $expire_time < $now:
+                    $color = 'red';
+                    break;
+                case $expire_time < $now + 864000:
+                    $color = 'orange';
+                    break;
+                default:
+                    $color = 'green';
+                    break;
+            }
+
+            $readable_date = strftime('%d/%m/%Y', $expire_time);
+
+            $expire_date = sprintf('<label style="background-color:%s; color:white; border-radius:3px; padding:3px">%s</label>', $color, $readable_date);
+
+            echo empty($expire_date) ? '--' : $expire_date;
+        }
+    }
+
+    public function woodyExpiredMediaSortColumn($columns)
+    {
+        $columns['expire'] = 'expire';
+
+        return $columns;
+    }
+
+    public function woodyExpiredMediaSortRule($query)
+    {
+        if (!is_admin()) {
+            return;
+        }
+
+        $orderby = $query->get('orderby');
+
+        if ($orderby == 'expire') {
+            $query->set('meta_key', 'attachment_expire');
+            $query->set('orderby', 'meta_value');
+        }
+    }
 }
