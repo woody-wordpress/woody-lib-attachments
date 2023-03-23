@@ -176,9 +176,12 @@ class AttachmentsManager
         if ($column_name == 'expire') {
             $expire_date = get_field('attachment_expire', $post_id);
             $now = time();
-            $expire_time = strtotime($expire_date);
+            $expire_time = (empty($expire_date)) ? false : strtotime($expire_date);
 
             switch ($expire_time) {
+                case false :
+                    $color = 'transparent';
+                    break;
                 case $expire_time < $now:
                     $color = 'red';
                     break;
@@ -190,7 +193,7 @@ class AttachmentsManager
                     break;
             }
 
-            $readable_date = strftime('%d/%m/%Y', $expire_time);
+            $readable_date = (empty($expire_time)) ? '' : strftime('%d/%m/%Y', $expire_time);
 
             $expire_date = sprintf('<label style="background-color:%s; color:white; border-radius:3px; padding:3px">%s</label>', $color, $readable_date);
 
