@@ -8,6 +8,7 @@
 namespace Woody\Lib\Attachments\Services;
 
 use Symfony\Component\Finder\Finder;
+use JsonException;
 
 class AttachmentsTableManager
 {
@@ -61,12 +62,15 @@ class AttachmentsTableManager
         if (!empty($finder) && is_iterable($finder)) {
             foreach ($finder as $file) {
                 $file_path = $file->getRealPath();
-                $data = json_decode(file_get_contents($file_path), true, 512, JSON_THROW_ON_ERROR);
-                $this->getMatchingFields($data['fields']);
+                try {
+                    $data = json_decode(file_get_contents($file_path), true, 512, JSON_THROW_ON_ERROR);
+                    $this->getMatchingFields($data['fields']);
+                    return array_unique($this->image_fields);
+                } catch (JsonException $e) {
+                    output_error(sprintf('[getAttachmentsFieldNames] %s', $file_path));
+                }
             }
         }
-
-        return array_unique($this->image_fields);
     }
 
     private function getMatchingFields($fields)
@@ -328,10 +332,6 @@ class AttachmentsTableManager
             foreach ($field_names as $field_name) {
                 $full_meta_key = ($acf) ? $field_name : $meta_key . '_' . $field_name;
                 $value = ($acf) ? get_field($field_name, $post_id) : get_post_meta($post_id, $full_meta_key, true);
-                if ($meta_key == 'section_4_section_content_0_content_selection_0' && $field_name == 'img') {
-                    output_log($full_meta_key);
-                    output_log($value);
-                }
 
                 if (!empty($value)) {
                     if ((is_string($value) || is_int($value))) {
