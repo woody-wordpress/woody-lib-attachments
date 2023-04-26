@@ -328,10 +328,6 @@ class AttachmentsTableManager
             foreach ($field_names as $field_name) {
                 $full_meta_key = ($acf) ? $field_name : $meta_key . '_' . $field_name;
                 $value = ($acf) ? get_field($field_name, $post_id) : get_post_meta($post_id, $full_meta_key, true);
-                if ($meta_key == 'section_4_section_content_0_content_selection_0' && $field_name == 'img') {
-                    output_log($full_meta_key);
-                    output_log($value);
-                }
 
                 if (!empty($value)) {
                     if ((is_string($value) || is_int($value))) {
