@@ -76,7 +76,8 @@ final class Attachments extends Module
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
 
         add_action('woody_theme_update', [$this, 'woodyInsertTerms']);
-        add_action('add_attachment', [$this->attachmentsManager, 'addAttachment'], 50);
+        add_action('add_attachment', [$this->imagesMetadata, 'addAttachment'], 50);
+        add_action('add_attachment', [$this->attachmentsManager, 'addAttachment'], 100);
         add_action('save_attachment', [$this->attachmentsManager, 'saveAttachment'], 50);
 
         add_action('save_post', [$this->attachmentsManager, 'savePost'], 10, 3);
@@ -91,7 +92,7 @@ final class Attachments extends Module
 
         // Images metadata reading/setting
         add_filter('wp_read_image_metadata', [$this->imagesMetadata, 'readImageMetadata'], 10, 4);
-        add_filter('wp_generate_attachment_metadata', [$this->imagesMetadata, 'generateAttachmentMetadata'], 10, 2);
+        add_filter('wp_generate_attachment_metadata', [$this->imagesMetadata, 'generateAttachmentMetadata'], 999, 2);
 
         // WP Native settings
         add_filter('wp_image_editors', [$this->attachmentsWpSettings, 'wpImageEditors']);
