@@ -164,7 +164,7 @@ class ImagesMetadata
                 }
 
                 // Déclaration des crops
-                $this->updateAttachmentSizes($attachment_id);
+                $this->updateAttachmentSizes($attachment_id, $file);
 
                 // Dupliquer l'image dans toutes les langues
                 $this->translateAttachment($attachment_id);
@@ -178,11 +178,31 @@ class ImagesMetadata
         }
     }
 
-    public function updatedPostMeta($meta_id, $object_id, $meta_key, $meta_value)
+    public function updatedPostmeta($meta_id, $object_id, $meta_key, $meta_value)
+    {
+        output_log(['updated_postmeta', $meta_id, $object_id, $meta_key, $meta_value]);
+    }
+
+    public function saveAttachment($attachment_id)
     {
         // Save metadata to all languages
-        if ($meta_key == '_wp_attachment_metadata' && function_exists('pll_get_post_language') && !empty(PLL_DEFAULT_LANG) && PLL_DEFAULT_LANG == pll_get_post_language($object_id)) {
-
+        output_log(['saveAttachment']);
+        if (function_exists('pll_get_post_language') && !empty(PLL_DEFAULT_LANG)) {
+            $current_lang = pll_get_post_language($attachment_id);
+            if ($current_lang == PLL_DEFAULT_LANG) {
+                $attachment_metadata = wp_get_attachment_metadata($attachment_id);
+                if (!empty($attachment_metadata)) {
+                    $translations = pll_get_post_translations($attachment_id);
+                    if (!empty($translations)) {
+                        foreach ($translations as $lang => $t_attachment_id) {
+                            if($current_lang != $lang) {
+                                wp_update_attachment_metadata($t_attachment_id, $attachment_metadata);
+                                output_log(['wp_update_attachment_metadata', $t_attachment_id, $attachment_metadata, $attachment_id, $lang]);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -195,7 +215,7 @@ class ImagesMetadata
         return $post;
     }
 
-    private function updateAttachmentSizes($attachment_id)
+    private function updateAttachmentSizes($attachment_id, $file)
     {
         // Added default sizes
         global $_wp_additional_image_sizes;
@@ -204,7 +224,7 @@ class ImagesMetadata
         $_wp_additional_image_sizes['large'] = ['height' => 1024, 'width' => 1024, 'crop' => true];
 
         // Get Mime-Type
-        $mime_type = mime_content_type(WP_UPLOAD_DIR . '/' . $metadata['file']);
+        $mime_type = mime_content_type($file);
         foreach ($_wp_additional_image_sizes as $ratio => $size) {
             if (empty($metadata['sizes'][$ratio])) {
                 $metadata['sizes'][$ratio] = [
@@ -216,19 +236,26 @@ class ImagesMetadata
             }
         }
 
-        // Added full size
-        $filename = explode('/', $metadata['file']);
-        $filename = end($filename);
-        $metadata['sizes']['full'] = [
-            'file' => $filename,
-            'height' => $metadata['height'],
-            'width' => $metadata['width'],
-            'mime-type' => $mime_type
-        ];
+        // Get Image-Size
+        $getimagesize = getimagesize($file);
+        if ($getimagesize !== false) {
+            $width = $getimagesize[0];
+            $height = $getimagesize[1];
 
-        // Save Metadata
-        //output_log([' - updateAttachmentSizes', $attachment_id, $metadata]);
-        wp_update_attachment_metadata($attachment_id, $metadata);
+            // Added full size
+            $filename = explode('/', $file);
+            $filename = end($filename);
+            $metadata['sizes']['full'] = [
+                'file' => $filename,
+                'height' => $height,
+                'width' => $width,
+                'mime-type' => $mime_type
+            ];
+
+            // Save Metadata
+            output_log([' - updateAttachmentSizes', $attachment_id, $metadata]);
+            wp_update_attachment_metadata($attachment_id, $metadata);
+        }
     }
 
     private function isNeverTranslate($attachment_id)
