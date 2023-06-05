@@ -33,53 +33,30 @@ class ImagesMetadata
         return $array;
     }
 
+    public function acfSavePost($attachment_id)
+    {
+        $this->saveAttachment($attachment_id);
+    }
+
     public function addAttachment($attachment_id)
     {
         output_log(['addAttachment', $attachment_id]);
         wp_set_object_terms($attachment_id, 'Média ajouté manuellement', 'attachment_types', false);
     }
 
-    public function updatedPostmeta($meta_id, $attachment_id, $meta_key, $meta_value)
+    public function saveAttachment($attachment_id)
     {
-        if($meta_key == '_wp_attachment_metadata' && wp_attachment_is_image($attachment_id)) {
-            //output_log(['updated_postmeta', $meta_key]);
-            $meta_value = maybe_unserialize($meta_value);
-
-            // On ne lance la traduction des attachements après la 1ère mise à jour des attachment_metadata
-            // Avant de lancer la traduction, on supprimer l'entrée "create" qui aindique que c'est la 1ère mise à jour
-            if(!empty($meta_value['create'])) {
-                output_log(['CREATE updated_postmeta']);
-
-                unset($meta_value['create']);
-                wp_update_attachment_metadata($attachment_id, $meta_value);
-
-                // Dupliquer l'image dans toutes les langues
-                $this->translateAttachment($attachment_id);
-
-                // Linked Video
-                $this->imageLinkedVideo($attachment_id);
-
-                // Cleanup
-                dropzone_delete('woody_attachments_unused_ids');
-            } else {
-                $source_lang = pll_get_post_language($attachment_id);
-                if($source_lang == PLL_DEFAULT_LANG) {
-
-                    $translations = pll_get_post_translations($attachment_id);
-                    foreach ($translations as $target_lang => $t_attachment_id) {
-                        if($target_lang != $source_lang) {
-                            //output_log(['SYNC updated_postmeta', $attachment_id, $t_attachment_id, $source_lang, $target_lang]);
-                            wp_update_attachment_metadata($t_attachment_id, $meta_value);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public function acfSavePost($attachment_id)
-    {
+        output_log(['saveAttachment', $attachment_id]);
         if(wp_attachment_is_image($attachment_id)) {
+
+            // Sync media_linked_video
+            $attachment_terms = wp_get_post_terms($attachment_id, 'attachment_types', ['fields' => 'slugs' ]);
+            if (!empty(get_field('media_linked_video', $attachment_id)) && !in_array('media_linked_video', $attachment_terms)) {
+                $attachment_terms[] = 'media_linked_video';
+                wp_set_object_terms($attachment_id, 'media_linked_video', 'attachment_types', true);
+            } elseif (empty(get_field('media_linked_video', $attachment_id)) && in_array('media_linked_video', $attachment_terms)) {
+                wp_remove_object_terms($attachment_id, 'media_linked_video', 'attachment_types');
+            }
 
             // Get ACF Fields (Author, Lat, Lng)
             $fields = get_fields($attachment_id);
@@ -108,6 +85,44 @@ class ImagesMetadata
                 $terms = wp_get_post_terms($attachment_id, $taxonomy);
                 wp_set_post_terms($t_attachment_id, $terms, $taxonomy, false);
                 //output_log([' - wp_set_post_terms', $t_attachment_id, $terms, $taxonomy]);
+            }
+        }
+    }
+
+    public function updatedPostmeta($meta_id, $attachment_id, $meta_key, $meta_value)
+    {
+        if($meta_key == '_wp_attachment_metadata' && wp_attachment_is_image($attachment_id)) {
+            //output_log(['updated_postmeta', $meta_key]);
+            $meta_value = maybe_unserialize($meta_value);
+
+            // On ne lance la traduction des attachements après la 1ère mise à jour des attachment_metadata
+            // Avant de lancer la traduction, on supprime l'entrée "create" qui indique que c'est la 1ère mise à jour
+            if(!empty($meta_value['create'])) {
+                //output_log(['CREATE updated_postmeta']);
+
+                unset($meta_value['create']);
+                wp_update_attachment_metadata($attachment_id, $meta_value);
+
+                // Dupliquer l'image dans toutes les langues
+                $this->translateAttachment($attachment_id);
+
+                // Linked Video
+                $this->imageLinkedVideo($attachment_id);
+
+                // Cleanup
+                dropzone_delete('woody_attachments_unused_ids');
+            } else {
+                $source_lang = pll_get_post_language($attachment_id);
+                if($source_lang == PLL_DEFAULT_LANG) {
+
+                    $translations = pll_get_post_translations($attachment_id);
+                    foreach ($translations as $target_lang => $t_attachment_id) {
+                        if($target_lang != $source_lang) {
+                            //output_log(['SYNC updated_postmeta', $attachment_id, $t_attachment_id, $source_lang, $target_lang]);
+                            wp_update_attachment_metadata($t_attachment_id, $meta_value);
+                        }
+                    }
+                }
             }
         }
     }
