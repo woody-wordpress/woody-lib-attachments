@@ -241,12 +241,12 @@ class ImagesMetadata
         $translations = pll_get_post_translations($attachment_id);
         $source_lang = pll_get_post_language($attachment_id);
 
-        output_log(['translateAttachment', $attachment_id, $source_lang, $translations]);
+        //output_log(['translateAttachment', $attachment_id, $source_lang, $translations]);
         $languages = pll_languages_list();
         foreach ($languages as $target_lang) {
             // Duplicate media with Polylang Method
             if (!array_key_exists($target_lang, $translations)) {
-                output_log([' - woody_pll_create_media_translation', $attachment_id, $source_lang, $target_lang]);
+                output_log(['woody_pll_create_media_translation', $attachment_id, $source_lang, $target_lang]);
                 woody_pll_create_media_translation($attachment_id, $source_lang, $target_lang);
             }
         }
