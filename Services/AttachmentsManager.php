@@ -15,9 +15,6 @@ class AttachmentsManager
 
         // Added attachment_types
         wp_set_object_terms($attachment_id, 'Média ajouté manuellement', 'attachment_types', false);
-
-        // Duplicate all medias
-        $this->saveAttachment($attachment_id);
     }
 
     public function deleteAttachment($attachment_id)
@@ -52,41 +49,7 @@ class AttachmentsManager
         }
     }
 
-    public function updateMetaData($attachment_id)
-    {
-        // Get current post
-        $post = get_post($attachment_id);
-        // Create an array with the image meta (Title, Caption, Description) to be updated
-        // Note:  comment out the Excerpt/Caption or Content/Description lines if not needed
-        $my_image_meta = [];
-        // Specify the image (ID) to be updated
-        $my_image_meta['ID'] = $attachment_id;
-        if (empty($metadata['image_meta']['title'])) {
-            $new_title = ucwords(strtolower(preg_replace('#\s*[-_\s]+\s*#', ' ', $post->post_title)));
-            $my_image_meta['post_title'] = $new_title;
-        } else {
-            $new_title = $metadata['image_meta']['title'];
-        }
-
-        if (empty($post->post_excerpt)) {
-            $new_description = $new_title;
-            $my_image_meta['post_excerpt'] = $new_description;
-        } else {
-            $new_description = $post->post_excerpt;
-        }
-
-        if (empty($post->post_content)) {
-            $my_image_meta['post_content'] = $new_description;
-        }
-
-        // Set the image Alt-Text
-        update_post_meta($attachment_id, '_wp_attachment_image_alt', $new_description);
-
-        // Set the image meta (e.g. Title, Excerpt, Content)
-        wp_update_post($my_image_meta);
-    }
-
-    public function imageAutoTranslate($attachment_id)
+    private function imageAutoTranslate($attachment_id)
     {
         output_log('imageAutoTranslate - ' . $attachment_id);
         $translations = pll_get_post_translations($attachment_id);
@@ -133,15 +96,13 @@ class AttachmentsManager
 
             // Get ACF Fields (Author, Lat, Lng)
             $fields = get_fields($attachment_id);
-            output_log(['** get_fields', $attachment_id, $fields]);
-            // Update ACF Fields (Author, Lat, Lng)
             if (!empty($fields)) {
                 foreach ($fields as $selector => $value) {
                     if ($selector == 'media_linked_page') {
                         continue;
                     }
 
-                    output_log(['**** update_field', $selector, $value, $t_attachment_id]);
+                    output_log([' - syncAttachmentFields update_field', $selector, $value, $t_attachment_id]);
                     update_field($selector, $value, $t_attachment_id);
                 }
             }
@@ -175,7 +136,7 @@ class AttachmentsManager
 
             // Si on lance une traduction en masse de la médiathèque, il faut lancer ce hook qui va synchroniser les taxonomies themes et places
             //if (defined('WP_CLI') && \WP_CLI) {
-            //do_action('pll_translate_media', $attachment_id, $t_attachment_id, $target_lang);
+            do_action('pll_translate_media', $attachment_id, $t_attachment_id, $target_lang);
             //}
         }
     }

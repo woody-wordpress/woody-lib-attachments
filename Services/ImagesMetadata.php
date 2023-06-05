@@ -33,19 +33,18 @@ class ImagesMetadata
         return $array;
     }
 
-    public function addAttachment($attachment_id)
+    public function saveAttachment($attachment_id)
     {
         // Lors de la création d'une traduction, on passe dans ce hook mais on ne rentre pas dans le if suivant
         // Car à la création du post de traduction les métas du post source ne sont pas encore enregistrées
         // Et donc le post traduit ne sait pas encore qu'il est une image.
         // Ce comportement est celui souhaité !
 
-        output_log(['addAttachment_Meta', $attachment_id]);
+        output_log(['saveAttachment_Meta', $attachment_id]);
         if (wp_attachment_is_image($attachment_id)) {
-            output_log([' - addAttachment_Meta is Image', $attachment_id]);
             $file = get_attached_file($attachment_id);
-            output_log([' - addAttachment_Meta file', $file]);
             $attachment = get_post($attachment_id);
+            output_log(['saveAttachment_Meta attachment', $attachment]);
             $meta = wp_read_image_metadata($file);
 
             if (!empty($meta['title'])) {
@@ -69,9 +68,11 @@ class ImagesMetadata
             }
 
             // Set the image Alt-Text
+            output_log([' - saveAttachment_Meta ALT', $attachment->post_excerpt]);
             update_post_meta($attachment_id, '_wp_attachment_image_alt', $attachment->post_excerpt);
 
             // Set the image meta (e.g. Title, Excerpt, Content)
+            output_log([' - saveAttachment_Meta POST', $attachment->post_title]);
             wp_update_post([
                 'ID' => $attachment_id,
                 'post_title' => $attachment->post_title,
@@ -81,18 +82,22 @@ class ImagesMetadata
 
             // Set ACF Fields (Credit)
             if (!empty($meta['credit'])) {
+                output_log([' - saveAttachment_Meta CREDIT', $meta['credit']]);
                 update_field('media_author', $meta['credit'], $attachment_id);
             }
 
             if (!empty($meta['latitude'])) {
+                output_log([' - saveAttachment_Meta LAT', $meta['latitude']]);
                 update_field('media_lat', $meta['latitude'], $attachment_id);
             }
 
             if (!empty($meta['longitude'])) {
+                output_log([' - saveAttachment_Meta LONG', $meta['longitude']]);
                 update_field('media_lng', $meta['longitude'], $attachment_id);
             }
 
             // Import tags
+            output_log([' - saveAttachment_Meta PLACES']);
             if (!empty($meta['city']) || !empty($meta['state']) || !empty($meta['country']) || !empty($meta['keywords'])) {
                 $terms_places = get_terms('places', ['hide_empty' => false]);
                 foreach ($terms_places as $term_places) {
@@ -112,10 +117,8 @@ class ImagesMetadata
                 }
             }
 
-            // TODO: Tester si l'import des Keywords fonctionne
-            // Faire un hook quand les metadata sony modifiées dans une langue pour sync les sizes
-
             if (!empty($meta['keywords'])) {
+                output_log([' - saveAttachment_Meta CAT']);
                 $terms_attachment_categories = get_terms('attachment_categories', ['hide_empty' => false]);
                 if (!empty($terms_attachment_categories)) {
                     foreach ($terms_attachment_categories as $term_attachment_categories) {
@@ -127,6 +130,7 @@ class ImagesMetadata
                     }
                 }
 
+                output_log([' - saveAttachment_Meta THEMES']);
                 $terms_themes = get_terms('themes', ['hide_empty' => false]);
                 if (!empty($terms_themes)) {
                     foreach ($terms_themes as $term_themes) {
@@ -138,6 +142,7 @@ class ImagesMetadata
                     }
                 }
 
+                output_log([' - saveAttachment_Meta SEASONS']);
                 $terms_seasons = get_terms('seasons', ['hide_empty' => false]);
                 if (!empty($terms_seasons)) {
                     foreach ($terms_seasons as $term_seasons) {
@@ -155,77 +160,47 @@ class ImagesMetadata
     /* ------------------------ */
     /* Read EXIF/IPTC Metadatas */
     /* ------------------------ */
-    public function readImageMetadata($meta, $file, $sourceImageType, $iptc)
+    public function readImageMetadata($meta, $file, $image_type, $iptc, $exif)
     {
-        $info = [];
-        // XMP
-        $content        = file_get_contents($file);
-        $xmp_data_start = strpos($content, '<x:xmpmeta');
-        if ($xmp_data_start !== false) {
-            $xmp_data_end   = strpos($content, '</x:xmpmeta>');
-            $xmp_length     = $xmp_data_end - $xmp_data_start;
-            $xmp_data       = substr($content, $xmp_data_start, $xmp_length + 12);
-            $xmp_arr        = $this->getXMPArray($xmp_data);
-
-            $meta['title']          = empty($xmp_arr['Title']) ? '' : $xmp_arr['Title'][0];
-            $meta['city']           = empty($xmp_arr['City']) ? '' : $xmp_arr['City'][0];
-            $meta['credit']         = empty($xmp_arr['Creator']) ? '' : $xmp_arr['Creator'][0];
-            $meta['copyright']      = empty($xmp_arr['Rights']) ? '' : $xmp_arr['Rights'][0];
-            $meta['description']    = empty($xmp_arr['Description']) ? '' : $xmp_arr['Description'][0];
-            $meta['caption']        = $meta['description'];
-            $meta['country']        = empty($xmp_arr['Country']) ? '' : $xmp_arr['Country'][0];
-            $meta['state']          = empty($xmp_arr['State']) ? '' : $xmp_arr['State'][0];
-            $meta['keywords']       = empty($xmp_arr['Keywords']) ? '' : $xmp_arr['Keywords'][0];
-        }
-
         // EXIF
-        if (is_callable('exif_read_data') && in_array($sourceImageType, apply_filters('wp_read_image_metadata_types', array(IMAGETYPE_JPEG, IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM)))) {
-            $exif = @exif_read_data($file);
+        $meta = $this->getEXIFData($meta, $exif);
 
-            if (!empty($exif['GPSLatitude']) && !empty($exif['GPSLatitudeRef'])) {
-                $lat_deg = $this->calc($exif['GPSLatitude'][0]);
-                $lat_min = $this->calc($exif['GPSLatitude'][1]);
-                $lat_sec = $this->calc($exif['GPSLatitude'][2]);
-                $meta['latitude'] = $this->dmsToDecimal($lat_deg, $lat_min, $lat_sec, $exif['GPSLatitudeRef']);
-            }
+        // IPTC
+        $meta = $this->getIPTCData($meta, $iptc);
 
-            if (!empty($exif['GPSLongitude']) && !empty($exif['GPSLongitudeRef'])) {
-                $lng_deg = $this->calc($exif['GPSLongitude'][0]);
-                $lng_min = $this->calc($exif['GPSLongitude'][1]);
-                $lng_sec = $this->calc($exif['GPSLongitude'][2]);
-                $meta['longitude'] = $this->dmsToDecimal($lng_deg, $lng_min, $lng_sec, $exif['GPSLongitudeRef']);
+        // Empty Fields
+        if(empty($meta['title'])) {
+            if(!empty($meta['description'])) {
+                $meta['title'] = $meta['description'];
+            } elseif(!empty($meta['caption'])) {
+                $meta['title'] = $meta['caption'];
             }
         }
 
-        if (!empty($info['APP13'])) {
-            $iptc = iptcparse($info['APP13']);
-
-            // Titre
-            if ((empty($meta['title']) || $meta['title'] == $meta['caption']) && !empty($iptc['2#085'])) {
-                $meta['title'] = ucfirst(strtolower(current($iptc['2#085'])));
-            }
-
-            // Places
-            if (empty($meta['city']) && !empty($iptc['2#090'])) {
-                $meta['city'] = ucfirst(strtolower(current($iptc['2#090'])));
-            }
-
-            if (empty($meta['state']) && !empty($iptc['2#095'])) {
-                $meta['state'] = ucfirst(strtolower(current($iptc['2#095'])));
-            }
-
-            if (empty($meta['country']) && !empty($iptc['2#101'])) {
-                $meta['country'] = ucfirst(strtolower(current($iptc['2#101'])));
+        if(empty($meta['description'])) {
+            if(!empty($meta['caption'])) {
+                $meta['description'] = $meta['caption'];
+            } elseif(!empty($meta['title'])) {
+                $meta['description'] = $meta['title'];
             }
         }
 
+        if(empty($meta['caption'])) {
+            if(!empty($meta['description'])) {
+                $meta['caption'] = $meta['description'];
+            } elseif(!empty($meta['title'])) {
+                $meta['caption'] = $meta['title'];
+            }
+        }
+
+        // Gestion des crédits / Copyright
         if (empty($meta['credit']) && !empty($meta['copyright'])) {
             $meta['credit'] = $meta['copyright'];
         } elseif (empty($meta['copyright']) && !empty($meta['credit'])) {
             $meta['copyright'] = $meta['credit'];
         }
 
-        output_log(['readImageMetadata', $meta]);
+        output_log(['readImageMetadata_meta', $meta]);
         return $meta;
     }
 
@@ -267,47 +242,44 @@ class ImagesMetadata
         return $metadata;
     }
 
-    private function getXMPArray($xmp_data)
+    private function getEXIFData($meta, $exif)
     {
-        $xmp_arr = array();
-        foreach (array(
-                'Creator Email' => '<Iptc4xmpCore:CreatorContactInfo[^>]+?CiEmailWork="([^"]*)"',
-                'Owner Name'    => '<rdf:Description[^>]+?aux:OwnerName="([^"]*)"',
-                'Creation Date' => '<rdf:Description[^>]+?xmp:CreateDate="([^"]*)"',
-                'Modification Date'     => '<rdf:Description[^>]+?xmp:ModifyDate="([^"]*)"',
-                'Label'         => '<rdf:Description[^>]+?xmp:Label="([^"]*)"',
-                'Credit'        => '<rdf:Description[^>]+?photoshop:Credit="([^"]*)"',
-                'Source'        => '<rdf:Description[^>]+?photoshop:Source="([^"]*)"',
-                'Headline'      => '<rdf:Description[^>]+?photoshop:Headline="([^"]*)"',
-                'City'          => '<rdf:Description[^>]+?photoshop:City="([^"]*)"',
-                'State'         => '<rdf:Description[^>]+?photoshop:State="([^"]*)"',
-                'Country'       => '<rdf:Description[^>]+?photoshop:Country="([^"]*)"',
-                'Country Code'  => '<rdf:Description[^>]+?Iptc4xmpCore:CountryCode="([^"]*)"',
-                'Location'      => '<rdf:Description[^>]+?Iptc4xmpCore:Location="([^"]*)"',
-                'Title'         => '<dc:title>\s*<rdf:Alt>\s*(.*?)\s*<\/rdf:Alt>\s*<\/dc:title>',
-                'Rights'         => '<dc:rights>\s*<rdf:Alt>\s*(.*?)\s*<\/rdf:Alt>\s*<\/dc:rights>',
-                'Description'   => '<dc:description>\s*<rdf:Alt>\s*(.*?)\s*<\/rdf:Alt>\s*<\/dc:description>',
-                'Creator'       => '<dc:creator>\s*<rdf:Seq>\s*(.*?)\s*<\/rdf:Seq>\s*<\/dc:creator>',
-                'Keywords'      => '<dc:subject>\s*<rdf:Bag>\s*(.*?)\s*<\/rdf:Bag>\s*<\/dc:subject>',
-                'Hierarchical Keywords' => '<lr:hierarchicalSubject>\s*<rdf:Bag>\s*(.*?)\s*<\/rdf:Bag>\s*<\/lr:hierarchicalSubject>'
-        ) as $key => $regex) {
-            // get a single text string
-            $xmp_arr[$key] = preg_match("/{$regex}/is", $xmp_data, $match) ? $match[1] : '';
-
-            // if string contains a list, then re-assign the variable as an array with the list elements
-            $xmp_arr[$key] = preg_match_all("#<rdf:li[^>]*>([^>]*)<\/rdf:li>#is", $xmp_arr[$key], $match) ? $match[1] : $xmp_arr[$key];
-
-            // hierarchical keywords need to be split into a third dimension
-            if (! empty($xmp_arr[$key]) && $key == 'Hierarchical Keywords') {
-                foreach ($xmp_arr[$key] as $li => $val) {
-                    $xmp_arr[$key][$li] = explode('|', $val);
-                }
-
-                unset($li, $val);
-            }
+        if (!empty($exif['GPSLatitude']) && !empty($exif['GPSLatitudeRef'])) {
+            $lat_deg = $this->calc($exif['GPSLatitude'][0]);
+            $lat_min = $this->calc($exif['GPSLatitude'][1]);
+            $lat_sec = $this->calc($exif['GPSLatitude'][2]);
+            $meta['latitude'] = $this->dmsToDecimal($lat_deg, $lat_min, $lat_sec, $exif['GPSLatitudeRef']);
         }
 
-        return $xmp_arr;
+        if (!empty($exif['GPSLongitude']) && !empty($exif['GPSLongitudeRef'])) {
+            $lng_deg = $this->calc($exif['GPSLongitude'][0]);
+            $lng_min = $this->calc($exif['GPSLongitude'][1]);
+            $lng_sec = $this->calc($exif['GPSLongitude'][2]);
+            $meta['longitude'] = $this->dmsToDecimal($lng_deg, $lng_min, $lng_sec, $exif['GPSLongitudeRef']);
+        }
+
+        return $meta;
+    }
+
+    private function getIPTCData($meta, $iptc)
+    {
+        if ((empty($meta['title']) || $meta['title'] == $meta['caption']) && !empty($iptc['2#085'])) {
+            $meta['title'] = ucfirst(strtolower(current($iptc['2#085'])));
+        }
+
+        if (empty($meta['city']) && !empty($iptc['2#090'])) {
+            $meta['city'] = ucfirst(strtolower(current($iptc['2#090'])));
+        }
+
+        if (empty($meta['state']) && !empty($iptc['2#095'])) {
+            $meta['state'] = ucfirst(strtolower(current($iptc['2#095'])));
+        }
+
+        if (empty($meta['country']) && !empty($iptc['2#101'])) {
+            $meta['country'] = ucfirst(strtolower(current($iptc['2#101'])));
+        }
+
+        return $meta;
     }
 
     private function calc($val)
