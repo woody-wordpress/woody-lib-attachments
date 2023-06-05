@@ -178,11 +178,11 @@ class ImagesMetadata
         }
     }
 
-    public function saveAttachment($attachment_id)
+    public function updatedPostMeta($meta_id, $object_id, $meta_key, $meta_value)
     {
-        output_log(['saveAttachment', $attachment_id]);
-        if (wp_attachment_is_image($attachment_id)) {
-            //TODO: Synchroniser certaines métas entre les traductions
+        // Save metadata to all languages
+        if ($meta_key == '_wp_attachment_metadata' && function_exists('pll_get_post_language') && !empty(PLL_DEFAULT_LANG) && PLL_DEFAULT_LANG == pll_get_post_language($object_id)) {
+
         }
     }
 

@@ -78,7 +78,8 @@ final class Attachments extends Module
 
         // Hooks on save and update
         add_action('add_attachment', [$this->imagesMetadata, 'addAttachment'], 10);
-        add_action('save_attachment', [$this->imagesMetadata, 'saveAttachment'], 10);
+        add_action('updated_post_meta', [$this->imagesMetadata, 'updatedPostMeta'], 10, 4);
+        //do_action( "updated_{$meta_type}_meta", $meta_id, $object_id, $meta_key, $_meta_value );
         add_filter('attachment_fields_to_save', [$this->imagesMetadata, 'attachmentFieldsToSave'], 12, 2); // Priority 12 ater polylang
 
         // Pour créer l'inventaire des images
