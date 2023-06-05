@@ -71,15 +71,17 @@ final class Attachments extends Module
 
         // DB actions
         add_action('woody_theme_update', [$this->attachmentsTableManager, 'upgrade'], 10);
+        add_action('woody_theme_update', [$this, 'woodyInsertTerms']);
 
         // Scripts and styles
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
 
-        add_action('woody_theme_update', [$this, 'woodyInsertTerms']);
-        add_action('add_attachment', [$this->attachmentsManager, 'addAttachment'], 100);
-        add_action('save_attachment', [$this->imagesMetadata, 'saveAttachment'], 50);
-        add_action('save_attachment', [$this->attachmentsManager, 'saveAttachment'], 100);
+        // Hooks on save and update
+        add_action('add_attachment', [$this->imagesMetadata, 'addAttachment'], 10);
+        add_action('save_attachment', [$this->imagesMetadata, 'saveAttachment'], 10);
+        add_filter('attachment_fields_to_save', [$this->imagesMetadata, 'attachmentFieldsToSave'], 12, 2); // Priority 12 ater polylang
 
+        // Pour créer l'inventaire des images
         add_action('save_post', [$this->attachmentsManager, 'savePost'], 10, 3);
 
         //TODO: Lors de la suppression d'une langue on doit supprimer tous ses attachments pour éviter qu'ils ne passent dans la langue par défaut
@@ -88,7 +90,6 @@ final class Attachments extends Module
 
         // Woody filters
         add_filter('timber_render', [$this->attachmentsManager, 'timberRender'], 1);
-        add_filter('attachment_fields_to_save', [$this->attachmentsManager, 'attachmentFieldsToSave'], 12, 2); // Priority 12 ater polylang
 
         // Images metadata reading/setting
         add_filter('wp_read_image_metadata', [$this->imagesMetadata, 'readImageMetadata'], 10, 5);
