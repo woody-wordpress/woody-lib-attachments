@@ -90,7 +90,7 @@ class ImagesMetadata
                     $translations = pll_get_post_translations($object_id);
                     foreach ($translations as $target_lang => $t_attachment_id) {
                         if($target_lang != $source_lang) {
-                            output_log(['SYNC attachment_metadata', $attachment_id, $t_attachment_id, $source_lang, $target_lang]);
+                            output_log(['SYNC attachment_metadata', $object_id, $t_attachment_id, $source_lang, $target_lang]);
                             wp_update_attachment_metadata($t_attachment_id, $meta_value);
                         }
                     }
