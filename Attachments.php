@@ -77,11 +77,10 @@ final class Attachments extends Module
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
 
         // Hooks on save and update
-        add_action('add_attachment', [$this->imagesMetadata, 'addAttachment'], 10);
+        //add_action('add_attachment', [$this->imagesMetadata, 'addAttachment'], 10);
         //add_action('save_attachment', [$this->imagesMetadata, 'saveAttachment'], 10);
         add_action('updated_postmeta', [$this->imagesMetadata, 'updatedPostmeta'], 10, 4);
         add_filter('attachment_fields_to_save', [$this->imagesMetadata, 'attachmentFieldsToSave'], 12, 2); // Priority 12 ater polylang
-        add_filter('wp_generate_attachment_metadata', [$this->imagesMetadata, 'generateAttachmentMetadata'], 10, 2);
 
         // Pour créer l'inventaire des images
         add_action('save_post', [$this->attachmentsManager, 'savePost'], 10, 3);
@@ -95,7 +94,7 @@ final class Attachments extends Module
 
         // Images metadata reading/setting
         add_filter('wp_read_image_metadata', [$this->imagesMetadata, 'readImageMetadata'], 10, 5);
-        add_filter('wp_generate_attachment_metadata', [$this->imagesMetadata, 'generateAttachmentMetadata'], 999, 2);
+        add_filter('wp_generate_attachment_metadata', [$this->imagesMetadata, 'generateAttachmentMetadata'], 10, 3);
 
         // WP Native settings
         add_filter('wp_image_editors', [$this->attachmentsWpSettings, 'wpImageEditors']);
