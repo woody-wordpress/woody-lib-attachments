@@ -33,6 +33,34 @@ class ImagesMetadata
         return $array;
     }
 
+    public function saveAttachment($attachment_id)
+    {
+        // Save metadata to all languages
+        output_log(['saveAttachment']);
+        if (function_exists('pll_get_post_language') && !empty(PLL_DEFAULT_LANG)) {
+            $current_lang = pll_get_post_language($attachment_id);
+            if ($current_lang == PLL_DEFAULT_LANG) {
+                $attachment_metadata = wp_get_attachment_metadata($attachment_id);
+                if (!empty($attachment_metadata)) {
+                    $translations = pll_get_post_translations($attachment_id);
+                    if (!empty($translations)) {
+                        foreach ($translations as $lang => $t_attachment_id) {
+                            if($current_lang != $lang) {
+                                wp_update_attachment_metadata($t_attachment_id, $attachment_metadata);
+                                output_log(['wp_update_attachment_metadata', $t_attachment_id, $attachment_metadata, $attachment_id, $lang]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public function updatedPostmeta($meta_id, $object_id, $meta_key, $meta_value)
+    {
+        output_log(['updated_postmeta', $meta_id, $object_id, $meta_key, $meta_value]);
+    }
+
     public function addAttachment($attachment_id)
     {
         output_log(['addAttachment', $attachment_id]);
@@ -174,34 +202,6 @@ class ImagesMetadata
 
                 // Cleanup
                 dropzone_delete('woody_attachments_unused_ids');
-            }
-        }
-    }
-
-    public function updatedPostmeta($meta_id, $object_id, $meta_key, $meta_value)
-    {
-        output_log(['updated_postmeta', $meta_id, $object_id, $meta_key, $meta_value]);
-    }
-
-    public function saveAttachment($attachment_id)
-    {
-        // Save metadata to all languages
-        output_log(['saveAttachment']);
-        if (function_exists('pll_get_post_language') && !empty(PLL_DEFAULT_LANG)) {
-            $current_lang = pll_get_post_language($attachment_id);
-            if ($current_lang == PLL_DEFAULT_LANG) {
-                $attachment_metadata = wp_get_attachment_metadata($attachment_id);
-                if (!empty($attachment_metadata)) {
-                    $translations = pll_get_post_translations($attachment_id);
-                    if (!empty($translations)) {
-                        foreach ($translations as $lang => $t_attachment_id) {
-                            if($current_lang != $lang) {
-                                wp_update_attachment_metadata($t_attachment_id, $attachment_metadata);
-                                output_log(['wp_update_attachment_metadata', $t_attachment_id, $attachment_metadata, $attachment_id, $lang]);
-                            }
-                        }
-                    }
-                }
             }
         }
     }
