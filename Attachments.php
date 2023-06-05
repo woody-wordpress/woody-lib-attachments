@@ -77,13 +77,12 @@ final class Attachments extends Module
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
 
         // Hooks on save and update
-        //add_action('add_attachment', [$this->imagesMetadata, 'addAttachment'], 10);
-        //add_action('save_attachment', [$this->imagesMetadata, 'saveAttachment'], 10);
+        add_action('add_attachment', [$this->imagesMetadata, 'addAttachment'], 10);
         add_action('updated_postmeta', [$this->imagesMetadata, 'updatedPostmeta'], 10, 4);
-        add_filter('attachment_fields_to_save', [$this->imagesMetadata, 'attachmentFieldsToSave'], 12, 2); // Priority 12 ater polylang
 
         // Pour créer l'inventaire des images
         add_action('save_post', [$this->attachmentsManager, 'savePost'], 10, 3);
+        add_action('acf/save_post', [$this->imagesMetadata, 'acfSavePost'], 10, 3);
 
         //TODO: Lors de la suppression d'une langue on doit supprimer tous ses attachments pour éviter qu'ils ne passent dans la langue par défaut
         // TODO: Pour cela on passe par une commande CLI et on ne veut surtout pas supprimer les traductions des médias supprimés

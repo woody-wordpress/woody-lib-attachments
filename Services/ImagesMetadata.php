@@ -39,22 +39,37 @@ class ImagesMetadata
         wp_set_object_terms($attachment_id, 'Média ajouté manuellement', 'attachment_types', false);
     }
 
-    public function saveAttachment($attachment_id)
+    public function updatedPostmeta($meta_id, $attachment_id, $meta_key, $meta_value)
     {
-        // Save metadata to all languages
-        output_log(['saveAttachment']);
-        if (function_exists('pll_get_post_language') && !empty(PLL_DEFAULT_LANG)) {
-            $current_lang = pll_get_post_language($attachment_id);
-            if ($current_lang == PLL_DEFAULT_LANG) {
-                $attachment_metadata = wp_get_attachment_metadata($attachment_id);
-                if (!empty($attachment_metadata)) {
+        if($meta_key == '_wp_attachment_metadata' && wp_attachment_is_image($attachment_id)) {
+            //output_log(['updated_postmeta', $meta_key]);
+            $meta_value = maybe_unserialize($meta_value);
+
+            // On ne lance la traduction des attachements après la 1ère mise à jour des attachment_metadata
+            // Avant de lancer la traduction, on supprimer l'entrée "create" qui aindique que c'est la 1ère mise à jour
+            if(!empty($meta_value['create'])) {
+                output_log(['CREATE updated_postmeta']);
+
+                unset($meta_value['create']);
+                wp_update_attachment_metadata($attachment_id, $meta_value);
+
+                // Dupliquer l'image dans toutes les langues
+                $this->translateAttachment($attachment_id);
+
+                // Linked Video
+                $this->imageLinkedVideo($attachment_id);
+
+                // Cleanup
+                dropzone_delete('woody_attachments_unused_ids');
+            } else {
+                $source_lang = pll_get_post_language($attachment_id);
+                if($source_lang == PLL_DEFAULT_LANG) {
+
                     $translations = pll_get_post_translations($attachment_id);
-                    if (!empty($translations)) {
-                        foreach ($translations as $lang => $t_attachment_id) {
-                            if($current_lang != $lang) {
-                                wp_update_attachment_metadata($t_attachment_id, $attachment_metadata);
-                                output_log(['wp_update_attachment_metadata', $t_attachment_id, $attachment_metadata, $attachment_id, $lang]);
-                            }
+                    foreach ($translations as $target_lang => $t_attachment_id) {
+                        if($target_lang != $source_lang) {
+                            //output_log(['SYNC updated_postmeta', $attachment_id, $t_attachment_id, $source_lang, $target_lang]);
+                            wp_update_attachment_metadata($t_attachment_id, $meta_value);
                         }
                     }
                 }
@@ -62,39 +77,37 @@ class ImagesMetadata
         }
     }
 
-    public function updatedPostmeta($meta_id, $object_id, $meta_key, $meta_value)
+    public function acfSavePost($attachment_id)
     {
-        if($meta_key == '_wp_attachment_metadata' && wp_attachment_is_image($object_id)) {
-            $meta_value = maybe_unserialize($meta_value);
+        if(wp_attachment_is_image($attachment_id)) {
 
-            // On ne lance la traduction des attachements après la 1ère mise à jour des attachment_metadata
-            // Avant de lancer la traduction, on supprimer l'entrée "create" qui aindique que c'est la 1ère mise à jour
-            if(!empty($meta_value['create'])) {
-                output_log(['updated_postmeta']);
+            // Get ACF Fields (Author, Lat, Lng)
+            $fields = get_fields($attachment_id);
+            if (!empty($fields)) {
+                $source_lang = pll_get_post_language($attachment_id);
+                $translations = pll_get_post_translations($attachment_id);
 
-                unset($meta_value['create']);
-                wp_update_attachment_metadata($object_id, $meta_value);
+                foreach ($translations as $target_lang => $t_attachment_id) {
+                    if($target_lang != $source_lang) {
+                        foreach ($fields as $selector => $value) {
+                            if ($selector == 'media_linked_page') {
+                                continue;
+                            }
 
-                // Dupliquer l'image dans toutes les langues
-                $this->translateAttachment($object_id);
-
-                // Linked Video
-                $this->imageLinkedVideo($object_id);
-
-                // Cleanup
-                dropzone_delete('woody_attachments_unused_ids');
-            } else {
-                $source_lang = pll_get_post_language($object_id);
-                if($source_lang == PLL_DEFAULT_LANG) {
-
-                    $translations = pll_get_post_translations($object_id);
-                    foreach ($translations as $target_lang => $t_attachment_id) {
-                        if($target_lang != $source_lang) {
-                            output_log(['SYNC attachment_metadata', $object_id, $t_attachment_id, $source_lang, $target_lang]);
-                            wp_update_attachment_metadata($t_attachment_id, $meta_value);
+                            //output_log([' - update_field', $selector, $value, $t_attachment_id]);
+                            update_field($selector, $value, $t_attachment_id);
                         }
                     }
                 }
+            }
+
+            // Sync attachment taxonomies
+            $tags = [];
+            $sync_taxonomies = ['attachment_types', 'attachment_hashtags', 'attachment_categories'];
+            foreach ($sync_taxonomies as $taxonomy) {
+                $terms = wp_get_post_terms($attachment_id, $taxonomy);
+                wp_set_post_terms($t_attachment_id, $terms, $taxonomy, false);
+                //output_log([' - wp_set_post_terms', $t_attachment_id, $terms, $taxonomy]);
             }
         }
     }
@@ -132,7 +145,7 @@ class ImagesMetadata
 
             // Added flag to only translate on created
             $metadata['create'] = true;
-            output_log(['generateAttachmentMetadata', $metadata, $attachment_id, $context]);
+            //output_log(['generateAttachmentMetadata', $metadata, $attachment_id, $context]);
 
             // Updated fields
             $this->updateAttachmentFields($attachment_id);
@@ -143,7 +156,7 @@ class ImagesMetadata
 
     private function updateAttachmentFields($attachment_id)
     {
-        output_log(['updateAttachmentFields', $attachment_id]);
+        //output_log(['updateAttachmentFields', $attachment_id]);
         $file = get_attached_file($attachment_id);
         $meta = wp_read_image_metadata($file);
         $attachment = get_post($attachment_id);
@@ -169,11 +182,11 @@ class ImagesMetadata
         }
 
         // Set the image Alt-Text
-        output_log([' - addAttachment ALT', $attachment->post_excerpt]);
+        //output_log([' - addAttachment ALT', $attachment->post_excerpt]);
         update_post_meta($attachment_id, '_wp_attachment_image_alt', $attachment->post_excerpt);
 
         // Set the image meta (e.g. Title, Excerpt, Content)
-        output_log([' - addAttachment POST', $attachment->post_title]);
+        //output_log([' - addAttachment POST', $attachment->post_title]);
         wp_update_post([
             'ID' => $attachment_id,
             'post_title' => $attachment->post_title,
@@ -188,22 +201,22 @@ class ImagesMetadata
 
         // Set ACF Fields (Credit)
         if (!empty($meta['credit'])) {
-            output_log([' - addAttachment CREDIT', $meta['credit']]);
+            //output_log([' - addAttachment CREDIT', $meta['credit']]);
             update_field('media_author', $meta['credit'], $attachment_id);
         }
 
         if (!empty($meta['latitude'])) {
-            output_log([' - addAttachment LAT', $meta['latitude']]);
+            //output_log([' - addAttachment LAT', $meta['latitude']]);
             update_field('media_lat', $meta['latitude'], $attachment_id);
         }
 
         if (!empty($meta['longitude'])) {
-            output_log([' - addAttachment LONG', $meta['longitude']]);
+            //output_log([' - addAttachment LONG', $meta['longitude']]);
             update_field('media_lng', $meta['longitude'], $attachment_id);
         }
 
         // Import tags
-        output_log([' - addAttachment PLACES']);
+        //output_log([' - addAttachment PLACES']);
         if (!empty($meta['city']) || !empty($meta['state']) || !empty($meta['country']) || !empty($meta['keywords'])) {
             $terms_places = get_terms('places', ['hide_empty' => false]);
             foreach ($terms_places as $term_places) {
@@ -224,7 +237,7 @@ class ImagesMetadata
         }
 
         if (!empty($meta['keywords'])) {
-            output_log([' - addAttachment CAT']);
+            //output_log([' - addAttachment CAT']);
             $terms_attachment_categories = get_terms('attachment_categories', ['hide_empty' => false]);
             if (!empty($terms_attachment_categories)) {
                 foreach ($terms_attachment_categories as $term_attachment_categories) {
@@ -236,7 +249,7 @@ class ImagesMetadata
                 }
             }
 
-            output_log([' - addAttachment THEMES']);
+            //output_log([' - addAttachment THEMES']);
             $terms_themes = get_terms('themes', ['hide_empty' => false]);
             if (!empty($terms_themes)) {
                 foreach ($terms_themes as $term_themes) {
@@ -248,7 +261,7 @@ class ImagesMetadata
                 }
             }
 
-            output_log([' - addAttachment SEASONS']);
+            //output_log([' - addAttachment SEASONS']);
             $terms_seasons = get_terms('seasons', ['hide_empty' => false]);
             if (!empty($terms_seasons)) {
                 foreach ($terms_seasons as $term_seasons) {
@@ -262,20 +275,6 @@ class ImagesMetadata
         }
     }
 
-    public function attachmentFieldsToSave($post, $attachment)
-    {
-        if (!empty($post['ID'])) {
-            $this->saveAttachment($post['ID']);
-        }
-
-        return $post;
-    }
-
-    private function isNeverTranslate($attachment_id)
-    {
-        return (empty(pll_get_post_translations($attachment_id)));
-    }
-
     private function translateAttachment($attachment_id)
     {
         $translations = pll_get_post_translations($attachment_id);
@@ -284,10 +283,10 @@ class ImagesMetadata
         //output_log(['translateAttachment', $attachment_id, $source_lang, $translations]);
         $languages = pll_languages_list();
         foreach ($languages as $target_lang) {
-            // Duplicate media with Polylang Method
             if (!array_key_exists($target_lang, $translations) && $target_lang != $source_lang) {
-                output_log(['woody_pll_create_media_translation', $attachment_id, $source_lang, $target_lang]);
+                // Duplicate media with Polylang Method
                 woody_pll_create_media_translation($attachment_id, $source_lang, $target_lang);
+                //output_log(['woody_pll_create_media_translation', $attachment_id, $source_lang, $target_lang]);
             }
         }
     }
