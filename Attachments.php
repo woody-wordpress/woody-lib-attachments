@@ -81,6 +81,7 @@ final class Attachments extends Module
         //add_action('save_attachment', [$this->imagesMetadata, 'saveAttachment'], 10);
         add_action('updated_postmeta', [$this->imagesMetadata, 'updatedPostmeta'], 10, 4);
         add_filter('attachment_fields_to_save', [$this->imagesMetadata, 'attachmentFieldsToSave'], 12, 2); // Priority 12 ater polylang
+        add_filter('wp_generate_attachment_metadata', [$this->imagesMetadata, 'generateAttachmentMetadata'], 10, 2);
 
         // Pour créer l'inventaire des images
         add_action('save_post', [$this->attachmentsManager, 'savePost'], 10, 3);
