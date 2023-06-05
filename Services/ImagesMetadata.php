@@ -9,30 +9,6 @@ namespace Woody\Lib\Attachments\Services;
 
 class ImagesMetadata
 {
-    public function wpHandleUpload($array, $var)
-    {
-        // if ($array['type'] !== 'image/jpeg') {
-        //     //output_error('Color Fixer: Whoops, file is not image compatible');
-        //     return $array;
-        // }
-
-        // exec('which jpgicc 2>&1', $output, $result);
-        // if (empty($output)) {
-        //     output_error('Color Fixer: Whoops, jpgicc is not installed');
-        //     return $array;
-        // }
-
-        // try {
-        //     $path = $array['file'];
-        //     $target = pathinfo($path, PATHINFO_DIRNAME) . '/' . pathinfo($path, PATHINFO_FILENAME) . '_icc.' . pathinfo($path, PATHINFO_EXTENSION);
-        //     exec(sprintf('jpgicc -v %s %s && mv -f %s %s', $path, $target, $target, $path), $output, $result);
-        // } catch (Exception $exception) {
-        //     output_error('Color Fixer: Whoops, failed to convert image color space');
-        // }
-
-        return $array;
-    }
-
     public function acfSavePost($attachment_id)
     {
         $this->saveAttachment($attachment_id);
@@ -86,6 +62,9 @@ class ImagesMetadata
                 wp_set_post_terms($t_attachment_id, $terms, $taxonomy, false);
                 //output_log([' - wp_set_post_terms', $t_attachment_id, $terms, $taxonomy]);
             }
+
+            // Cleanup
+            dropzone_delete('woody_attachments_unused_ids');
         }
     }
 
@@ -105,12 +84,6 @@ class ImagesMetadata
 
                 // Dupliquer l'image dans toutes les langues
                 $this->translateAttachment($attachment_id);
-
-                // Linked Video
-                $this->imageLinkedVideo($attachment_id);
-
-                // Cleanup
-                dropzone_delete('woody_attachments_unused_ids');
             } else {
                 $source_lang = pll_get_post_language($attachment_id);
                 if($source_lang == PLL_DEFAULT_LANG) {
