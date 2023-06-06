@@ -34,12 +34,13 @@ class ImagesMetadata
                 wp_remove_object_terms($attachment_id, 'media_linked_video', 'attachment_types');
             }
 
+            // Get Translations
+            $source_lang = pll_get_post_language($attachment_id);
+            $translations = pll_get_post_translations($attachment_id);
+
             // Get ACF Fields (Author, Lat, Lng)
             $fields = get_fields($attachment_id);
             if (!empty($fields)) {
-                $source_lang = pll_get_post_language($attachment_id);
-                $translations = pll_get_post_translations($attachment_id);
-
                 foreach ($translations as $target_lang => $t_attachment_id) {
                     if($target_lang != $source_lang) {
                         foreach ($fields as $selector => $value) {
@@ -58,9 +59,13 @@ class ImagesMetadata
             $tags = [];
             $sync_taxonomies = ['attachment_types', 'attachment_hashtags', 'attachment_categories'];
             foreach ($sync_taxonomies as $taxonomy) {
-                $terms = wp_get_post_terms($attachment_id, $taxonomy);
-                wp_set_post_terms($t_attachment_id, $terms, $taxonomy, false);
-                //output_log([' - wp_set_post_terms', $t_attachment_id, $terms, $taxonomy]);
+                foreach ($translations as $target_lang => $t_attachment_id) {
+                    if($target_lang != $source_lang) {
+                        $terms = wp_get_post_terms($attachment_id, $taxonomy);
+                        wp_set_post_terms($t_attachment_id, $terms, $taxonomy, false);
+                        //output_log([' - wp_set_post_terms', $t_attachment_id, $terms, $taxonomy]);
+                    }
+                }
             }
 
             // Cleanup
