@@ -11,12 +11,16 @@ class ImagesMetadata
 {
     public function acfSavePost($attachment_id)
     {
+        // Pour une image le hook "save_post" n'est pas appelé mais le hook "acf/save_post" oui !
+        output_log(['acfSavePost', $attachment_id]);
         $this->saveAttachment($attachment_id);
     }
 
     public function addAttachment($attachment_id)
     {
         output_log(['addAttachment', $attachment_id]);
+
+        // On assigne par défaut ce tag à tout média ajouté manuellement
         wp_set_object_terms($attachment_id, 'Média ajouté manuellement', 'attachment_types', false);
     }
 
@@ -24,6 +28,9 @@ class ImagesMetadata
     {
         output_log(['saveAttachment', $attachment_id]);
         if(wp_attachment_is_image($attachment_id)) {
+
+            // On traduit l'image dans toutes les langues si ce n'est pas déjà fait
+            $this->translateAttachment($attachment_id);
 
             // Sync media_linked_video
             $attachment_terms = wp_get_post_terms($attachment_id, 'attachment_types', ['fields' => 'slugs' ]);
@@ -271,7 +278,14 @@ class ImagesMetadata
     private function translateAttachment($attachment_id)
     {
         $translations = pll_get_post_translations($attachment_id);
+
+        // Si le média n'a pas de langue car uploadé en mode "Afficher toutes les langues.
+        // On lui donne la langue par défaut
         $source_lang = pll_get_post_language($attachment_id);
+        if(empty($source_lang)) {
+            $source_lang = PLL_DEFAULT_LANG;
+            pll_set_post_language($attachment_id, $source_lang);
+        }
 
         output_log(['translateAttachment', $attachment_id, $source_lang, $translations]);
         $languages = pll_languages_list();
