@@ -13,7 +13,6 @@ class ImagesMetadata
     {
         // Pour une image le hook "save_post" n'est pas appelé mais le hook "acf/save_post" oui !
         // Nous pouvons donc lancer saveAttachment à la modification dans le back-office
-        // Cette sauvegarde
         $this->saveAttachment($attachment_id);
     }
 
@@ -28,7 +27,8 @@ class ImagesMetadata
         if(wp_attachment_is_image($attachment_id)) {
 
             // On traduit l'image dans toutes les langues si ce n'est pas déjà fait
-            $this->translateAttachment($attachment_id);
+            $source_lang = pll_get_post_language($attachment_id);
+            $translations = $this->translateAttachment($attachment_id);
 
             // Sync media_linked_video
             $attachment_terms = wp_get_post_terms($attachment_id, 'attachment_types', ['fields' => 'slugs' ]);
@@ -38,10 +38,6 @@ class ImagesMetadata
             } elseif (empty(get_field('media_linked_video', $attachment_id)) && in_array('media_linked_video', $attachment_terms)) {
                 wp_remove_object_terms($attachment_id, 'media_linked_video', 'attachment_types');
             }
-
-            // Get Translations
-            $source_lang = pll_get_post_language($attachment_id);
-            $translations = pll_get_post_translations($attachment_id);
 
             // Get ACF Fields (Author, Lat, Lng)
             $fields = get_fields($attachment_id);
@@ -283,10 +279,11 @@ class ImagesMetadata
         foreach ($languages as $target_lang) {
             if (!array_key_exists($target_lang, $translations) && $target_lang != $source_lang) {
                 // Duplicate media with Polylang Method
-                woody_pll_create_media_translation($attachment_id, $source_lang, $target_lang);
-
+                $translations[$target_lang] = woody_pll_create_media_translation($attachment_id, $source_lang, $target_lang);
             }
         }
+
+        return $translations;
     }
 
     private function imageLinkedVideo($attachment_id)
