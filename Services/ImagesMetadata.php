@@ -325,6 +325,8 @@ class ImagesMetadata
                 $meta['title'] = $meta['description'];
             } elseif(!empty($meta['caption'])) {
                 $meta['title'] = $meta['caption'];
+            } else {
+                $meta['title'] = ucwords(strtolower(preg_replace('#\s*[-_\s]+\s*#', ' ', pathinfo(basename($file), PATHINFO_FILENAME))));
             }
         }
 
@@ -351,7 +353,7 @@ class ImagesMetadata
             $meta['copyright'] = $meta['credit'];
         }
 
-        //output_log(['readImageMetadata_meta', $meta]);
+        //output_log(['readImageMetadata', $meta]);
         return $meta;
     }
 
