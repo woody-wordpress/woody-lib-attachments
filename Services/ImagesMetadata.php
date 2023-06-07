@@ -13,22 +13,37 @@ class ImagesMetadata
     {
         // Pour une image le hook "save_post" n'est pas appelé mais le hook "acf/save_post" oui !
         // Nous pouvons donc lancer saveAttachment à la modification dans le back-office
+        output_log(['acfSavePost']);
         $this->saveAttachment($attachment_id);
     }
 
     public function addAttachment($attachment_id)
     {
         // On assigne par défaut ce tag à tout média ajouté manuellement
+        output_log(['addAttachment']);
         wp_set_object_terms($attachment_id, 'Média ajouté manuellement', 'attachment_types', false);
     }
 
     public function saveAttachment($attachment_id)
     {
         if(wp_attachment_is_image($attachment_id)) {
+            output_log(['saveAttachment', $attachment_id]);
 
             // On traduit l'image dans toutes les langues si ce n'est pas déjà fait
+            $this->translateAttachment($attachment_id);
+
+            // Sync Fields and Terms
+            $this->syncAttachment($attachment_id);
+        }
+    }
+
+    public function syncAttachment($attachment_id)
+    {
+        if(wp_attachment_is_image($attachment_id)) {
+            output_log(['syncAttachment', $attachment_id]);
+
+            $translations = pll_get_post_translations($attachment_id);
             $source_lang = pll_get_post_language($attachment_id);
-            $translations = $this->translateAttachment($attachment_id);
 
             // Sync media_linked_video
             $attachment_terms = wp_get_post_terms($attachment_id, 'attachment_types', ['fields' => 'slugs' ]);
@@ -45,12 +60,10 @@ class ImagesMetadata
                 foreach ($translations as $target_lang => $t_attachment_id) {
                     if($target_lang != $source_lang) {
                         foreach ($fields as $selector => $value) {
-                            if ($selector == 'media_linked_page') {
-                                continue;
+                            if ($selector != 'media_linked_page') {
+                                update_field($selector, $value, $t_attachment_id);
                             }
 
-
-                            update_field($selector, $value, $t_attachment_id);
                         }
                     }
                 }
@@ -76,26 +89,33 @@ class ImagesMetadata
 
     public function updatedPostmeta($meta_id, $attachment_id, $meta_key, $meta_value)
     {
+        global $wpdb;
         if($meta_key == '_wp_attachment_metadata' && wp_attachment_is_image($attachment_id)) {
-
-            $meta_value = maybe_unserialize($meta_value);
 
             // On ne lance la traduction des attachements après la 1ère mise à jour des attachment_metadata
             // Avant de lancer la traduction, on supprime l'entrée "create" qui indique que c'est la 1ère mise à jour
+            $meta_value = maybe_unserialize($meta_value);
             if(!empty($meta_value['create'])) {
+                output_log(['updatedPostmeta CREATE', $meta_id, $attachment_id, $meta_key, $meta_value]);
+
+                // On supprime le flag "create" avant de lancer la trad, il ne faut pas que les traductions aient cette entrée
+                // Sinon on repasse dans ce hook en boucle
+                // On fait ça avec une requête sinon on repasse dans ce hook pour rien
                 unset($meta_value['create']);
-                wp_update_attachment_metadata($attachment_id, $meta_value);
+                $wpdb->update($wpdb->postmeta, ['meta_value' => maybe_serialize($meta_value)], ['meta_id' => $meta_id]);
+                wp_cache_delete($attachment_id, 'post_meta');
 
                 // Dupliquer l'image dans toutes les langues
                 $this->translateAttachment($attachment_id);
             } else {
+                output_log(['updatedPostmeta UPDATE', $meta_id, $attachment_id, $meta_key, $meta_value]);
+
+                // Si les attachment_metadata sont modifiées sur la langue par défaut, on met à jour les trads
                 $source_lang = pll_get_post_language($attachment_id);
                 if($source_lang == PLL_DEFAULT_LANG) {
-
                     $translations = pll_get_post_translations($attachment_id);
                     foreach ($translations as $target_lang => $t_attachment_id) {
                         if($target_lang != $source_lang) {
-
                             wp_update_attachment_metadata($t_attachment_id, $meta_value);
                         }
                     }
@@ -107,11 +127,14 @@ class ImagesMetadata
     public function generateAttachmentMetadata($metadata, $attachment_id, $context)
     {
         if (wp_attachment_is_image($attachment_id) && $context == 'create' && empty($metadata['sizes'])) {
+            output_log(['generateAttachmentMetadata', $metadata, $attachment_id, $context]);
+
             // Crop API
             global $_wp_additional_image_sizes;
             $_wp_additional_image_sizes['thumbnail'] = ['height' => 150, 'width' => 150, 'crop' => true];
             $_wp_additional_image_sizes['medium'] = ['height' => 300, 'width' => 300, 'crop' => true];
             $_wp_additional_image_sizes['large'] = ['height' => 1024, 'width' => 1024, 'crop' => true];
+
             // Get Mime-Type
             $mime_type = mime_content_type(WP_UPLOAD_DIR . '/' . $metadata['file']);
             foreach ($_wp_additional_image_sizes as $ratio => $size) {
@@ -138,16 +161,17 @@ class ImagesMetadata
             // Added flag to only translate on created
             $metadata['create'] = true;
 
-
             // Updated fields
             $this->updateAttachmentFields($attachment_id);
         }
 
+        //output_log(['-', 'generateAttachmentMetadata', $metadata]);
         return $metadata;
     }
 
     private function updateAttachmentFields($attachment_id)
     {
+        output_log(['updateAttachmentFields', $attachment_id]);
         $file = get_attached_file($attachment_id);
         $meta = wp_read_image_metadata($file);
         $attachment = get_post($attachment_id);
@@ -265,6 +289,7 @@ class ImagesMetadata
 
     private function translateAttachment($attachment_id)
     {
+        output_log(['translateAttachment', $attachment_id]);
         $translations = pll_get_post_translations($attachment_id);
 
         // Si le média n'a pas de langue car uploadé en mode "Afficher toutes les langues.
@@ -282,8 +307,6 @@ class ImagesMetadata
                 $translations[$target_lang] = woody_pll_create_media_translation($attachment_id, $source_lang, $target_lang);
             }
         }
-
-        return $translations;
     }
 
     private function imageLinkedVideo($attachment_id)

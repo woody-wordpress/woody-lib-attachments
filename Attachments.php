@@ -80,6 +80,10 @@ final class Attachments extends Module
         add_action('add_attachment', [$this->imagesMetadata, 'addAttachment'], 10);
         add_action('updated_postmeta', [$this->imagesMetadata, 'updatedPostmeta'], 10, 4);
 
+        // Custom Hooks
+        add_action('woody_save_attachment', [$this->imagesMetadata, 'saveAttachment'], 10);
+        add_action('woody_sync_attachment', [$this->imagesMetadata, 'syncAttachment'], 10);
+
         // Pour créer l'inventaire des images
         add_action('save_post', [$this->attachmentsManager, 'savePost'], 10, 3);
         add_action('acf/save_post', [$this->imagesMetadata, 'acfSavePost'], 10, 3);
