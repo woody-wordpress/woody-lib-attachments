@@ -12,6 +12,8 @@ class ImagesMetadata
     public function acfSavePost($attachment_id)
     {
         // Pour une image le hook "save_post" n'est pas appelé mais le hook "acf/save_post" oui !
+        // Nous pouvons donc lancer saveAttachment à la modification dans le back-office
+        // Cette sauvegarde
         output_log(['acfSavePost', $attachment_id]);
         $this->saveAttachment($attachment_id);
     }
