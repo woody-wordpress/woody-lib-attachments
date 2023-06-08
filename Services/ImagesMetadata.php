@@ -69,19 +69,6 @@ class ImagesMetadata
                 }
             }
 
-            // Sync attachment taxonomies
-            $tags = [];
-            $sync_taxonomies = ['attachment_types', 'attachment_hashtags', 'attachment_categories'];
-            foreach ($sync_taxonomies as $taxonomy) {
-                foreach ($translations as $target_lang => $t_attachment_id) {
-                    if($target_lang != $source_lang) {
-                        $terms = wp_get_post_terms($attachment_id, $taxonomy);
-                        wp_set_post_terms($t_attachment_id, $terms, $taxonomy, false);
-
-                    }
-                }
-            }
-
             // Cleanup
             dropzone_delete('woody_attachments_unused_ids');
         }
