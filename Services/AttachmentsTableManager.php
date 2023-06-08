@@ -65,12 +65,13 @@ class AttachmentsTableManager
                 try {
                     $data = json_decode(file_get_contents($file_path), true, 512, JSON_THROW_ON_ERROR);
                     $this->getMatchingFields($data['fields']);
-                    return array_unique($this->image_fields);
                 } catch (JsonException $e) {
                     output_error(sprintf('[getAttachmentsFieldNames] %s', $file_path));
                 }
             }
         }
+
+        return array_unique($this->image_fields);
     }
 
     private function getMatchingFields($fields)
