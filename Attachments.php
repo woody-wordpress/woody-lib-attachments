@@ -36,7 +36,7 @@ final class Attachments extends Module
 
     public function initialize(ParameterManager $parameterManager, Container $container)
     {
-        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.4.3');
+        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.5.0');
         define('WOODY_LIB_ATTACHMENTS_ROOT', __FILE__);
         define('WOODY_LIB_ATTACHMENTS_DIR_ROOT', dirname(WOODY_LIB_ATTACHMENTS_ROOT));
         define('WOODY_LIB_ATTACHMENTS_DIR_RESOURCES', WOODY_LIB_ATTACHMENTS_DIR_ROOT . '/Resources');
@@ -71,15 +71,22 @@ final class Attachments extends Module
 
         // DB actions
         add_action('woody_theme_update', [$this->attachmentsTableManager, 'upgrade'], 10);
+        add_action('woody_theme_update', [$this, 'woodyInsertTerms']);
 
         // Scripts and styles
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
 
-        add_action('woody_theme_update', [$this, 'woodyInsertTerms']);
-        add_action('add_attachment', [$this->attachmentsManager, 'addAttachment'], 50);
-        add_action('save_attachment', [$this->attachmentsManager, 'saveAttachment'], 50);
+        // Hooks on save and update
+        add_action('add_attachment', [$this->imagesMetadata, 'addAttachment'], 10);
+        add_action('updated_postmeta', [$this->imagesMetadata, 'updatedPostmeta'], 10, 4);
 
+        // Custom Hooks
+        add_action('woody_save_attachment', [$this->imagesMetadata, 'saveAttachment'], 10);
+        add_action('woody_sync_attachment', [$this->imagesMetadata, 'syncAttachment'], 10);
+
+        // Pour créer l'inventaire des images
         add_action('save_post', [$this->attachmentsManager, 'savePost'], 10, 3);
+        add_action('acf/save_post', [$this->imagesMetadata, 'acfSavePost'], 10, 3);
 
         //TODO: Lors de la suppression d'une langue on doit supprimer tous ses attachments pour éviter qu'ils ne passent dans la langue par défaut
         // TODO: Pour cela on passe par une commande CLI et on ne veut surtout pas supprimer les traductions des médias supprimés
@@ -87,11 +94,10 @@ final class Attachments extends Module
 
         // Woody filters
         add_filter('timber_render', [$this->attachmentsManager, 'timberRender'], 1);
-        add_filter('attachment_fields_to_save', [$this->attachmentsManager, 'attachmentFieldsToSave'], 12, 2); // Priority 12 ater polylang
 
         // Images metadata reading/setting
-        add_filter('wp_read_image_metadata', [$this->imagesMetadata, 'readImageMetadata'], 10, 4);
-        add_filter('wp_generate_attachment_metadata', [$this->imagesMetadata, 'generateAttachmentMetadata'], 10, 2);
+        add_filter('wp_read_image_metadata', [$this->imagesMetadata, 'readImageMetadata'], 10, 5);
+        add_filter('wp_generate_attachment_metadata', [$this->imagesMetadata, 'generateAttachmentMetadata'], 10, 3);
 
         // WP Native settings
         add_filter('wp_image_editors', [$this->attachmentsWpSettings, 'wpImageEditors']);
@@ -102,7 +108,7 @@ final class Attachments extends Module
         add_filter('big_image_size_threshold', '__return_false'); // Désactive la duplication  de photo (filename-scaled.jpg) depuis WP 5.3
         add_filter('wp_handle_upload_overrides', [$this->attachmentsWpSettings, 'handleOverridesForGeoJSON'], 10, 2);
         add_filter('sanitize_file_name_chars', [$this->attachmentsWpSettings, 'restrictFilenameSpecialChars'], 10, 1);
-        add_filter('wp_handle_upload', [$this->imagesMetadata, 'wpHandleUpload'], 100, 2);
+        add_filter('wp_handle_upload', [$this->attachmentsManager, 'wpHandleUpload'], 100, 2);
 
         // API
         add_action('rest_api_init', function () {
