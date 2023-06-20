@@ -128,4 +128,27 @@ class AttachmentsManager
             $query->set('orderby', 'meta_value');
         }
     }
+
+    function filterRoadbookPro( $where, $query )
+    {
+        if(isset( $query->query_vars['post_type'] ) && 'attachment' == $query->query_vars['post_type'] && $query->query['attachment_types'] == 0) {
+            if( '' != $where )
+            {
+                $where .= "AND (wp_term_relationships.object_id NOT IN (SELECT DISTINCT object_id FROM wp_term_relationships
+                WHERE term_taxonomy_id IN (SELECT term_taxonomy_id FROM wp_term_taxonomy
+                            INNER JOIN wp_terms
+                            ON wp_terms.term_id = wp_term_taxonomy.term_id
+                            WHERE wp_terms.slug LIKE 'roadbook%')))";
+            }
+            else
+            {
+                $where .= " (wp_term_relationships.object_id NOT IN (SELECT DISTINCT object_id FROM wp_term_relationships
+                WHERE term_taxonomy_id IN (SELECT term_taxonomy_id FROM wp_term_taxonomy
+                            INNER JOIN wp_terms
+                            ON wp_terms.term_id = wp_term_taxonomy.term_id
+                            WHERE wp_terms.slug LIKE 'roadbook%')))";
+            }
+        }
+        return $where;
+    }
 }
