@@ -99,30 +99,41 @@ class AttachmentsUnused
 
         global $wpdb;
 
-        // Retourne les identifiants sérialisés des toutes les traductions de tous les attachements qui sont dans la table woody_attachments
-        $req_str = "SELECT tt.description
-        FROM {$wpdb->prefix}terms AS t
-        INNER JOIN {$wpdb->prefix}term_taxonomy AS tt
-        ON t.term_id = tt.term_id
-        WHERE t.term_id IN (SELECT DISTINCT t.term_id
-        FROM {$wpdb->prefix}terms AS t
-        INNER JOIN {$wpdb->prefix}term_taxonomy AS tt
-        ON t.term_id = tt.term_id
-        INNER JOIN {$wpdb->prefix}term_relationships AS tr
-        ON tr.term_taxonomy_id = tt.term_taxonomy_id
-        WHERE tt.taxonomy IN ('post_translations')
-        AND tr.object_id IN (SELECT attachment_id FROM {$wpdb->prefix}woody_attachments)
-        ORDER BY t.name ASC)";
+        $langs = pll_languages_list();
 
-        $results = $wpdb->get_results($wpdb->prepare($req_str));
+        if(is_countable($langs) && count($langs) > 1) {
+            // Retourne les identifiants sérialisés des toutes les traductions de tous les attachements qui sont dans la table woody_attachments
+            $req_str = "SELECT tt.description
+            FROM {$wpdb->prefix}terms AS t
+            INNER JOIN {$wpdb->prefix}term_taxonomy AS tt
+            ON t.term_id = tt.term_id
+            WHERE t.term_id IN (SELECT DISTINCT t.term_id
+            FROM {$wpdb->prefix}terms AS t
+            INNER JOIN {$wpdb->prefix}term_taxonomy AS tt
+            ON t.term_id = tt.term_id
+            INNER JOIN {$wpdb->prefix}term_relationships AS tr
+            ON tr.term_taxonomy_id = tt.term_taxonomy_id
+            WHERE tt.taxonomy IN ('post_translations')
+            AND tr.object_id IN (SELECT attachment_id FROM {$wpdb->prefix}woody_attachments)
+            ORDER BY t.name ASC)";
 
-        if (!empty($results)) {
-            foreach ($results as $result) {
-                $unserialized_ids = maybe_unserialize($result->description);
-                if (!empty($unserialized_ids)) {
-                    foreach ($unserialized_ids as $id) {
-                        $ids[] = $id;
+            $results = $wpdb->get_results($wpdb->prepare($req_str));
+
+            if (!empty($results)) {
+                foreach ($results as $result) {
+                    $unserialized_ids = maybe_unserialize($result->description);
+                    if (!empty($unserialized_ids)) {
+                        foreach ($unserialized_ids as $id) {
+                            $ids[] = $id;
+                        }
                     }
+                }
+            }
+        } else {
+            $results = $wpdb->get_results($wpdb->prepare("SELECT attachment_id FROM {$wpdb->prefix}woody_attachments"));
+            if(!empty($results)) {
+                foreach($results as $result) {
+                    $ids[] = $result->attachment_id;
                 }
             }
         }
