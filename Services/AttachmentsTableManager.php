@@ -185,10 +185,20 @@ class AttachmentsTableManager
                                 }
 
                                 if (!empty($tab['light_section_content']) && is_array($tab['light_section_content'])) {
-                                    foreach (array_keys($tab['light_section_content']) as $tab_layout_key) {
+                                    foreach ($tab['light_section_content'] as $tab_layout_key => $tab_layout) {
                                         $tabs_content_values = $this->getFieldsValues($field_names, $post_id, 'section_' . $section_key . '_section_content_' . $layout_key . '_tabs_' . $tab_key . '_light_section_content_' . $tab_layout_key);
                                         if (is_array($tabs_content_values)) {
                                             $attachments_ids = array_merge($tabs_content_values, $attachments_ids);
+                                        }
+                                        if ($tab_layout['acf_fc_layout'] == 'manual_focus' && !empty($tab_layout['content_selection']) && is_array($tab_layout['content_selection'])) {
+                                            foreach ($tab_layout['content_selection'] as $content_selection_key => $content_selection) {
+                                                if ($content_selection['content_selection_type'] === 'custom_content') {
+                                                    $content_selection_values = $this->getFieldsValues($field_names, $post_id, 'section_' . $section_key . '_section_content_' . $layout_key . '_tabs_' . $tab_key . '_light_section_content_' . $tab_layout_key . '_content_selection_' . $content_selection_key . '_custom_content');
+                                                    if (is_array($content_selection_values)) {
+                                                        $attachments_ids = array_merge($content_selection_values, $attachments_ids);
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
