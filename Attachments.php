@@ -151,9 +151,6 @@ final class Attachments extends Module
         add_action('manage_media_custom_column', [$this->attachmentsManager, 'woodyExpiredMediaFillColumn'], 10, 2);
         add_filter('manage_upload_sortable_columns', [$this->attachmentsManager, 'woodyExpiredMediaSortColumn']);
         add_action('pre_get_posts', [$this->attachmentsManager, 'woodyExpiredMediaSortRule']);
-
-        // Filter image
-        add_filter( 'posts_where',[$this->attachmentsManager, 'filterRoadbookPro'], 10, 2);
     }
 
     public function injectTimberLocation($locations)
