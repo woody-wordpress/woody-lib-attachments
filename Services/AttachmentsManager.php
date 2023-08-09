@@ -11,22 +11,28 @@ class AttachmentsManager
 {
     public function deleteAttachment($attachment_id)
     {
-        remove_action('delete_attachment', [$this, 'deleteAttachment']);
+        // Lors de la suppression d'une langue on doit supprimer tous ses attachments pour éviter qu'ils ne passent dans la langue par défaut
+        // Pour cela on passe par une commande CLI et on ne veut surtout pas supprimer les traductions des médias supprimés
+        if(defined('WP_CLI')) {
+            output_success(sprintf('WP_CLI is defined. Keep attachment %s translations', $attachment_id));
+        } else {
+            remove_action('delete_attachment', [$this, 'deleteAttachment']);
 
-        $deleted_attachement = wp_cache_get('woody_deleted_attachement', 'woody');
-        if (empty($deleted_attachement)) {
-            $deleted_attachement = [];
-        }
+            $deleted_attachement = wp_cache_get('woody_deleted_attachement', 'woody');
+            if (empty($deleted_attachement)) {
+                $deleted_attachement = [];
+            }
 
-        if (wp_attachment_is_image($attachment_id) && is_array($deleted_attachement) && !in_array($attachment_id, $deleted_attachement)) {
-            // Remove translations
-            $translations = pll_get_post_translations($attachment_id);
-            $deleted_attachement = array_merge($deleted_attachement, array_values($translations));
-            wp_cache_set('woody_deleted_attachement', $deleted_attachement, 'woody');
+            if (wp_attachment_is_image($attachment_id) && is_array($deleted_attachement) && !in_array($attachment_id, $deleted_attachement)) {
+                // Remove translations
+                $translations = pll_get_post_translations($attachment_id);
+                $deleted_attachement = array_merge($deleted_attachement, array_values($translations));
+                wp_cache_set('woody_deleted_attachement', $deleted_attachement, 'woody');
 
-            foreach ($translations as $t_attachment_id) {
-                if ($t_attachment_id != $attachment_id) {
-                    wp_delete_attachment($t_attachment_id);
+                foreach ($translations as $t_attachment_id) {
+                    if ($t_attachment_id != $attachment_id) {
+                        wp_delete_attachment($t_attachment_id);
+                    }
                 }
             }
         }

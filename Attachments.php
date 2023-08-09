@@ -36,7 +36,7 @@ final class Attachments extends Module
 
     public function initialize(ParameterManager $parameterManager, Container $container)
     {
-        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.5.2');
+        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.6.0');
         define('WOODY_LIB_ATTACHMENTS_ROOT', __FILE__);
         define('WOODY_LIB_ATTACHMENTS_DIR_ROOT', dirname(WOODY_LIB_ATTACHMENTS_ROOT));
         define('WOODY_LIB_ATTACHMENTS_DIR_RESOURCES', WOODY_LIB_ATTACHMENTS_DIR_ROOT . '/Resources');
@@ -88,8 +88,6 @@ final class Attachments extends Module
         add_action('save_post', [$this->attachmentsManager, 'savePost'], 10, 3);
         add_action('acf/save_post', [$this->imagesMetadata, 'acfSavePost'], 10, 3);
 
-        //TODO: Lors de la suppression d'une langue on doit supprimer tous ses attachments pour éviter qu'ils ne passent dans la langue par défaut
-        // TODO: Pour cela on passe par une commande CLI et on ne veut surtout pas supprimer les traductions des médias supprimés
         add_action('delete_attachment', [$this->attachmentsManager, 'deleteAttachment'], 1);
 
         // Woody filters
