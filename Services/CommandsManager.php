@@ -52,4 +52,52 @@ class CommandsManager
             output_h1($i . ' async created');
         }
     }
+
+    public function deleteByLang($assoc_args)
+    {
+        if(empty($assoc_args['lang'])) {
+            output_error('Merci de spécifier la langue dans laquelle supprimer les médias');
+            return;
+        }
+
+        define('KEEP_ATTACHMENTS_TRANSLATION', true);
+
+        $count_posts = 0;
+        $atts_ids = [];
+        $offset = 0;
+        $query = $this->attachmentsQuery($assoc_args['lang'], $offset);
+
+        if (!empty($query)) {
+            while ($count_posts < $query->found_posts) {
+                $count_posts += $query->post_count;
+                $atts_ids = array_merge($atts_ids, $query->posts);
+                $offset += $query->post_count;
+                $query = $this->attachmentsQuery($assoc_args['lang'], $offset);
+            }
+        }
+
+        output_h1(sprintf('Resquest is done. Found %s attachments to delete', $count_posts));
+
+        if(!empty($atts_ids)) {
+            foreach ($atts_ids as $att_id) {
+                wp_delete_post($att_id, true);
+            }
+        }
+    }
+
+    private function attachmentsQuery($lang, $offset)
+    {
+        if(empty($lang)) {
+            return;
+        }
+
+        return new \WP_Query([
+            'post_type' => 'attachment',
+            'post_status' => 'inherit',
+            'lang' => $lang,
+            'posts_per_page' => 500,
+            'fields' => 'ids',
+            'offset' => $offset
+        ]);
+    }
 }
