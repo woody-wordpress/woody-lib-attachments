@@ -28,6 +28,11 @@ class AttachmentsCommands
         $this->commandManager->warm($args, $assoc_args);
     }
 
+    public function delete_by_lang($args, $assoc_args)
+    {
+        $this->commandManager->deleteByLang($assoc_args);
+    }
+
     public function clean_exports($args, $assoc_args)
     {
         $this->attachmentsDataExport->deleteMediaExportFiles($assoc_args);

@@ -13,8 +13,8 @@ class AttachmentsManager
     {
         // Lors de la suppression d'une langue on doit supprimer tous ses attachments pour éviter qu'ils ne passent dans la langue par défaut
         // Pour cela on passe par une commande CLI et on ne veut surtout pas supprimer les traductions des médias supprimés
-        if(defined('WP_CLI')) {
-            output_success(sprintf('WP_CLI is defined. Keep attachment %s translations', $attachment_id));
+        if(defined('KEEP_ATTACHMENTS_TRANSLATION')) {
+            output_success(sprintf('KEEP_ATTACHMENTS_TRANSLATION is defined. Keep attachment %s translations', $attachment_id));
         } else {
             remove_action('delete_attachment', [$this, 'deleteAttachment']);
 
