@@ -125,6 +125,10 @@ final class Attachments extends Module
                 'callback' => [$this->attachmentsApi, 'replacePostsMeta'],
                 'permission_callback' => fn () => current_user_can('edit_posts')
             ));
+            register_rest_route('woody', 'movie/(?P<post_id>\d+)', array(
+                'methods' => 'GET',
+                'callback' => [$this->attachmentsApi, 'getMovie']
+            ));
         });
 
         //Woody Actions
