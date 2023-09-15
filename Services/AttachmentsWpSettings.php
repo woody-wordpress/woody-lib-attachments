@@ -63,6 +63,7 @@ class AttachmentsWpSettings
 
     public function uploadMimes($mime_types)
     {
+        $mime_types['eml'] = 'message/rfc822';
         $mime_types['gpx'] = 'text/xml';
         $mime_types['kml'] = 'text/xml';
         $mime_types['kmz'] = 'text/xml';
