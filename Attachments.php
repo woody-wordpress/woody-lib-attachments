@@ -36,7 +36,7 @@ final class Attachments extends Module
 
     public function initialize(ParameterManager $parameterManager, Container $container)
     {
-        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.6.2');
+        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.6.3');
         define('WOODY_LIB_ATTACHMENTS_ROOT', __FILE__);
         define('WOODY_LIB_ATTACHMENTS_DIR_ROOT', dirname(WOODY_LIB_ATTACHMENTS_ROOT));
         define('WOODY_LIB_ATTACHMENTS_DIR_RESOURCES', WOODY_LIB_ATTACHMENTS_DIR_ROOT . '/Resources');
@@ -124,6 +124,10 @@ final class Attachments extends Module
                 'methods' => 'GET',
                 'callback' => [$this->attachmentsApi, 'replacePostsMeta'],
                 'permission_callback' => fn () => current_user_can('edit_posts')
+            ));
+            register_rest_route('woody', 'movie/(?P<post_id>\d+)', array(
+                'methods' => 'GET',
+                'callback' => [$this->attachmentsApi, 'getMovie']
             ));
         });
 

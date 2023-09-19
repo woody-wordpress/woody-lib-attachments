@@ -156,4 +156,27 @@ class AttachmentsApi
         dropzone_delete('woody_attachments_unused_ids');
         wp_send_json($deleted);
     }
+
+    public function getMovie($req)
+    {
+        $post_id = $req['post_id'];
+        if(empty($post_id)) {
+            return new \WP_REST_Response(['error' => 'Missing post_id parameter.'], 404);
+        }
+
+        $mime_type = get_post_mime_type($post_id);
+
+        if(empty($mime_type) || strpos($mime_type, 'video') === false) {
+            return new \WP_REST_Response(['error' => sprintf('Post %s isn\'t a movie', $post_id)], 404);
+        }
+
+        $return = [
+            'media_details' => [
+                'mime_type' => $mime_type
+            ],
+            'source_url' => wp_get_attachment_url($post_id)
+        ];
+
+        return $return;
+    }
 }
