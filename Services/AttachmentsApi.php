@@ -22,20 +22,19 @@ class AttachmentsApi
     {
         $return = [];
         $taxs = ['themes', 'places', 'seasons'];
-        foreach ($taxs as $tax) {
-            $terms = get_terms([
-                'taxonomy' => $tax,
-                'hide_empty' => false,
-                'lang' => PLL_DEFAULT_LANG
-            ]);
 
-            foreach ($terms as $term) {
-                if (!is_wp_error($term)) {
-                    $return[$tax][] = [
-                        'id' => $term->term_id,
-                        'name' => $term->name
-                    ];
-                }
+        if (!function_exists('wp_terms_checklist')) {
+            include ABSPATH . 'wp-admin/includes/template.php';
+
+            foreach ($taxs as $tax_key => $tax) {
+                $return[$tax] = wp_terms_checklist(
+                    0,
+                    array(
+                        'taxonomy' => $tax,
+                        'checked_ontop' => false,
+                        'echo' => false
+                    )
+                );
             }
         }
 
