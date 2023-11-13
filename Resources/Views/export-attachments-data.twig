@@ -23,15 +23,15 @@
                 <label for="audio_types">Audios</label>
             </div>
             <div class="radio-wrapper">
-                <input class="mimetype-radio" type="radio" id="all_types" name="mimetype" value="all" >
+                <input class="mimetype-radio" type="radio" id="all_types" name="mimetype" value="all">
                 <label for="all_types">Tous les médias</label>
             </div>
         </div>
 
         <h3>Langues</h3>
         <p class="desc">Si vous vous choisissez toutes les langues, les données des images apparaîtront autant de fois que vous avez de langues sur le site</br>
-        Dans le cas d'un export d'images, nous vous conseillons de n'exporter que la langue par défaut du site</br>
-        Pour les autres types de médias, nous vous conseillons un export dans toutes les langues</p>
+            Dans le cas d'un export d'images, nous vous conseillons de n'exporter que la langue par défaut du site</br>
+            Pour les autres types de médias, nous vous conseillons un export dans toutes les langues</p>
         <div class="form-input flex-container">
             <div class="radio-wrapper">
                 <input class="language-radio" type="radio" id="language_default" name="request_language" value="language_default" checked>
@@ -81,22 +81,26 @@
                 <input class="field-checkbox" type="checkbox" id="export_field_lng" name="export_field_lng" value="media_lng" checked>
                 <label for="export_field_lng">Longitude</label>
             </div>
+            <div class="checkbox-wrapper">
+                <input class="field-checkbox" type="checkbox" id="export_field_expired" name="export_field_expired" value="attachment_expire" checked>
+                <label for="export_field_expire">Date d'expiration</label>
+            </div>
         </div>
         <div class="flex-container submit-container">
-        <input type="submit" id="submit_export" class="button button-primary" value="Exporter les données des médias"></input>
-        <strong></small>NB : La création du fichier prend entre 10 et 15 minutes et sa durée de vie est de 24h</small></strong>
+            <input type="submit" id="submit_export" class="button button-primary" value="Exporter les données des médias"></input>
+            <strong></small>NB : La création du fichier prend entre 10 et 15 minutes et sa durée de vie est de 24h</small></strong>
         </div>
     </form>
     <div class="download-files">
         <h2>Fichiers disponibles au téléchargement</h2>
         <div class="files-wrapper">
-        {% if files %}
-            <ul class="files">
-                {% for file in files %}
-                    <li>Exporté le {{ file.created|default }} : <a href="{{ file.url }}" tagret="_blank">{{ file.name }}</a></li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+            {% if files %}
+                <ul class="files">
+                    {% for file in files %}
+                        <li>Exporté le {{ file.created|default }} : <a href="{{ file.url }}" tagret="_blank">{{ file.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
     </div>
 </div>

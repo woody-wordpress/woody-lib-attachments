@@ -160,7 +160,7 @@ class AttachmentsDataExport
     {
         $return = [];
         $post_fields = ['ID', 'post_name', 'post_title', 'post_excerpt'];
-        $acf_fields = ['media_author', 'medias_rights_management', 'media_lat', 'media_lng'];
+        $acf_fields = ['media_author', 'medias_rights_management', 'media_lat', 'media_lng', 'attachment_expire'];
 
         if (!empty($posts)) {
             foreach ($posts as $post) {
