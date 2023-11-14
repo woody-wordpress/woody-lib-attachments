@@ -40,6 +40,10 @@ class AttachmentsDataExport
             );
         }
 
+        // Champs de cochables dans le BO
+        $data['export_fields'] = $this->defineExportFields();
+        $data['export_fields'] = array_merge($data['export_fields']['post_fields'], $data['export_fields']['acf_fields']);
+
         // On récupère la liste  des fichiers d'export encore valides pour afficher les liens de téléchargement
         $data['files'] = dropzone_get('woody_export_attachments_files');
         if (!empty($data['files'])) {
@@ -75,6 +79,7 @@ class AttachmentsDataExport
 
     public function attachmentsDoExport($args)
     {
+        output_log('lancement de la fonction', '');
         output_h1('Do attachments export');
         if ($args['request_args'] && $args['fields']) {
             // On récupère tous les attachments en fonctions des arguments passés(mimetype, lang)
@@ -82,6 +87,7 @@ class AttachmentsDataExport
             $count_posts = 0;
             output_h2('Requesting attachments');
             $query = $this->attachmentsQuery($args['request_args']);
+            output_log($query, 'query');
             output_log(sprintf('0/%s ', $query->found_posts));
 
             // Tant que l'on a pas récupéré la totalité des attachments correspondant à la requête ($query->found_posts),
@@ -98,8 +104,10 @@ class AttachmentsDataExport
 
             // Une fois les attachments récupérés, on convertit le tableau en un fichier csv que l'on stocke dans les uploads du site initiateur
             if (!empty($attachments)) {
+                output_log('there is attachments', '');
                 $time = time();
                 $filespath = $this->arrayToCsv($attachments, $time);
+                output_log($filespath, 'lien du fichier');
                 if ($filespath) {
                     // On réucpère la liste des fichiers existants pour la mettre à jour.
                     // Cette liste nous servira à afficher les liens de téléchargement
@@ -159,8 +167,9 @@ class AttachmentsDataExport
     public function getAttachmentsData($posts, $fields)
     {
         $return = [];
-        $post_fields = ['ID', 'post_name', 'post_title', 'post_excerpt'];
-        $acf_fields = ['media_author', 'medias_rights_management', 'media_lat', 'media_lng', 'attachment_expire'];
+        $custom_fields = $this->defineExportFields();
+        $post_fields = $custom_fields['post_fields'];
+        $acf_fields = $custom_fields['acf_fields'];
 
         if (!empty($posts)) {
             foreach ($posts as $post) {
@@ -238,5 +247,58 @@ class AttachmentsDataExport
         } else {
             dropzone_set('woody_export_attachments_files', $files);
         }
+    }
+
+    public function defineExportFields() {
+        $return = [
+            'post_fields' => [
+                    'ID' => [
+                    'name' => 'id',
+                    'label' => 'Identifiant'
+                ],
+                'post_name' => [
+                    'name' => 'name',
+                    'label' => 'Nom du média'
+                ],
+                'post_title' => [
+                    'name' => 'title',
+                    'label' => 'Titre du média'
+                ],
+                'post_url' => [
+                    'name' => 'url',
+                    'label' => 'Url du fichier'
+                ],
+                'post_excerpt' => [
+                    'name' => 'caption',
+                    'label' => 'Légende'
+                ]
+            ],
+            'acf_fields' => [
+                'media_author' => [
+                    'name' => 'author',
+                    'label' => 'Auteur'
+                ],
+                'medias_rights_management' => [
+                    'name' => 'rights',
+                    'label' => 'Gestion des droits'
+                ],
+                'media_lat' => [
+                    'name' => 'lat',
+                    'label' => 'Latitude'
+                ],
+                'media_lng' => [
+                    'name' => 'lng',
+                    'label' => 'Longitude'
+                ],
+                'attachment_expire' => [
+                    'name' => 'expired',
+                    'label' => 'Date d\'expiration'
+                ]
+            ],
+        ];
+
+        $return = apply_filters('woody_attachments_define_export_datas', $return);
+
+        return $return;
     }
 }
