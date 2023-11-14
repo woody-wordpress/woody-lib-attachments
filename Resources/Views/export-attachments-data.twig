@@ -46,10 +46,10 @@
         <h3>Champs à faire apparaître dans l'export</h3>
         <div class="form-input flex-container">
             {% if export_fields %}
-                {% for field in export_fields %}
+                {% for value, field in export_fields %}
                     <div class="checkbox-wrapper">
-                        <input class="field-checkbox" type="checkbox" id="export_field_{{ field.name }}" name="export_field_{{ field.name }}" value="{{ field.value }}" checked>
-                        <label for="export_field_expire">{{ field.label }}</label>
+                        <input class="field-checkbox" type="checkbox" id="export_field_{{ field.name }}" name="export_field_{{ field.name }}" value="{{ value }}" checked>
+                        <label for="export_field_{{ field.name }}">{{ field.label }}</label>
                     </div>
                 {% endfor %}
             {% endif %}
