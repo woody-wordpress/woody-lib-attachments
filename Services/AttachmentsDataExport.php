@@ -40,6 +40,10 @@ class AttachmentsDataExport
             );
         }
 
+        // Champs de cochables dans le BO
+        $data['export_fields'] = $this->defineExportFields();
+        $data['export_fields'] = array_merge($data['export_fields']['post_fields'], $data['export_fields']['acf_fields']);
+
         // On récupère la liste  des fichiers d'export encore valides pour afficher les liens de téléchargement
         $data['files'] = dropzone_get('woody_export_attachments_files');
         if (!empty($data['files'])) {
@@ -159,20 +163,21 @@ class AttachmentsDataExport
     public function getAttachmentsData($posts, $fields)
     {
         $return = [];
-        $post_fields = ['ID', 'post_name', 'post_title', 'post_excerpt'];
-        $acf_fields = ['media_author', 'medias_rights_management', 'media_lat', 'media_lng'];
+        $custom_fields = $this->defineExportFields();
+        $post_fields = $custom_fields['post_fields'];
+        $acf_fields = $custom_fields['acf_fields'];
 
-        if (!empty($posts)) {
+        if (!empty($fields)) {
             foreach ($posts as $post) {
-                foreach ($post_fields as $post_field) {
-                    if (in_array($post_field, $fields)) {
-                        $return[$post->ID][$post_field] = $post->{$post_field};
+                foreach ($post_fields as $key => $post_field) {
+                    if (in_array($key, $fields)) {
+                        $return[$post->ID][$key] = $post->{$key};
                     }
                 }
 
-                foreach ($acf_fields as $acf_field) {
-                    if (in_array($acf_field, $fields)) {
-                        $return[$post->ID][$acf_field] = get_field($acf_field, $post->ID);
+                foreach ($acf_fields as $key => $acf_field) {
+                    if (in_array($key, $fields)) {
+                        $return[$post->ID][$key] = get_field($key, $post->ID);
                     }
                 }
 
@@ -238,5 +243,58 @@ class AttachmentsDataExport
         } else {
             dropzone_set('woody_export_attachments_files', $files);
         }
+    }
+
+    public function defineExportFields() {
+        $return = [
+            'post_fields' => [
+                    'ID' => [
+                    'name' => 'id',
+                    'label' => 'Identifiant'
+                ],
+                'post_name' => [
+                    'name' => 'name',
+                    'label' => 'Nom du média'
+                ],
+                'post_title' => [
+                    'name' => 'title',
+                    'label' => 'Titre du média'
+                ],
+                'post_url' => [
+                    'name' => 'url',
+                    'label' => 'Url du fichier'
+                ],
+                'post_excerpt' => [
+                    'name' => 'caption',
+                    'label' => 'Légende'
+                ]
+            ],
+            'acf_fields' => [
+                'media_author' => [
+                    'name' => 'author',
+                    'label' => 'Auteur'
+                ],
+                'medias_rights_management' => [
+                    'name' => 'rights',
+                    'label' => 'Gestion des droits'
+                ],
+                'media_lat' => [
+                    'name' => 'lat',
+                    'label' => 'Latitude'
+                ],
+                'media_lng' => [
+                    'name' => 'lng',
+                    'label' => 'Longitude'
+                ],
+                'attachment_expire' => [
+                    'name' => 'expired',
+                    'label' => 'Date d\'expiration'
+                ]
+            ],
+        ];
+
+        $return = apply_filters('woody_attachments_define_export_datas', $return);
+
+        return $return;
     }
 }

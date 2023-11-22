@@ -23,15 +23,15 @@
                 <label for="audio_types">Audios</label>
             </div>
             <div class="radio-wrapper">
-                <input class="mimetype-radio" type="radio" id="all_types" name="mimetype" value="all" >
+                <input class="mimetype-radio" type="radio" id="all_types" name="mimetype" value="all">
                 <label for="all_types">Tous les médias</label>
             </div>
         </div>
 
         <h3>Langues</h3>
         <p class="desc">Si vous vous choisissez toutes les langues, les données des images apparaîtront autant de fois que vous avez de langues sur le site</br>
-        Dans le cas d'un export d'images, nous vous conseillons de n'exporter que la langue par défaut du site</br>
-        Pour les autres types de médias, nous vous conseillons un export dans toutes les langues</p>
+            Dans le cas d'un export d'images, nous vous conseillons de n'exporter que la langue par défaut du site</br>
+            Pour les autres types de médias, nous vous conseillons un export dans toutes les langues</p>
         <div class="form-input flex-container">
             <div class="radio-wrapper">
                 <input class="language-radio" type="radio" id="language_default" name="request_language" value="language_default" checked>
@@ -45,58 +45,30 @@
 
         <h3>Champs à faire apparaître dans l'export</h3>
         <div class="form-input flex-container">
-            <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="export_field_id" name="export_field_id" value="ID" checked>
-                <label for="export_field_id">Identifiant</label>
-            </div>
-            <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="export_field_name" name="export_field_name" value="post_name" checked>
-                <label for="export_field_name">Nom du média</label>
-            </div>
-            <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="export_field_title" name="export_field_title" value="post_title" checked>
-                <label for="export_field_title">Titre du média</label>
-            </div>
-            <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="export_field_url" name="export_field_url" value="url" checked>
-                <label for="export_field_url">Url du fichier</label>
-            </div>
-            <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="export_field_caption" name="export_field_caption" value="post_excerpt" checked>
-                <label for="export_field_caption">Légende</label>
-            </div>
-            <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="export_field_author" name="export_field_author" value="media_author" checked>
-                <label for="export_field_author">Auteur</label>
-            </div>
-            <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="export_field_rights" name="export_field_rights" value="medias_rights_management" checked>
-                <label for="export_field_rights">Gestion des droits</label>
-            </div>
-            <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="export_field_lat" name="export_field_lat" value="media_lat" checked>
-                <label for="export_field_lat">Latitude</label>
-            </div>
-            <div class="checkbox-wrapper">
-                <input class="field-checkbox" type="checkbox" id="export_field_lng" name="export_field_lng" value="media_lng" checked>
-                <label for="export_field_lng">Longitude</label>
-            </div>
+            {% if export_fields %}
+                {% for value, field in export_fields %}
+                    <div class="checkbox-wrapper">
+                        <input class="field-checkbox" type="checkbox" id="export_field_{{ field.name }}" name="export_field_{{ field.name }}" value="{{ value }}" checked>
+                        <label for="export_field_{{ field.name }}">{{ field.label }}</label>
+                    </div>
+                {% endfor %}
+            {% endif %}
         </div>
         <div class="flex-container submit-container">
-        <input type="submit" id="submit_export" class="button button-primary" value="Exporter les données des médias"></input>
-        <strong></small>NB : La création du fichier prend entre 10 et 15 minutes et sa durée de vie est de 24h</small></strong>
+            <input type="submit" id="submit_export" class="button button-primary" value="Exporter les données des médias"></input>
+            <strong></small>NB : La création du fichier prend entre 10 et 15 minutes et sa durée de vie est de 24h</small></strong>
         </div>
     </form>
     <div class="download-files">
         <h2>Fichiers disponibles au téléchargement</h2>
         <div class="files-wrapper">
-        {% if files %}
-            <ul class="files">
-                {% for file in files %}
-                    <li>Exporté le {{ file.created|default }} : <a href="{{ file.url }}" tagret="_blank">{{ file.name }}</a></li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+            {% if files %}
+                <ul class="files">
+                    {% for file in files %}
+                        <li>Exporté le {{ file.created|default }} : <a href="{{ file.url }}" tagret="_blank">{{ file.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
     </div>
 </div>
