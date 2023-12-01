@@ -65,7 +65,9 @@
             {% if files %}
                 <ul class="files">
                     {% for file in files %}
-                        <li>Exporté le {{ file.created|default }} : <a href="{{ file.url }}" tagret="_blank">{{ file.name }}</a></li>
+                        {% if file %}
+                            <li>Exporté le {{ file.created|default }} : <a href="{{ file.url }}" tagret="_blank">{{ file.name }}</a></li>
+                        {% endif %}
                     {% endfor %}
                 </ul>
             {% endif %}
