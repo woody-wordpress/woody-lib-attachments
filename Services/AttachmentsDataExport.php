@@ -50,11 +50,11 @@ class AttachmentsDataExport
             date_default_timezone_set(WOODY_TIMEZONE);
             foreach ($data['files'] as $file_key => $file) {
                 if (!empty($file)) {
-                    if ($file['timestamp']) {
+                    if (!empty($file['timestamp'])) {
                         $data['files'][$file_key]['created'] = date('d/m à H:i', $file['timestamp']);
                     }
 
-                    if ($file['path']) {
+                    if (!empty($file['path'])) {
                         $data['files'][$file_key]['url'] = str_replace('/home/admin/www/wordpress/current/web', home_url(), $file['path']);
                         $data['files'][$file_key]['name'] = str_replace(sprintf('/home/admin/www/wordpress/current/web/app/uploads/%s/', WP_SITE_KEY), '', $file['path']);
                     }
