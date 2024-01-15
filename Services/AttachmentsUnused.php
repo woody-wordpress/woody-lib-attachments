@@ -30,7 +30,7 @@ class AttachmentsUnused
             foreach ($_POST as $id_key => $id) {
                 if (strpos($id_key, 'cb-select-') === 0) {
                     $delete_ids[] = $id;
-                    update_post_meta($id, 'woody_attachment_deleting', true, );
+                    update_post_meta($id, 'woody_attachment_deleting', true);
                 }
             }
         }
