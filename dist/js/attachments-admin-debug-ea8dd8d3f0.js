@@ -1,6 +1,6 @@
 if (!!document.getElementById('wp-media-grid')) {
 
-    function getGridsAttachments () {
+    function getGridsAttachments() {
         let attachmentsIntval = setInterval(() => {
             let attachments = document.querySelectorAll('.attachments-browser .attachments .attachment');
             if (attachments.length > 0) {
@@ -20,7 +20,7 @@ if (!!document.getElementById('wp-media-grid')) {
         }, 200);
     }
 
-    function createTermsButton () {
+    function createTermsButton() {
         let existingButton = document.getElementById('setTermsButton');
         if (!existingButton) {
             let toolBar = document.querySelector('.media-frame-toolbar .media-toolbar-secondary');
@@ -36,7 +36,7 @@ if (!!document.getElementById('wp-media-grid')) {
         }
     }
 
-    function bindSecondaryToolbarButtons () {
+    function bindSecondaryToolbarButtons() {
         let toolBarSecondaryButtons = document.querySelectorAll('.media-frame-toolbar .media-toolbar-secondary .button');
         if (toolBarSecondaryButtons.length > 0) {
             toolBarSecondaryButtons.forEach(button => {
@@ -49,19 +49,19 @@ if (!!document.getElementById('wp-media-grid')) {
         }
     }
 
-    function removeTermsButton () {
+    function removeTermsButton() {
         let termsButton = document.getElementById('setTermsButton');
         if (termsButton) {
             termsButton.remove();
         }
     }
 
-    function displayTermsForm () {
+    function displayTermsForm() {
         let exitstingForm = document.getElementById('attachmentsAddTerms');
         if (!exitstingForm) {
             termsForm = document.createElement('div');
             termsForm.setAttribute('id', 'attachmentsAddTerms');
-            termsForm.innerHTML = '<div class="choices"><div><p>Thématiques</p><ul class="themes" id="terms-list"></ul></div><div><p>Lieux</p><ul class="places" id="terms-list"></ul></div><div><p>Saisons</p><ul class="seasons" id="terms-list"></ul></div></div><div class="actions"><button class="button button-primary apply">Valider</button><button class=" button close">Annuler</button></div>';
+            termsForm.innerHTML = '<div class="choices"><div><p>Thématiques</p><ul class="themes" id="terms-list"></ul></div><div><p>Lieux</p><ul class="places" id="terms-list"></ul></div><div><p>Circonstances</p><ul class="seasons" id="terms-list"></ul></div></div><div class="actions"><button class="button button-primary apply">Valider</button><button class=" button close">Annuler</button></div>';
 
             getAttachmentsTerms(termsForm);
         } else {
@@ -69,7 +69,7 @@ if (!!document.getElementById('wp-media-grid')) {
         }
     }
 
-    function getAttachmentsTerms (termsForm) {
+    function getAttachmentsTerms(termsForm) {
 
         var customHeaders = new Headers();
         customHeaders.append('X-WP-Nonce', wpApiSettings.nonce);
@@ -101,7 +101,7 @@ if (!!document.getElementById('wp-media-grid')) {
     }
 
 
-    function bindTermsFormActions (termsForm, checkboxes) {
+    function bindTermsFormActions(termsForm, checkboxes) {
         termsForm.querySelector('.button.close').addEventListener('click', () => {
             termsForm.classList.add('hidden');
             checkboxes.forEach(element => {
@@ -114,7 +114,7 @@ if (!!document.getElementById('wp-media-grid')) {
         });
     }
 
-    function setPostTerms (checkboxes) {
+    function setPostTerms(checkboxes) {
         let attach_ids = [];
         let terms_ids = [];
         let selectedAttachments = document.querySelectorAll('.attachments-browser .attachments .attachment.selected');
@@ -150,7 +150,7 @@ if (!!document.getElementById('wp-media-grid')) {
             });
     }
 
-    function bindLoadMoreButton () {
+    function bindLoadMoreButton() {
         let loadMoreIntval = setInterval(() => {
             let loadMoreWrapper = document.querySelector('.load-more-wrapper');
             if (!!loadMoreWrapper) {
