@@ -92,6 +92,7 @@ class CommandsManager
                 $postmeta_req_str = sprintf("DELETE FROM {$wpdb->prefix}postmeta WHERE {$wpdb->prefix}postmeta.post_id=%s", $att_id);
                 $wpdb->query($wpdb->prepare($post_req_str));
                 $wpdb->query($wpdb->prepare($postmeta_req_str));
+                clean_post_cache($att_id);
             }
         }
     }
