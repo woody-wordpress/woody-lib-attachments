@@ -55,6 +55,8 @@ class CommandsManager
 
     public function deleteByLang($assoc_args)
     {
+        global $wpdb;
+
         if(empty($assoc_args['lang'])) {
             output_error('Merci de spécifier la langue dans laquelle supprimer les médias');
             return;
@@ -65,7 +67,12 @@ class CommandsManager
         $count_posts = 0;
         $atts_ids = [];
         $offset = 0;
-        $query = $this->attachmentsQuery($assoc_args['lang'], $offset);
+
+        if(!empty($assoc_args['ids'])) {
+            $atts_ids = explode(',', $assoc_args['ids']);
+        } else {
+            $query = $this->attachmentsQuery($assoc_args['lang'], $offset);
+        }
 
         if (!empty($query)) {
             while ($count_posts < $query->found_posts) {
@@ -80,7 +87,11 @@ class CommandsManager
 
         if(!empty($atts_ids)) {
             foreach ($atts_ids as $att_id) {
-                wp_delete_post($att_id, true);
+                // On ne veut pas passer par les actions WordPress, on supprime directement en BDD
+                $post_req_str = sprintf("DELETE FROM {$wpdb->prefix}posts WHERE {$wpdb->prefix}posts.ID=%s", $att_id);
+                $postmeta_req_str = sprintf("DELETE FROM {$wpdb->prefix}postmeta WHERE {$wpdb->prefix}postmeta.post_id=%s", $att_id);
+                $wpdb->query($wpdb->prepare($post_req_str));
+                $wpdb->query($wpdb->prepare($postmeta_req_str));
             }
         }
     }
