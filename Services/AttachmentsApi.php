@@ -21,7 +21,7 @@ class AttachmentsApi
     public function getAttachmentTerms()
     {
         $return = [];
-        $taxs = ['themes', 'places', 'seasons'];
+        $taxs = ['themes', 'places', 'seasons', 'targets'];
 
         if (!function_exists('wp_terms_checklist')) {
             include ABSPATH . 'wp-admin/includes/template.php';

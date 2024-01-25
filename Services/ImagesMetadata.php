@@ -265,6 +265,17 @@ class ImagesMetadata
                     }
                 }
             }
+
+            $terms_targets = get_terms('targets', ['hide_empty' => false]);
+            if (!empty($terms_targets)) {
+                foreach ($terms_targets as $term_targets) {
+                    foreach ($meta['keywords'] as $keyword) {
+                        if (sanitize_title($keyword) == $term_targets->slug) {
+                            wp_set_object_terms($attachment_id, $term_targets->slug, 'targets', true);
+                        }
+                    }
+                }
+            }
         }
     }
 

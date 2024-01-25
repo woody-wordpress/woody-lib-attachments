@@ -61,7 +61,7 @@ if (!!document.getElementById('wp-media-grid')) {
         if (!exitstingForm) {
             termsForm = document.createElement('div');
             termsForm.setAttribute('id', 'attachmentsAddTerms');
-            termsForm.innerHTML = '<div class="choices"><div><p>Thématiques</p><ul class="themes" id="terms-list"></ul></div><div><p>Lieux</p><ul class="places" id="terms-list"></ul></div><div><p>Circonstances</p><ul class="seasons" id="terms-list"></ul></div></div><div class="actions"><button class="button button-primary apply">Valider</button><button class=" button close">Annuler</button></div>';
+            termsForm.innerHTML = '<div class="choices"><div><p>Thématiques</p><ul class="themes" id="terms-list"></ul></div><div><p>Lieux</p><ul class="places" id="terms-list"></ul></div><div><p>Circonstances</p><ul class="seasons" id="terms-list"></ul></div><div><p>Cibles</p><ul class="targets" id="terms-list"></ul></div></div><div class="actions"><button class="button button-primary apply">Valider</button><button class=" button close">Annuler</button></div>';
 
             getAttachmentsTerms(termsForm);
         } else {
