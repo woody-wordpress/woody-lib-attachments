@@ -55,8 +55,8 @@ class AttachmentsDataExport
                     }
 
                     if (!empty($file['path'])) {
-                        $data['files'][$file_key]['url'] = str_replace('/home/admin/www/wordpress/current/web', home_url(), $file['path']);
-                        $data['files'][$file_key]['name'] = str_replace(sprintf('/home/admin/www/wordpress/current/web/app/uploads/%s/', WP_SITE_KEY), '', $file['path']);
+                        $data['files'][$file_key]['url'] = str_replace(WP_WEBROOT_DIR, home_url(), $file['path']);
+                        $data['files'][$file_key]['name'] = str_replace(sprintf('%s/app/uploads/%s/', WP_WEBROOT_DIR, WP_SITE_KEY), '', $file['path']);
                     }
                 }
             }
@@ -247,7 +247,8 @@ class AttachmentsDataExport
         }
     }
 
-    public function defineExportFields() {
+    public function defineExportFields()
+    {
         $return = [
             'post_fields' => [
                     'ID' => [
