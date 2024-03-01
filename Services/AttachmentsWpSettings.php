@@ -70,6 +70,7 @@ class AttachmentsWpSettings
         $mime_types['xliff'] = 'text/xml';
         $mime_types['json'] = 'text/plain';
         $mime_types['geojson'] = 'text/plain';
+        $mime_types['webp'] = 'image/webp';
 
         return $mime_types;
     }
