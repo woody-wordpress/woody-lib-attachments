@@ -7,6 +7,9 @@
         "watch": "gulp watch",
         "build": "gulp build"
     },
+    "engines": {
+        "node": "^10"
+    },
     "devDependencies": {
         "del": "^4.1.0",
         "gulp": "^4.0.0",
