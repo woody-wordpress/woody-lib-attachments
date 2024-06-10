@@ -74,30 +74,35 @@ if (!!document.getElementById('wp-media-grid')) {
         var customHeaders = new Headers();
         customHeaders.append('X-WP-Nonce', wpApiSettings.nonce);
 
-        fetch('/wp-json/woody/attachments/terms/get', {
-            headers: customHeaders
-        })
-            .then(response => response.json())
-            .then(taxs => {
-                if (!!taxs) {
-                    for (let key in taxs) {
-                        let taxList = termsForm.querySelector('.' + key);
+        const bodyClassesList = document.body.classList;
+        const parsedClassLang = [...bodyClassesList].filter(bodyClass => bodyClass.includes('pll-lang-'));
+        if (parsedClassLang && parsedClassLang[0]) {
+            const currentAdminLang = parsedClassLang[0] ? parsedClassLang[0].split('-')[2] : 'fr';
+            fetch(`/wp-json/woody/attachments/terms/get?lang=${currentAdminLang}`, {
+                headers: customHeaders
+            })
+                .then(response => response.json())
+                .then(taxs => {
+                    if (!!taxs) {
+                        for (let key in taxs) {
+                            let taxList = termsForm.querySelector('.' + key);
 
-                        if (taxList !== null) {
-                            taxList.innerHTML = taxs[key];
+                            if (taxList !== null) {
+                                taxList.innerHTML = taxs[key];
+                            }
+                        }
+
+                        document.getElementById('wpbody-content').append(termsForm);
+                        let checkboxes = termsForm.querySelectorAll('input[type="checkbox"]');
+                        if (checkboxes.length > 0) {
+                            bindTermsFormActions(termsForm, checkboxes);
                         }
                     }
-
-                    document.getElementById('wpbody-content').append(termsForm);
-                    let checkboxes = termsForm.querySelectorAll('input[type="checkbox"]');
-                    if (checkboxes.length > 0) {
-                        bindTermsFormActions(termsForm, checkboxes);
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Attachments terms fetch: ' + error);
-            });
+                })
+                .catch(error => {
+                    console.error('Attachments terms fetch: ' + error);
+                });
+        }
     }
 
 
