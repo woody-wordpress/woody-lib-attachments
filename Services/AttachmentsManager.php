@@ -69,7 +69,7 @@ class AttachmentsManager
 
     public function savePost($post_id, $post, $update)
     {
-        $exclude = ['attachment', 'touristic_sheet', 'short_link', 'revision'];
+        $exclude = ['attachment', 'touristic_sheet', 'youbook_product', 'short_link', 'revision'];
 
         if (!empty('post') && !in_array($post->post_type, $exclude)) {
             do_action('woody_async_add', 'get_attachments_by_post', ['post_id' => $post_id], 'post_' . $post_id, true);
