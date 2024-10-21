@@ -9,6 +9,9 @@ namespace Woody\Lib\Attachments\Services;
 
 class ImagesMetadata
 {
+
+    const WOODY_MEDIA_TERM_SLUG_MEDIA_ADDED_MANUALLY = 'media-ajoute-manuellement';
+
     public function acfSavePost($attachment_id)
     {
         // Pour une image le hook "save_post" n'est pas appelé mais le hook "acf/save_post" oui !
@@ -19,9 +22,18 @@ class ImagesMetadata
 
     public function addAttachment($attachment_id)
     {
-        // On assigne par défaut ce tag à tout média ajouté manuellement
-        //output_log(['addAttachment']);
-        wp_set_object_terms($attachment_id, 'Média ajouté manuellement', 'attachment_types', false);
+        // On assigne par défaut ce tag à tout média ajouté manuellement (s'il n'existe pas on le crée)
+        // NOTE : ce terme est utilisé notamment pour trier les médias dans le BO
+        $term = get_term_by('slug', self::WOODY_MEDIA_TERM_SLUG_MEDIA_ADDED_MANUALLY, 'attachment_types');
+        if (!$term) {
+            $inserted_term = wp_insert_term('Média ajouté manuellement', 'attachment_types', [
+                'slug' => self::WOODY_MEDIA_TERM_SLUG_MEDIA_ADDED_MANUALLY
+            ]);
+            if (\is_wp_error($inserted_term)) {
+                output_error($inserted_term->get_error_message());
+            }
+        }
+        wp_set_object_terms($attachment_id, self::WOODY_MEDIA_TERM_SLUG_MEDIA_ADDED_MANUALLY, 'attachment_types', false);
     }
 
     public function saveAttachment($attachment_id)
