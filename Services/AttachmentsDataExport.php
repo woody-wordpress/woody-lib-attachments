@@ -42,7 +42,7 @@ class AttachmentsDataExport
 
         // Champs de cochables dans le BO
         $data['export_fields'] = $this->defineExportFields();
-        $data['export_fields'] = array_merge($data['export_fields']['post_fields'], $data['export_fields']['acf_fields']);
+        $data['export_fields'] = array_merge($data['export_fields']['post_fields'], $data['export_fields']['acf_fields'], $data['export_fields']['custom_fields']);
 
         // On récupère la liste  des fichiers d'export encore valides pour afficher les liens de téléchargement
         $data['files'] = dropzone_get('woody_export_attachments_files');
@@ -251,7 +251,7 @@ class AttachmentsDataExport
     {
         $return = [
             'post_fields' => [
-                    'ID' => [
+                'ID' => [
                     'name' => 'id',
                     'label' => 'Identifiant'
                 ],
@@ -294,6 +294,12 @@ class AttachmentsDataExport
                     'label' => 'Date d\'expiration'
                 ]
             ],
+            'custom_fields' => [
+                'filesize' => [
+                    'name' => 'filesize',
+                    'label' => 'Taille du fichier'
+                ]
+            ]
         ];
 
         $return = apply_filters('woody_attachments_define_export_datas', $return);
