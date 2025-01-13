@@ -148,7 +148,7 @@ final class Attachments extends Module
         // add_action('woody_delete_medias_export_files', [$this->attachmentsDataExport, 'deleteMediaExportFiles']);
         // add_action('attachments_do_export', [$this->attachmentsDataExport, 'attachmentsDoExport']);
 
-        // DataFlow
+        // DataFlow (Export attachments data replace)
         add_action('woody_dataflow_admin_init', [$this->attachmentsDataFlow, 'adminInit'], 10);
         add_action('admin_menu', [$this->attachmentsDataFlow, 'generateMenu'], 10);
         add_filter('attachments_dataflow_export', [$this->attachmentsDataFlow, 'export'], 10, 2);
