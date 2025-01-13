@@ -46,15 +46,14 @@ class Services
                     ['service' => 'attachments.table.manager']
                 ]
             ],
-            'attachments.data.export' => [
-                'class'     => \Woody\Lib\Attachments\Services\AttachmentsDataExport::class,
+            'attachments.dataflow' => [
+                'class'     => \Woody\Lib\Attachments\Services\AttachmentsDataFlow::class,
                 'arguments' => []
             ],
             'attachments.commands' => [
                 'class'     => \Woody\Lib\Attachments\Commands\AttachmentsCommands::class,
                 'arguments' => [
-                    ['service' => 'attachments.command.manager'],
-                    ['service' => 'attachments.data.export']
+                    ['service' => 'attachments.command.manager']
                 ]
             ],
             'attachments.unused' => [

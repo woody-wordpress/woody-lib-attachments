@@ -42,7 +42,7 @@ class AttachmentsDataExport
 
         // Champs de cochables dans le BO
         $data['export_fields'] = $this->defineExportFields();
-        $data['export_fields'] = array_merge($data['export_fields']['post_fields'], $data['export_fields']['acf_fields']);
+        $data['export_fields'] = array_merge($data['export_fields']['post_fields'], $data['export_fields']['acf_fields'], $data['export_fields']['custom_fields']);
 
         // On récupère la liste  des fichiers d'export encore valides pour afficher les liens de téléchargement
         $data['files'] = dropzone_get('woody_export_attachments_files');
@@ -165,12 +165,16 @@ class AttachmentsDataExport
     public function getAttachmentsData($posts, $fields)
     {
         $return = [];
-        $custom_fields = $this->defineExportFields();
-        $post_fields = $custom_fields['post_fields'];
-        $acf_fields = $custom_fields['acf_fields'];
+        $export_fields = $this->defineExportFields();
+        $post_fields = $export_fields['post_fields'];
+        $acf_fields = $export_fields['acf_fields'];
+        $custom_fields = $export_fields['custom_fields'];
 
         if (!empty($fields)) {
             foreach ($posts as $post) {
+
+                $file_path = get_attached_file($post->ID);
+
                 foreach ($post_fields as $key => $post_field) {
                     if (in_array($key, $fields)) {
                         $return[$post->ID][$key] = $post->{$key};
@@ -184,7 +188,13 @@ class AttachmentsDataExport
                 }
 
                 if (in_array('url', $fields)) {
-                    $return[$post->ID]['path'] = home_url() . str_replace('/home/admin/www/wordpress/current/web', '', get_attached_file($post->ID));
+                    $return[$post->ID]['path'] = home_url() . str_replace('/home/admin/www/wordpress/current/web', '', $file_path);
+                }
+
+                if (in_array('filesize', $fields)) {
+                    if (file_exists($file_path)) {
+                        $return[$post->ID]['filesize'] = filesize($file_path);
+                    }
                 }
             }
         }
@@ -251,7 +261,7 @@ class AttachmentsDataExport
     {
         $return = [
             'post_fields' => [
-                    'ID' => [
+                'ID' => [
                     'name' => 'id',
                     'label' => 'Identifiant'
                 ],
@@ -294,6 +304,12 @@ class AttachmentsDataExport
                     'label' => 'Date d\'expiration'
                 ]
             ],
+            'custom_fields' => [
+                'filesize' => [
+                    'name' => 'filesize',
+                    'label' => 'Taille du fichier'
+                ]
+            ]
         ];
 
         $return = apply_filters('woody_attachments_define_export_datas', $return);
