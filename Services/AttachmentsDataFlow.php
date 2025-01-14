@@ -305,7 +305,7 @@ class AttachmentsDataFlow
                         if ($name === 'url') {
                             $field_value = home_url() . str_replace('/home/admin/www/wordpress/current/web', '', $file_path);
                         } else if ($name === 'filesize') {
-                            $field_value = $this->humanFileSize(filesize($file_path));
+                            $field_value = $this->humanFileSize(filesize($file_path), "MB");
                         }
                     }
 
