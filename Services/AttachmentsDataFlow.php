@@ -198,7 +198,7 @@ class AttachmentsDataFlow
 
         // On récupère la définition des champs demandés
         $requested_export_fields = $this->filterExportFields($data['export_fields']);
-        output_h1('Do attachments export - requested_export_fields : ' . var_export($requested_export_fields, true));
+        // output_h1('Do attachments export - requested_export_fields : ' . var_export($requested_export_fields, true));
 
         // On récupère tous les attachments en fonctions des arguments passés(mimetype, lang)
         $attachments = [];
@@ -305,7 +305,7 @@ class AttachmentsDataFlow
                         if ($name === 'url') {
                             $field_value = home_url() . str_replace('/home/admin/www/wordpress/current/web', '', $file_path);
                         } else if ($name === 'filesize') {
-                            $field_value = filesize($file_path);
+                            $field_value = $this->humanFileSize(filesize($file_path));
                         }
                     }
 
@@ -315,5 +315,21 @@ class AttachmentsDataFlow
         }
 
         return $return;
+    }
+
+    private function humanFileSize($size, $unit = "") {
+        if (!$size) {
+            return "";
+        }
+        if( (!$unit && $size >= 1<<30) || $unit == "GB") {
+            return number_format($size/(1<<30),2)."GB";
+        }
+        if( (!$unit && $size >= 1<<20) || $unit == "MB") {
+            return number_format($size/(1<<20),2)."MB";
+        }
+        if( (!$unit && $size >= 1<<10) || $unit == "KB") {
+            return number_format($size/(1<<10),2)."KB";
+        }
+        return number_format($size)." bytes";
     }
 }
