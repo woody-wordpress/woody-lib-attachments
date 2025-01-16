@@ -11,14 +11,14 @@ class AttachmentsUnused
 {
     public function generateUnusedList()
     {
-        add_submenu_page(
-            'upload.php',
-            'Liste des médias inutilisés',
-            'Médias inutilisés',
-            'edit_posts',
-            'woody-unused-attachments',
-            [$this, 'unusedMediaList']
-        );
+        // add_submenu_page(
+        //     'upload.php',
+        //     'Liste des médias inutilisés',
+        //     'Médias inutilisés',
+        //     'edit_posts',
+        //     'woody-unused-attachments',
+        //     [$this, 'unusedMediaList']
+        // );
     }
 
 
