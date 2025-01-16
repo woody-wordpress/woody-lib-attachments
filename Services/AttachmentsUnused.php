@@ -11,16 +11,19 @@ class AttachmentsUnused
 {
     public function generateUnusedList()
     {
-        // add_submenu_page(
-        //     'upload.php',
-        //     'Liste des médias inutilisés',
-        //     'Médias inutilisés',
-        //     'edit_posts',
-        //     'woody-unused-attachments',
-        //     [$this, 'unusedMediaList']
-        // );
+        // Temporaire en attendant de debug les médias inutilisés -> on le rend dispo que pour les admins
+        $current_user = wp_get_current_user();
+        if (user_can( $current_user, 'administrator' )) {
+            add_submenu_page(
+                'upload.php',
+                'Liste des médias inutilisés',
+                'Médias inutilisés',
+                'edit_posts',
+                'woody-unused-attachments',
+                [$this, 'unusedMediaList']
+            );
+        }
     }
-
 
     public function unusedMediaList()
     {
