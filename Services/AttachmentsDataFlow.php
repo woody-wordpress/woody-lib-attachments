@@ -223,7 +223,7 @@ class AttachmentsDataFlow
         foreach ($requested_export_fields as $field) {
             $headers[] = $field['label'];
         }
-        $csv['headers'] = $headers;
+        $csv[] = $headers;
 
         // Une fois les attachments récupérés, on convertit le tableau en un fichier csv que l'on stocke dans les uploads du site initiateur
         if (!empty($attachments)) {
@@ -233,7 +233,7 @@ class AttachmentsDataFlow
                 foreach ($names as $name) {
                     $line[] = $attachment[$name];
                 }
-                $csv['lines'][] = $line;
+                $csv[] = $line;
             }
         }
 
