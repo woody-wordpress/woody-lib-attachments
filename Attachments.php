@@ -36,7 +36,7 @@ final class Attachments extends Module
 
     public function initialize(ParameterManager $parameterManager, Container $container)
     {
-        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.6.24');
+        define('WOODY_LIB_ATTACHMENTS_VERSION', '1.6.25');
         define('WOODY_LIB_ATTACHMENTS_ROOT', __FILE__);
         define('WOODY_LIB_ATTACHMENTS_DIR_ROOT', dirname(WOODY_LIB_ATTACHMENTS_ROOT));
         define('WOODY_LIB_ATTACHMENTS_DIR_RESOURCES', WOODY_LIB_ATTACHMENTS_DIR_ROOT . '/Resources');
@@ -81,7 +81,7 @@ final class Attachments extends Module
         add_action('updated_postmeta', [$this->imagesMetadata, 'updatedPostmeta'], 10, 4);
 
         // Custom Hooks
-        add_action('woody_save_attachment', [$this->imagesMetadata, 'saveAttachment'], 10);
+        add_action('woody_save_attachment', [$this->imagesMetadata, 'saveAttachment'], 10, 2);
         add_action('woody_sync_attachment', [$this->imagesMetadata, 'syncAttachment'], 10);
 
         // Pour créer l'inventaire des images
@@ -141,12 +141,6 @@ final class Attachments extends Module
         // List unused attachments
         add_action('admin_menu', [$this->attachmentsUnused, 'generateUnusedList']);
         add_action('delete_unsused_attachments', [$this->attachmentsUnused, 'deleteAttachments']);
-
-        // Export attachments data
-        // add_action('admin_menu', [$this->attachmentsDataExport, 'generateDataExportPage']);
-        // add_action('woody_theme_update', [$this->attachmentsDataExport, 'scheduleDeleteExportFiles']);
-        // add_action('woody_delete_medias_export_files', [$this->attachmentsDataExport, 'deleteMediaExportFiles']);
-        // add_action('attachments_do_export', [$this->attachmentsDataExport, 'attachmentsDoExport']);
 
         // DataFlow (Export attachments data replace)
         add_action('woody_dataflow_admin_init', [$this->attachmentsDataFlow, 'adminInit'], 10);
