@@ -142,12 +142,6 @@ final class Attachments extends Module
         add_action('admin_menu', [$this->attachmentsUnused, 'generateUnusedList']);
         add_action('delete_unsused_attachments', [$this->attachmentsUnused, 'deleteAttachments']);
 
-        // Export attachments data
-        // add_action('admin_menu', [$this->attachmentsDataExport, 'generateDataExportPage']);
-        // add_action('woody_theme_update', [$this->attachmentsDataExport, 'scheduleDeleteExportFiles']);
-        // add_action('woody_delete_medias_export_files', [$this->attachmentsDataExport, 'deleteMediaExportFiles']);
-        // add_action('attachments_do_export', [$this->attachmentsDataExport, 'attachmentsDoExport']);
-
         // DataFlow (Export attachments data replace)
         add_action('woody_dataflow_admin_init', [$this->attachmentsDataFlow, 'adminInit'], 10);
         add_action('admin_menu', [$this->attachmentsDataFlow, 'generateMenu'], 10);
